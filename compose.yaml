@@ -1,0 +1,39 @@
+name: siaa
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    volumes:
+      - .:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "127.0.0.1:${DB_PORT:-55432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-siaa}
+      POSTGRES_USER: ${DB_USERNAME:-siaa}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Ejecuta php scripts/configure.php o configura DB_PASSWORD en .env}
+    volumes:
+      - siaa_db:/var/lib/postgresql/data
+      - ./docker/postgres/init-test.sql:/docker-entrypoint-initdb.d/10-test.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  node:
+    image: node:24-bookworm-slim
+    working_dir: /var/www/html
+    user: node
+    volumes:
+      - .:/var/www/html
+    profiles: ["tools"]
+volumes:
+  siaa_db:

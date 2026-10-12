@@ -1,0 +1,18 @@
+name: Función del sistema
+description: Definir el siguiente incremento de SIAA
+title: "[Función] "
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Resultado esperado
+      description: Perfil, función y ejemplo concreto.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación
+      description: Incluir autorización, errores y evidencia de prueba.
+    validations:
+      required: true

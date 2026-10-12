@@ -1,0 +1,13 @@
+{
+  "guide": "Guía SIAA v2.0, 11 octubre 2026",
+  "tabler": {
+    "uploaded_file": "tabler-dev.zip",
+    "sha256": "2986854d322e76b55e7e78eedf3ec5681c302a51d0c452186f15dd86c7a1060e",
+    "core_version": "1.6.1",
+    "source": "SCSS y patrones Blade adaptados del ZIP adjunto"
+  },
+  "laravel_skeleton": {
+    "branch": "13.x",
+    "commit": "f4000aeb018fcbf71d4a13e3ee4b80c7e2d45be5"
+  }
+}

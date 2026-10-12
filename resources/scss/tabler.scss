@@ -1,0 +1,13 @@
+/* Tabler 1.6.1: fuentes originales del ZIP entregado por el equipo. */
+@use "../vendor/tabler/scss/tabler" with (
+    $primary: #c91824,
+    $font-google: null,
+    $font-google-monospaced: null,
+    $font-family-sans-serif: (
+        "Inter",
+        "Segoe UI",
+        Arial,
+        sans-serif,
+    ),
+    $enable-deprecated: false
+);

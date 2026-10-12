@@ -1,0 +1,35 @@
+{
+  "version": "0.1.0",
+  "date": "2026-10-12",
+  "php": {
+    "cases": 27,
+    "passed": 27,
+    "assertions": 80,
+    "mode": "fresh PostgreSQL 17.5 (PGlite) engine per case",
+    "native_full_suite": "pending"
+  },
+  "ndef": {
+    "tests": 8,
+    "passed": 8
+  },
+  "browser": {
+    "result": "passed",
+    "desktop": "1440x960",
+    "mobile": "390x844",
+    "roles": 3,
+    "csrf_missing": 419,
+    "javascript_errors": 0,
+    "checks": [
+      "login",
+      "real group queries",
+      "user search",
+      "student privacy",
+      "direct role URLs",
+      "pending modules",
+      "mobile menu and Escape",
+      "no horizontal page overflow"
+    ]
+  },
+  "docker": "not executed",
+  "hardware_nfc": "not tested"
+}
