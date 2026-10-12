@@ -1,4 +1,4 @@
-# Decisiones técnicas · 0.1.0
+# Decisiones técnicas · 0.1.1
 
 | Decisión | Motivo y aplicación |
 | --- | --- |
@@ -18,6 +18,7 @@
 | Propuesta 75 % | Umbral configurable; justificadas en denominador; falta implementar y validar el cálculo |
 | Sin Sanctum aún | NFC móvil usa la sesión web. API del ESP32 y sus credenciales son ampliación posterior |
 | Docker de desarrollo | PHP 8.4 y PostgreSQL 17 sin depender de un XAMPP con PHP 8.2 |
+| Servidor Docker sin recarga de .env | `--no-reload` conserva la dirección `db:5432` inyectada por Compose; reiniciar app al cambiar .env |
 
 La guía contiene decisiones por validar con coordinación: tardanzas, vigencias, plazos de permisos,
 regla de justificadas y aplicación institucional del 75 %. Esta base no las convierte en políticas definitivas.

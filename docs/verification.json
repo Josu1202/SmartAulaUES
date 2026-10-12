@@ -1,7 +1,9 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "date": "2026-10-12",
   "php": {
+    "verified_version": "0.1.0",
+    "rerun_in_0_1_1": false,
     "cases": 27,
     "passed": 27,
     "assertions": 80,
@@ -9,10 +11,13 @@
     "native_full_suite": "pending"
   },
   "ndef": {
+    "verified_version": "0.1.1",
     "tests": 8,
     "passed": 8
   },
   "browser": {
+    "verified_version": "0.1.0",
+    "rerun_in_0_1_1": false,
     "result": "passed",
     "desktop": "1440x960",
     "mobile": "390x844",
@@ -29,6 +34,16 @@
       "mobile menu and Escape",
       "no horizontal page overflow"
     ]
+  },
+  "http_environment_regression": {
+    "verified_version": "0.1.1",
+    "cases": 1,
+    "passed": 1,
+    "assertions": 2,
+    "before": "127.0.0.1:55432",
+    "after": "db:5432",
+    "transport": "HTTP",
+    "database_accessed": false
   },
   "docker": "not executed",
   "hardware_nfc": "not tested"

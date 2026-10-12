@@ -1,6 +1,6 @@
 # SIAA · Sistema Integral de Asistencia Académica
 
-**Versión 0.1.0 — cimientos de la aplicación.** Base Laravel real para desarrollar función por función.
+**Versión 0.1.1 — cimientos de la aplicación.** Base Laravel real para desarrollar función por función.
 Utiliza la guía SIAA v2.0 del 11/10/2026 y las fuentes de Tabler adjuntas. Diseño negro, rojo y blanco.
 
 ## Qué puedes usar ahora
@@ -66,6 +66,35 @@ La base `siaa_test` se crea al inicializar un volumen nuevo. Si ya existía el v
 `docker compose exec db createdb -U siaa siaa_test` (ajusta el usuario si lo cambiaste).
 Conservar el volumen mantiene los datos. `docker compose down -v` los elimina: no forma parte del arranque.
 La configuración Docker es de **desarrollo**, no un despliegue de producción.
+
+### Corrección de conexión Docker desde v0.1.0
+
+Si el navegador muestra `Connection refused` contra `127.0.0.1:55432` aunque instalaste con Docker,
+actualiza el último comando de tu `Dockerfile`:
+
+```dockerfile
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080", "--no-reload"]
+```
+
+Laravel descarta variables externas al crear el proceso HTTP con recarga automática de `.env`.
+`--no-reload` conserva `DB_HOST=db` y `DB_PORT=5432`, definidos por Compose. El puerto 55432
+de `.env` sigue sirviendo para conexiones desde tu equipo; no lo cambies para aplicar este parche.
+
+Desde la carpeta donde está `compose.yaml`, con Docker Desktop abierto:
+
+```bash
+docker compose up -d db
+docker compose build app
+docker compose run --rm app php artisan config:clear
+docker compose up -d --force-recreate app
+docker compose ps
+```
+
+Recarga http://localhost:8080. Si persiste, consulta `docker compose logs --tail=80 app db`.
+Si faltan tablas porque las migraciones no terminaron, ejecuta
+`docker compose run --rm app php artisan migrate --seed`.
+Esta actualización no requiere copiar de nuevo `.env` ni generar otra `APP_KEY`.
+Al cambiar `.env` con este arranque, usa `docker compose restart app`.
 
 ## Instalación local, sin Docker
 
@@ -153,14 +182,14 @@ no escribe etiquetas y no confirma asistencia. Ver [docs/nfc-contract.md](docs/n
 
 ## Git y conexión posterior con GitHub
 
-El ZIP contiene `.git`, con el primer commit en **main** y la etiqueta **v0.1.0**.
+El ZIP contiene `.git`, con la base **v0.1.0** y el parche **v0.1.1** en **main**.
 No hay remoto conectado. Después de crear un repositorio **vacío** en GitHub:
 
 ```bash
 git status
 git remote add origin https://github.com/TU_USUARIO/siaa.git
 git push -u origin main
-git push origin v0.1.0
+git push origin v0.1.0 v0.1.1
 ```
 
 Configura tu identidad personal para los commits siguientes con `git config user.name` y `git config user.email`.

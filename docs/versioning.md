@@ -14,6 +14,7 @@ Usar develop solo si el equipo decide necesitar integración intermedia.
 | Incremento orientativo | Resultado |
 | --- | --- |
 | 0.1.0 | Base Laravel, acceso, consultas, diseño y diagnóstico NFC |
+| 0.1.1 | Corrección de variables de conexión en el servidor HTTP Docker |
 | 0.2.0 | CRUD académico, asignaciones, vigencias e inscripciones con cupos |
 | 0.3.0 | Credenciales NDEF, confirmación de alta y lector autenticado |
 | 0.4.0 | Registro unificado NFC/QR/enlace/manual, idempotencia y finalización |

@@ -1,6 +1,6 @@
 # Estado de continuidad · SIAA
 
-Fecha de la base: 12/10/2026. Versión: 0.1.0. Rama: main. Tag: v0.1.0.
+Fecha de la base: 12/10/2026. Versión: 0.1.1. Rama: main. Tag: v0.1.1. Base original: v0.1.0.
 
 ## Decisiones vigentes
 
@@ -15,6 +15,11 @@ Acceso Fortify, salida, cuentas inactivas, límite de login, menú por rol, Poli
 vistas de inicio, usuarios con búsqueda, ciclos, grupos, sesiones e inscripciones propias;
 base de datos con restricciones; seed idempotente; prueba Web NFC sin escritura ni registro.
 Dependencias PDF/QR instaladas; documentación, Docker de desarrollo, CI y control de versiones preparados.
+
+Parche v0.1.1: `--no-reload` en el arranque Docker conserva las variables de conexión del contenedor
+en el proceso HTTP. Se reprodujo y verificó con el Laravel instalado, sin ejecutar Docker aquí.
+Prueba de infraestructura: 1 caso, 2 aserciones; forma parte de PHPUnit/CI.
+README contiene la actualización de instalaciones v0.1.0. No cambia esquema, cuentas ni módulos.
 
 ## Pendiente, sin simulación
 
@@ -31,7 +36,7 @@ Dependencias PDF/QR instaladas; documentación, Docker de desarrollo, CI y contr
 ## Cómo retomar
 
 1. Leer este archivo, CHANGELOG y docs/decisions.
-2. Usar este repositorio o el ZIP v0.1.0 si el espacio local dejó de estar disponible.
+2. Usar este repositorio o el ZIP v0.1.1 si el espacio local dejó de estar disponible.
 3. Crear una rama para la función solicitada, preservando diseño y arquitectura.
 4. Añadir pruebas de su comportamiento y permisos; actualizar estado y changelog al liberar.
 5. Crear la siguiente etiqueta y entrega. No presentar módulos pendientes como terminados.

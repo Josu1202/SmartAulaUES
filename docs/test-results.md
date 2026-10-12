@@ -1,4 +1,27 @@
-# Evidencia de verificación · v0.1.0
+# Evidencia de verificación · v0.1.1 y base v0.1.0
+
+## Parche v0.1.1 — 12/10/2026
+
+| Comprobación ejecutada | Resultado |
+| --- | --- |
+| Reproducción HTTP con el Laravel instalado | Sin `--no-reload`: `127.0.0.1:55432`; con el parche: `db:5432` |
+| `php artisan test --testsuite=Infrastructure --compact` | 1 caso, 2 aserciones correctas |
+| `composer validate --strict` / `check-platform-reqs` | Correctos |
+| `npm test` | 8/8 casos correctos |
+| `npm run build` / `php artisan view:cache` | Correctos |
+| Pint | Correcto |
+
+La regresión crea una aplicación Laravel temporal, usa el comando real de `Dockerfile` y consulta
+por HTTP la configuración PostgreSQL del proceso hijo. La base declarada es `siaa_test`, pero no
+abre una conexión de datos: verifica el traspaso de variables, sin exponer contraseñas ni tocar tablas.
+El caso se incorpora a la batería normal de PHPUnit y al workflow existente.
+
+El parche se comprobó con PHP 8.4.1 y Node 24.19.0. No hay Docker en este entorno;
+**el arranque completo de Compose queda por comprobar en tu instalación**.
+Las pruebas de dominio y la revisión visual de v0.1.0, documentadas a continuación, no se repitieron
+para este cambio de arranque. El PHP disponible en esta sesión no tiene `pdo_pgsql`.
+
+## Evidencia conservada de la base v0.1.0
 
 Fecha: 12/10/2026. Código: versión base SIAA, etiqueta v0.1.0.
 

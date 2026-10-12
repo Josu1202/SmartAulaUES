@@ -9,4 +9,5 @@ WORKDIR /var/www/html
 RUN useradd -m -u 1000 app && chown app:app /var/www/html
 USER app
 EXPOSE 8080
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# Preserve Compose's DB_HOST/DB_PORT in the PHP HTTP subprocess.
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080", "--no-reload"]
