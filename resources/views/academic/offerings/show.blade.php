@@ -32,7 +32,7 @@
                 <tbody>
                     @forelse($offering->sessions->sortBy('starts_at') as $session)
                         <tr>
-                            <td>{{ $session->starts_at->timezone(config('siaa.display_timezone'))->format('d/m/Y H:i') }}
+                            <td>{{ $session->starts_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i') }}
                             </td>
                             <td>{{ ['in_person' => 'Presencial', 'online' => 'En línea', 'event' => 'Evento'][$session->modality] }}
                             </td>

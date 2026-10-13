@@ -11,4 +11,4 @@ Las dependencias mantienen sus propias licencias.
 - Composer y npm conservan versiones, autores y licencias de las demás dependencias en sus archivos lock/paquetes.
 
 La procedencia del ZIP, su SHA-256 y el commit inicial del skeleton están en docs/reference/provenance.json.
-Los recursos compilados de public/build derivan de estas fuentes y del diseño propio SIAA.
+Los recursos compilados de public/build derivan de estas fuentes y del diseño propio SmartAulaUES.

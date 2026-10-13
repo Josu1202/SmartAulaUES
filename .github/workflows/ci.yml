@@ -1,4 +1,4 @@
-name: SIAA CI
+name: SmartAulaUES CI
 on:
   push:
     branches: [main, develop]

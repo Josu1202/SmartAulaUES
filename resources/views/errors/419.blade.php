@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>La sesión ha vencido · SIAA</title>@vite('resources/js/app.js')
+    <title>La sesión ha vencido · {{ config('smartaulaues.name') }}</title>@vite('resources/js/app.js')
 </head>
 
 <body class="error-page">

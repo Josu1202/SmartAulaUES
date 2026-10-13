@@ -1,4 +1,24 @@
-# Historial de versiones SIAA
+# Historial de versiones SmartAulaUES
+
+## [0.1.2] — 2026-10-12
+
+### Actualizado
+- Nombre oficial SmartAulaUES en acceso, menú, títulos, errores, pie, NFC y documentación.
+- Configuración central en `config/smartaulaues.php`, paquetes Composer/npm, prefijos CSS y workflow.
+- Icono propio con birrete y marca de asistencia, en SVG/PNG y favicon SVG/ICO; logotipo adaptado
+  al nombre largo para el menú y el acceso.
+- Guía de actualización para conservar el remoto Git, los datos y las contraseñas ya configurados.
+
+### Compatibilidad
+- Se mantienen el proyecto/volumen Docker, las bases y los correos de prueba de versiones anteriores.
+- Se acepta la variable de zona horaria anterior y el formato NDEF técnico de la base.
+- No se cambian las migraciones SQL ni se agrega un restablecimiento de contraseñas al seed.
+
+### Verificado
+- Nombre e icono en acceso HTTP y estructura de aplicación en escritorio y móvil (1440, 390 y 320 px),
+  sin desbordamientos ni errores JavaScript; SVG/ICO accesibles.
+- 1 prueba de infraestructura con 2 aserciones y 8 pruebas NDEF correctas; Composer, Pint, Vite y Blade correctos.
+- Las pruebas de dominio/roles anteriores conservan su versión de evidencia; no se repitieron con PostgreSQL aquí.
 
 ## [0.1.1] — 2026-10-12
 

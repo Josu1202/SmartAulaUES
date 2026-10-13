@@ -6,7 +6,7 @@ export default {
             prefix: "tblr-",
             ignore: [
                 /^--tblr-/,
-                /^--siaa-/,
+                /^--smartaulaues-/,
                 /^--bs-/,
                 /^--apx-/,
                 /^--fc-/,

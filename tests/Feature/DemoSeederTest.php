@@ -12,7 +12,7 @@ class DemoSeederTest extends TestCase
 {
     public function test_demo_has_expected_counts_and_can_be_seeded_twice(): void
     {
-        config(['siaa.demo_enabled' => true, 'siaa.demo_password' => 'Seed-password-2026!']);
+        config(['smartaulaues.demo_enabled' => true, 'smartaulaues.demo_password' => 'Seed-password-2026!']);
         $this->seed(DemoSeeder::class);
         $this->seed(DemoSeeder::class);
         $this->assertDatabaseCount('users', 23);
@@ -26,7 +26,7 @@ class DemoSeederTest extends TestCase
 
     public function test_reseeding_does_not_overwrite_existing_passwords(): void
     {
-        config(['siaa.demo_enabled' => true, 'siaa.demo_password' => 'Seed-password-2026!']);
+        config(['smartaulaues.demo_enabled' => true, 'smartaulaues.demo_password' => 'Seed-password-2026!']);
         $this->seed(DemoSeeder::class);
         $user = User::where('email', 'coordinacion@siaa.test')->firstOrFail();
         $user->update(['password' => 'Changed-password-2026!']);
@@ -36,7 +36,7 @@ class DemoSeederTest extends TestCase
 
     public function test_demo_cannot_run_in_production(): void
     {
-        config(['siaa.demo_enabled' => true, 'siaa.demo_password' => 'Seed-password-2026!']);
+        config(['smartaulaues.demo_enabled' => true, 'smartaulaues.demo_password' => 'Seed-password-2026!']);
         app()->instance('env', 'production');
         $this->expectException(RuntimeException::class);
         app(DemoSeeder::class)->run();
@@ -44,7 +44,7 @@ class DemoSeederTest extends TestCase
 
     public function test_demo_requires_an_explicit_password(): void
     {
-        config(['siaa.demo_enabled' => true, 'siaa.demo_password' => '']);
+        config(['smartaulaues.demo_enabled' => true, 'smartaulaues.demo_password' => '']);
         $this->expectException(RuntimeException::class);
         app(DemoSeeder::class)->run();
     }

@@ -9,7 +9,7 @@ class AuthenticationTest extends TestCase
 {
     public function test_guest_can_open_login_and_cannot_open_dashboard(): void
     {
-        $this->get('/login')->assertOk()->assertSee('Bienvenido a SIAA');
+        $this->get('/login')->assertOk()->assertSee('Bienvenido a SmartAulaUES');
         $this->get('/dashboard')->assertRedirect('/login');
     }
 

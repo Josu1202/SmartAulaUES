@@ -6,10 +6,10 @@ const text = (value) => ({
     encoding: "utf-8",
     data: new TextEncoder().encode(value),
 });
-test("recognizes the proposed SIAA credential format without returning its token", () =>
+test("recognizes the SmartAulaUES credential format without returning its token", () =>
     assert.equal(
         inspectNdef({ records: [text("SIAA:C1:" + "A".repeat(43))] }),
-        "siaa",
+        "smartaulaues",
     ));
 test("rejects incomplete credentials", () =>
     assert.equal(inspectNdef({ records: [text("SIAA:C1:short")] }), "other"));
@@ -53,7 +53,7 @@ test("accepts DataView data supplied by NDEFReader", () => {
                 },
             ],
         }),
-        "siaa",
+        "smartaulaues",
     );
 });
 test("rejects line breaks and extra whitespace in credentials", () =>

@@ -1,10 +1,10 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "siaa/university-attendance",
+    "name": "smartaulaues/university-attendance",
     "type": "project",
-    "description": "Sistema Integral de Asistencia Académica: base Laravel y Tabler",
+    "description": "SmartAulaUES: sistema universitario de asistencia académica con Laravel y Tabler",
     "keywords": [
-        "siaa",
+        "smartaulaues",
         "laravel",
         "attendance"
     ],

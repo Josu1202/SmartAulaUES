@@ -8,7 +8,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        if (config('siaa.demo_enabled')) {
+        if (config('smartaulaues.demo_enabled')) {
             $this->call(DemoSeeder::class);
         }
     }

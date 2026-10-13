@@ -1,8 +1,8 @@
 :root {
-    --siaa-red: #c91824;
-    --siaa-black: #171717;
-    --siaa-muted: #737373;
-    --siaa-line: #e5e5e5;
+    --smartaulaues-red: #c91824;
+    --smartaulaues-black: #171717;
+    --smartaulaues-muted: #737373;
+    --smartaulaues-line: #e5e5e5;
     --tblr-body-bg: #f7f7f8;
     --tblr-body-color: #242424;
     --tblr-primary: #c91824;
@@ -16,7 +16,7 @@ body {
     letter-spacing: -0.015em;
 }
 a {
-    color: var(--siaa-red);
+    color: var(--smartaulaues-red);
 }
 button,
 a,
@@ -47,7 +47,7 @@ a:focus-visible {
     --tblr-btn-active-border-color: #a8121c;
 }
 .card {
-    border: 1px solid var(--siaa-line);
+    border: 1px solid var(--smartaulaues-line);
     box-shadow: 0 3px 9px #00000003;
     border-radius: 11px;
     overflow: hidden;
@@ -55,7 +55,7 @@ a:focus-visible {
 .card-header {
     min-height: 70px;
     padding: 20px 24px;
-    border-bottom: 1px solid var(--siaa-line);
+    border-bottom: 1px solid var(--smartaulaues-line);
     gap: 12px;
 }
 .card-title {
@@ -105,7 +105,7 @@ a:focus-visible {
     font-size: 10px;
     letter-spacing: 0.15em;
     font-weight: 700;
-    color: var(--siaa-muted);
+    color: var(--smartaulaues-muted);
     display: block;
     margin-bottom: 8px;
 }
@@ -124,14 +124,34 @@ a:focus-visible {
     background: #efefef;
     color: #777;
 }
-.siaa-logo {
+.smartaulaues-logo {
     display: inline-flex;
     align-items: center;
     gap: 11px;
-    font-size: 27px;
+    font-size: 25px;
     font-weight: 800;
     letter-spacing: -1px;
     line-height: 1;
+}
+.brand-icon {
+    flex: 0 0 auto;
+    display: block;
+}
+.brand-wordmark {
+    white-space: nowrap;
+}
+.sidebar-brand .smartaulaues-logo {
+    gap: 8px;
+    font-size: 20px;
+    letter-spacing: -0.8px;
+}
+.sidebar-brand .brand-icon {
+    width: 31px;
+    height: 31px;
+}
+.sidebar-brand .logo-caption {
+    font-size: 6px;
+    letter-spacing: 0.7px;
 }
 .logo-caption {
     display: block;
@@ -153,7 +173,7 @@ a:focus-visible {
 .skip-link:focus {
     top: 10px;
 }
-.siaa-sidebar {
+.smartaulaues-sidebar {
     position: fixed;
     inset: 0 auto 0 0;
     width: 250px;
@@ -236,14 +256,14 @@ a:focus-visible {
     background: #d62934;
     border-radius: 50%;
 }
-.siaa-main {
+.smartaulaues-main {
     margin-left: 250px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     min-width: 0;
 }
-.siaa-topbar {
+.smartaulaues-topbar {
     height: 78px;
     position: sticky;
     top: 0;
@@ -323,7 +343,7 @@ a:focus-visible {
 .sidebar-overlay {
     display: none;
 }
-.siaa-content {
+.smartaulaues-content {
     width: 100%;
     max-width: 1330px;
     margin: 0 auto;
@@ -690,7 +710,7 @@ a:focus-visible {
     width: 11px;
     height: 11px;
 }
-.siaa-footer {
+.smartaulaues-footer {
     display: flex;
     justify-content: space-between;
     gap: 15px;
@@ -949,7 +969,7 @@ a:focus-visible {
     overflow: hidden;
     min-height: 720px;
 }
-.login-story > .siaa-logo {
+.login-story > .smartaulaues-logo {
     position: relative;
     z-index: 1;
 }
@@ -1138,10 +1158,10 @@ a:focus-visible {
     }
 }
 @media (max-width: 1199px) {
-    .siaa-content {
+    .smartaulaues-content {
         padding: 28px 26px;
     }
-    .siaa-topbar {
+    .smartaulaues-topbar {
         padding: 0 26px;
     }
     .hero-graphic {
@@ -1187,17 +1207,17 @@ a:focus-visible {
     }
 }
 @media (max-width: 991px) {
-    .siaa-sidebar {
+    .smartaulaues-sidebar {
         transform: translateX(-100%);
         transition: transform 0.18s;
     }
-    .siaa-main {
+    .smartaulaues-main {
         margin-left: 0;
     }
     .menu-toggle {
         display: block;
     }
-    .menu-open .siaa-sidebar {
+    .menu-open .smartaulaues-sidebar {
         transform: translateX(0);
     }
     .menu-open .sidebar-overlay {
@@ -1211,7 +1231,7 @@ a:focus-visible {
     .menu-open {
         overflow: hidden;
     }
-    .siaa-topbar {
+    .smartaulaues-topbar {
         height: 70px;
     }
     .sidebar-brand {
@@ -1239,10 +1259,10 @@ a:focus-visible {
     }
 }
 @media (max-width: 767px) {
-    .siaa-content {
+    .smartaulaues-content {
         padding: 25px 18px 32px;
     }
-    .siaa-topbar {
+    .smartaulaues-topbar {
         padding: 0 13px;
     }
     .topbar-crumb {
@@ -1312,7 +1332,7 @@ a:focus-visible {
     .terminal-grid {
         grid-template-columns: 1fr;
     }
-    .siaa-footer {
+    .smartaulaues-footer {
         font-size: 8px;
         padding: 19px 18px;
     }
@@ -1382,7 +1402,7 @@ a:focus-visible {
     .login-story > small {
         display: none;
     }
-    .login-story .siaa-logo {
+    .login-story .smartaulaues-logo {
         font-size: 24px;
     }
     .login-form-area {

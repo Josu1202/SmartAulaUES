@@ -33,7 +33,7 @@
                     </li>
                     <li><span>03</span>
                         <div><strong>Acerca una etiqueta NDEF</strong>
-                            <p>Una etiqueta con el formato SIAA se reconocerá como tal. Otros contenidos se identificarán
+                            <p>Una etiqueta con el formato {{ config('smartaulaues.name') }} se reconocerá como tal. Otros contenidos se identificarán
                                 sin mostrarlos.</p>
                         </div>
                     </li>

@@ -12,7 +12,7 @@ export function inspectNdef(message) {
         const value = new TextDecoder(record.encoding || "utf-8", {
             fatal: true,
         }).decode(record.data);
-        return /^SIAA:C1:[A-Za-z0-9_-]{43}$/.test(value) ? "siaa" : "other";
+        return /^SIAA:C1:[A-Za-z0-9_-]{43}$/.test(value) ? "smartaulaues" : "other";
     } catch {
         return "unreadable";
     }
@@ -64,11 +64,11 @@ export function initializeNfcDiagnostic(root) {
                     const kind = inspectNdef(event.message);
                     count++;
                     show(
-                        kind === "siaa"
-                            ? `Etiqueta SIAA reconocida. Lectura ${count}. Esta prueba no registra asistencias.`
+                        kind === "smartaulaues"
+                            ? `Etiqueta SmartAulaUES reconocida. Lectura ${count}. Esta prueba no registra asistencias.`
                             : kind === "unreadable"
                               ? "El contenido no pudo interpretarse. Prueba otra etiqueta."
-                              : "Etiqueta NDEF leída. Su contenido no corresponde al formato SIAA.",
+                              : "Etiqueta NDEF leída. Su contenido no corresponde al formato SmartAulaUES.",
                         kind === "unreadable" ? "error" : "reading",
                     );
                 },

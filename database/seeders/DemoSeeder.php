@@ -19,10 +19,10 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment(['local', 'testing']) || ! config('siaa.demo_enabled')) {
+        if (! app()->environment(['local', 'testing']) || ! config('smartaulaues.demo_enabled')) {
             throw new RuntimeException('Los datos ficticios solo se permiten en local/testing con DEMO_SEED=true.');
         }
-        $password = (string) config('siaa.demo_password');
+        $password = (string) config('smartaulaues.demo_password');
         if (strlen($password) < 12) {
             throw new RuntimeException('Define DEMO_PASSWORD con al menos 12 caracteres antes de sembrar.');
         }
@@ -45,7 +45,7 @@ class DemoSeeder extends Seeder
                     Enrollment::firstOrCreate(['offering_id' => $offering->id, 'student_id' => $student->id], ['active_from' => '2026-08-01']);
                 }
                 $period = AssessmentPeriod::firstOrCreate(['offering_id' => $offering->id, 'number' => 1], ['starts_on' => '2026-08-01', 'ends_on' => '2026-12-15', 'state' => 'open', 'policy_version' => config('attendance.policy_version')]);
-                $first = CarbonImmutable::parse($i === 0 ? '2026-10-13 10:00:00' : '2026-10-14 08:00:00', config('siaa.display_timezone'))->utc();
+                $first = CarbonImmutable::parse($i === 0 ? '2026-10-13 10:00:00' : '2026-10-14 08:00:00', config('smartaulaues.display_timezone'))->utc();
                 for ($week = 0; $week < 4; $week++) {
                     $start = $first->addWeeks($week);
                     ClassSession::firstOrCreate(['period_id' => $period->id, 'offering_id' => $offering->id, 'starts_at' => $start], ['ends_at' => $start->addMinutes(100), 'modality' => 'in_person', 'state' => 'scheduled']);

@@ -1,8 +1,10 @@
-# Decisiones técnicas · 0.1.1
+# Decisiones técnicas · 0.1.2
 
 | Decisión | Motivo y aplicación |
 | --- | --- |
 | Seguir guía v2.0 | Alcance académico de seis semanas y NFC móvil como prioridad |
+| Nombre SmartAulaUES desde v0.1.2 | Solicitud del usuario; configuración central, vistas e icono propios |
+| Identificadores de datos conservados | Evita reinicializar volumen PostgreSQL o duplicar cuentas al cambiar la marca |
 | PHP 8.4 y Laravel 13 | Coinciden con la guía; Composer resuelve para la plataforma mínima PHP 8.4 |
 | PostgreSQL 17 obligatorio | Restricciones, JSONB, claves compuestas y pruebas con comportamiento PostgreSQL |
 | Fortify sin registro público | Las cuentas pertenecen a la organización, no se autoasignan roles |

@@ -1,4 +1,26 @@
-# Evidencia de verificación · v0.1.1 y base v0.1.0
+# Evidencia de verificación · SmartAulaUES v0.1.2
+
+## Marca e icono v0.1.2 — 12/10/2026
+
+| Comprobación ejecutada | Resultado |
+| --- | --- |
+| Marca por HTTP y render de Blade | SmartAulaUES en acceso y estructura de aplicación; sin SIAA en el texto visible |
+| Icono SVG, PNG 192/512, favicon SVG/ICO | Generados e inspeccionados; icono y favicon servidos correctamente |
+| Navegador Chromium 153 | Acceso real y estructura con coordinación en memoria, en 1440 × 960, 390 × 844 y 320 × 760 |
+| Ajuste del logotipo y página | Nombre dentro del menú lateral; sin desbordamientos horizontales |
+| Errores JavaScript | 0 durante la comprobación de marca |
+| `php artisan test --testsuite=Infrastructure --compact` | 1 caso, 2 aserciones correctas |
+| `npm test` | 8/8 casos correctos con los mensajes de la nueva marca |
+| Composer, Pint, Vite y compilación de vistas | Correctos; las versiones de dependencias se conservaron |
+
+El acceso se comprobó por HTTP sin una sesión iniciada. Para revisar el logotipo del menú se renderizó
+el layout con una cuenta de coordinación en memoria. Estas comprobaciones no acceden a PostgreSQL
+ni repiten los flujos de datos/roles de la base v0.1.0. El PHP disponible no tiene `pdo_pgsql`;
+las pruebas de dominio de esta versión y el arranque completo Docker quedan pendientes en un entorno
+con PostgreSQL/Docker. Las evidencias previas se conservan abajo con su versión original.
+
+El esquema, el volumen Docker y las cuentas demo no se cambian por el nombre.
+El prefijo NDEF técnico y la variable de zona horaria anterior mantienen compatibilidad.
 
 ## Parche v0.1.1 — 12/10/2026
 

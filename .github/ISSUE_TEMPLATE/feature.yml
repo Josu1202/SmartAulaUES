@@ -1,5 +1,5 @@
 name: Función del sistema
-description: Definir el siguiente incremento de SIAA
+description: Definir el siguiente incremento de SmartAulaUES
 title: "[Función] "
 body:
   - type: textarea

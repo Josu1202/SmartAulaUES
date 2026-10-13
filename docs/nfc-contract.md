@@ -14,6 +14,8 @@ No escribe, no envía el token y no registra asistencia.
 
 Mismo dominio, HTTPS, cookies de sesión y CSRF. Actor obtenido de la sesión, nunca del cuerpo.
 Formato NDEF: un registro de texto `SIAA:C1:<32 bytes aleatorios en base64url, sin padding>`.
+`SIAA:C1` se conserva como identificador técnico de la base; el nombre visible es SmartAulaUES.
+El cambio de marca no requiere reescribir etiquetas de prueba.
 Token completo solo en etiqueta/respuesta de alta pendiente; SHA-256 en BD, sin registrar tokens en logs.
 
 RegisterAttendance deberá verificar rol, oferta propia, portal vigente, lector, credencial activa,

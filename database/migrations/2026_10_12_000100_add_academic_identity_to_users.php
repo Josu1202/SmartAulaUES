@@ -10,7 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         if (DB::getDriverName() !== 'pgsql') {
-            throw new RuntimeException('SIAA requiere PostgreSQL para garantizar las restricciones del modelo.');
+            throw new RuntimeException('SmartAulaUES requiere PostgreSQL para garantizar las restricciones del modelo.');
         }
         Schema::table('users', function (Blueprint $table): void {
             $table->string('role', 20)->default('student')->index();

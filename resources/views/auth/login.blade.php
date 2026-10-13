@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#171717">
-    <title>Iniciar sesión · SIAA</title>
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">@vite('resources/js/app.js')
+    <title>Iniciar sesión · {{ config('smartaulaues.name') }}</title>
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v={{ config('smartaulaues.version') }}" type="image/svg+xml">@vite('resources/js/app.js')
 </head>
 
 <body class="login-page">
@@ -17,13 +17,13 @@
                 <p>Un espacio para organizar tus clases y acompañar cada paso de la vida universitaria.</p>
                 <div class="login-methods"><span><x-icon name="nfc" />NFC</span><span><x-icon
                             name="checklist" />Asistencia</span><span><x-icon name="chart" />Seguimiento</span></div>
-            </div><small>Sistema Integral de Asistencia Académica</small>
+            </div><small>Asistencia académica universitaria</small>
             <div class="story-orbit" aria-hidden="true"></div>
         </section>
         <section class="login-form-area">
             <div class="login-form-wrap"><span
-                    class="demo-pill">{{ config('siaa.demo_enabled') ? 'Entorno de demostración' : 'Portal universitario' }}</span>
-                <h2>Bienvenido a SIAA</h2>
+                    class="demo-pill">{{ config('smartaulaues.demo_enabled') ? 'Entorno de demostración' : 'Portal universitario' }}</span>
+                <h2>Bienvenido a {{ config('smartaulaues.name') }}</h2>
                 <p class="text-secondary mb-4">Inicia sesión con tu cuenta asignada.</p>
                 @if ($errors->any())
                     <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
@@ -46,7 +46,7 @@
                 <div class="login-help"><x-icon name="lock" />
                     <p>Si necesitas una cuenta o ayuda con tu acceso, consulta a coordinación.</p>
                 </div>
-                <small class="login-version">SIAA · v{{ config('siaa.version') }}</small>
+                <small class="login-version">{{ config('smartaulaues.name') }} · v{{ config('smartaulaues.version') }}</small>
             </div>
         </section>
     </main>

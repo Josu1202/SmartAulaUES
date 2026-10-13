@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>No pudimos completar la solicitud · SIAA</title>@vite('resources/js/app.js')
+    <title>No pudimos completar la solicitud · {{ config('smartaulaues.name') }}</title>@vite('resources/js/app.js')
 </head>
 
 <body class="error-page">

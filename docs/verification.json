@@ -1,23 +1,22 @@
 {
-  "version": "0.1.1",
+  "version": "0.1.2",
   "date": "2026-10-12",
   "php": {
     "verified_version": "0.1.0",
-    "rerun_in_0_1_1": false,
     "cases": 27,
     "passed": 27,
     "assertions": 80,
     "mode": "fresh PostgreSQL 17.5 (PGlite) engine per case",
-    "native_full_suite": "pending"
+    "native_full_suite": "pending",
+    "rerun_in_current_version": false
   },
   "ndef": {
-    "verified_version": "0.1.1",
+    "verified_version": "0.1.2",
     "tests": 8,
     "passed": 8
   },
   "browser": {
     "verified_version": "0.1.0",
-    "rerun_in_0_1_1": false,
     "result": "passed",
     "desktop": "1440x960",
     "mobile": "390x844",
@@ -33,10 +32,11 @@
       "pending modules",
       "mobile menu and Escape",
       "no horizontal page overflow"
-    ]
+    ],
+    "rerun_in_current_version": false
   },
   "http_environment_regression": {
-    "verified_version": "0.1.1",
+    "verified_version": "0.1.2",
     "cases": 1,
     "passed": 1,
     "assertions": 2,
@@ -46,5 +46,25 @@
     "database_accessed": false
   },
   "docker": "not executed",
-  "hardware_nfc": "not tested"
+  "hardware_nfc": "not tested",
+  "application": "SmartAulaUES",
+  "branding": {
+    "verified_version": "0.1.2",
+    "result": "passed",
+    "viewport_widths": [
+      1440,
+      390,
+      320
+    ],
+    "javascript_errors": 0,
+    "horizontal_overflow": false,
+    "scope": "actual login HTTP; application shell with an in-memory coordinator; no database queries",
+    "icons": [
+      "SVG",
+      "PNG 192",
+      "PNG 512",
+      "SVG favicon",
+      "ICO favicon"
+    ]
+  }
 }

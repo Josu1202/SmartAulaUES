@@ -6,22 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#171717">
-    <title>@yield('title', 'Inicio') · SIAA</title>
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">@vite('resources/js/app.js')
+    <title>@yield('title', 'Inicio') · {{ config('smartaulaues.name') }}</title>
+    <link rel="icon" href="{{ asset('favicon.svg') }}?v={{ config('smartaulaues.version') }}" type="image/svg+xml">@vite('resources/js/app.js')
 </head>
 
 <body>
     <a class="skip-link" href="#main">Ir al contenido</a>
     <x-sidebar />
     <button class="sidebar-overlay" data-close-menu aria-label="Cerrar menú" tabindex="-1"></button>
-    <div class="siaa-main">
-        <header class="siaa-topbar">
+    <div class="smartaulaues-main">
+        <header class="smartaulaues-topbar">
             <div class="d-flex align-items-center gap-3"><button class="menu-toggle" type="button"
                     aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menú" data-menu-toggle><x-icon
                         name="menu" /></button><span class="topbar-crumb">Espacio
                     académico<span>/</span><strong>@yield('title', 'Inicio')</strong></span></div>
             <div class="d-flex align-items-center gap-3"><span
-                    class="demo-pill">{{ config('siaa.demo_enabled') ? 'Demostración' : 'Campus' }}</span>
+                    class="demo-pill">{{ config('smartaulaues.demo_enabled') ? 'Demostración' : 'Campus' }}</span>
                 <div class="dropdown"><button class="user-menu" type="button"
                         aria-label="Menú de {{ auth()->user()->name }}" data-bs-toggle="dropdown"
                         aria-expanded="false"><span
@@ -35,7 +35,7 @@
                 </div>
             </div>
         </header>
-        <main class="siaa-content" id="main" tabindex="-1">
+        <main class="smartaulaues-content" id="main" tabindex="-1">
             @if (session('status'))
                 <div class="alert alert-success" role="status">{{ session('status') }}</div>
             @endif
@@ -48,8 +48,8 @@
             @endif
             @yield('content')
         </main>
-        <footer class="siaa-footer"><span>Sistema Integral de Asistencia Académica</span><span>SIAA ·
-                v{{ config('siaa.version') }}</span></footer>
+        <footer class="smartaulaues-footer"><span>Asistencia académica universitaria</span><span>{{ config('smartaulaues.name') }} ·
+                v{{ config('smartaulaues.version') }}</span></footer>
     </div>
 </body>
 

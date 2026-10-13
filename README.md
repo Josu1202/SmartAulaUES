@@ -1,7 +1,8 @@
-# SIAA · Sistema Integral de Asistencia Académica
+# SmartAulaUES · Asistencia académica universitaria
 
-**Versión 0.1.1 — cimientos de la aplicación.** Base Laravel real para desarrollar función por función.
-Utiliza la guía SIAA v2.0 del 11/10/2026 y las fuentes de Tabler adjuntas. Diseño negro, rojo y blanco.
+**Versión 0.1.2 — cimientos de la aplicación.** Base Laravel real para desarrollar función por función.
+Utiliza la guía de desarrollo v2.0 del 11/10/2026, entregada con el nombre anterior SIAA, y las fuentes
+de Tabler adjuntas. Diseño negro, rojo y blanco. SmartAulaUES es el nombre oficial desde v0.1.2.
 
 ## Qué puedes usar ahora
 
@@ -66,6 +67,27 @@ La base `siaa_test` se crea al inicializar un volumen nuevo. Si ya existía el v
 `docker compose exec db createdb -U siaa siaa_test` (ajusta el usuario si lo cambiaste).
 Conservar el volumen mantiene los datos. `docker compose down -v` los elimina: no forma parte del arranque.
 La configuración Docker es de **desarrollo**, no un despliegue de producción.
+
+### Actualización a SmartAulaUES v0.1.2
+
+Sigue [docs/update-v0.1.2.md](docs/update-v0.1.2.md) para incorporar el cambio de nombre y el icono
+a una instalación o repositorio existente. La configuración del sistema ahora está en
+`config/smartaulaues.php`. Actualiza en tu `.env`:
+
+```dotenv
+APP_NAME=SmartAulaUES
+MAIL_FROM_NAME=SmartAulaUES
+VITE_APP_NAME=SmartAulaUES
+```
+
+La marca usa una configuración única en las vistas. `SMARTAULAUES_DISPLAY_TIMEZONE` sustituye
+al nombre de variable anterior, que se sigue aceptando si ya estaba en tu `.env`.
+La base, el proyecto/volumen de Docker y los correos de prueba mantienen sus identificadores técnicos
+`siaa` para que la actualización reutilice los datos y las contraseñas existentes.
+No se modifican las relaciones, el esquema ni la contraseña de las cuentas.
+
+El icono propio (birrete y marca de asistencia) está en `public/brand/smartaulaues-icon.svg`,
+con versiones PNG de 192/512 px y favicon SVG/ICO. Se integra en el logotipo del menú y del acceso.
 
 ### Corrección de conexión Docker desde v0.1.0
 
@@ -174,7 +196,7 @@ no escribe etiquetas y no confirma asistencia. Ver [docs/nfc-contract.md](docs/n
 | resources/views/layouts, components | Diseño compartido y componentes reutilizables |
 | resources/views/admin, academic, terminal, profile | Pantallas de la versión base |
 | resources/vendor/tabler/scss | Fuentes originales seleccionadas del ZIP; mantener sus avisos de licencia |
-| resources/scss/tabler.scss, css/app.css | Configuración de Tabler y diseño SIAA |
+| resources/scss/tabler.scss, css/app.css | Configuración de Tabler y diseño SmartAulaUES |
 | resources/js/nfc-reader.js | Prueba real de lectura, todavía sin registrar en servidor |
 | database/migrations, seeders, factories | Esquema, datos ficticios y escenarios de prueba |
 | tests, .github | Pruebas y preparación de integración continua |
@@ -182,14 +204,14 @@ no escribe etiquetas y no confirma asistencia. Ver [docs/nfc-contract.md](docs/n
 
 ## Git y conexión posterior con GitHub
 
-El ZIP contiene `.git`, con la base **v0.1.0** y el parche **v0.1.1** en **main**.
+El ZIP contiene `.git`, con **v0.1.0**, **v0.1.1** y **v0.1.2** en **main**.
 No hay remoto conectado. Después de crear un repositorio **vacío** en GitHub:
 
 ```bash
 git status
-git remote add origin https://github.com/TU_USUARIO/siaa.git
+git remote add origin https://github.com/TU_USUARIO/smartaulaues.git
 git push -u origin main
-git push origin v0.1.0 v0.1.1
+git push origin v0.1.0 v0.1.1 v0.1.2
 ```
 
 Configura tu identidad personal para los commits siguientes con `git config user.name` y `git config user.email`.

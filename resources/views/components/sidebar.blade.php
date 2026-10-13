@@ -1,6 +1,6 @@
 @php($role = auth()->user()->role->value)
-<aside class="siaa-sidebar" id="sidebar" aria-label="Menú principal">
-    <a class="sidebar-brand" href="{{ route('dashboard') }}" aria-label="SIAA, ir al inicio"><x-logo /></a>
+<aside class="smartaulaues-sidebar" id="sidebar" aria-label="Menú principal">
+    <a class="sidebar-brand" href="{{ route('dashboard') }}" aria-label="{{ config('smartaulaues.name') }}, ir al inicio"><x-logo /></a>
     <div class="sidebar-section-title">ESPACIO ACADÉMICO</div>
     <nav class="sidebar-nav">
         <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
@@ -33,6 +33,6 @@
         @endif
     </nav>
     <div class="sidebar-bottom"><span
-            class="sidebar-dot"></span>{{ auth()->user()->role->label() }}<small>v{{ config('siaa.version') }}</small>
+            class="sidebar-dot"></span>{{ auth()->user()->role->label() }}<small>v{{ config('smartaulaues.version') }}</small>
     </div>
 </aside>

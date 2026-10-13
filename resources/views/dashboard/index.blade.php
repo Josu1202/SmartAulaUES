@@ -8,7 +8,7 @@
                 ? 'docente'
                 : 'estudiante')) .
         '.'" subtitle="Tu espacio académico, en una sola vista."><span class="today-label"><x-icon
-                name="calendar" />{{ now()->timezone(config('siaa.display_timezone'))->locale('es')->translatedFormat('d M Y') }}</span></x-page-heading>
+                name="calendar" />{{ now()->timezone(config('smartaulaues.display_timezone'))->locale('es')->translatedFormat('d M Y') }}</span></x-page-heading>
     <section class="dashboard-hero">
         <div><span class="eyebrow">CADA CLASE CUENTA</span>
             <h2>{{ $user->role === \App\Enums\Role::Student ? 'Tu recorrido académico.' : 'Tu campus, conectado.' }}</h2>
@@ -55,7 +55,7 @@
                 @endforelse
             </div>
             <div class="card-bottom-note"><x-icon
-                    name="info" />{{ config('siaa.demo_enabled') ? 'Escenario académico con datos ficticios.' : 'Se muestran los grupos autorizados para tu cuenta.' }}
+                    name="info" />{{ config('smartaulaues.demo_enabled') ? 'Escenario académico con datos ficticios.' : 'Se muestran los grupos autorizados para tu cuenta.' }}
             </div>
         </section>
         <section class="card">
@@ -65,9 +65,9 @@
             <div class="schedule-list">
                 @forelse($sessions as $session)
                     <div class="schedule-row"><span
-                            class="schedule-date">{{ $session->starts_at->timezone(config('siaa.display_timezone'))->format('d') }}<small>{{ $session->starts_at->timezone(config('siaa.display_timezone'))->locale('es')->translatedFormat('M') }}</small></span>
+                            class="schedule-date">{{ $session->starts_at->timezone(config('smartaulaues.display_timezone'))->format('d') }}<small>{{ $session->starts_at->timezone(config('smartaulaues.display_timezone'))->locale('es')->translatedFormat('M') }}</small></span>
                         <div><strong>{{ $session->offering->subject->name }}</strong><small><x-icon
-                                    name="clock" />{{ $session->starts_at->timezone(config('siaa.display_timezone'))->format('H:i') }}
+                                    name="clock" />{{ $session->starts_at->timezone(config('smartaulaues.display_timezone'))->format('H:i') }}
                                 · Grupo {{ $session->offering->group_code }}</small></div>
                 </div>@empty<div class="empty-small">No hay próximas sesiones programadas.</div>
                 @endforelse

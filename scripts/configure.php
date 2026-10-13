@@ -14,7 +14,7 @@ if ($template === false) {
     throw new RuntimeException('No se encontró .env.example.');
 }
 $databasePassword = bin2hex(random_bytes(16));
-$demoPassword = 'SIAA-'.bin2hex(random_bytes(9)).'!';
+$demoPassword = 'SmartAulaUES-'.bin2hex(random_bytes(9)).'!';
 $template = preg_replace('/^DB_PASSWORD=$/m', 'DB_PASSWORD='.$databasePassword, $template);
 $template = preg_replace('/^DEMO_PASSWORD=$/m', 'DEMO_PASSWORD='.$demoPassword, $template);
 file_put_contents($root.'/.env', $template);
