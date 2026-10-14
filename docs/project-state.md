@@ -1,24 +1,24 @@
 # Estado de continuidad · SmartAulaUES
 
-Fecha de trabajo del equipo: 14/10/2026, America/El_Salvador. Entrega **v0.3.1, fase 2**.
-Rama: `feature/phase-2-attendance`. Base local v0.2.0:
-`47f48ca4c37efb33809bd8cdf29bc349b0bc5d65`.
-Remoto: https://github.com/Josu1202/SmartAulaUES.git. Consulta del 14/10/2026:
-main sigue en v0.1.2 (`446396cb61353fbd391faab0078babe908e43980`), fase 1 está en
-feature/phase-1-academic-administration (`f357add8f73c48dd93965fc78e7e7fa45ac04245`) y
-fase 2 en feature/phase-2-attendance (`9a8361d7d8a45a73407fad02279d65695a67cb92`).
-La fuente de fase 2 del remoto coincide con la entrega local v0.3.0. No está integrada en main.
-El usuario compartió CI fallido: 1 fallo/105 warnings/565 aserciones en v0.3.0. El filtro de bitácora
-trataba una traducción no disponible como array; las advertencias correspondían a .env ausente.
-El parche v0.3.1 corrige ambos problemas y agrega regresiones, sin nuevas migraciones ni fase 3.
-No se ha publicado este parche ni desplegado una URL pública. No afirmar CI verde antes de su nueva ejecución.
+Fecha de trabajo del equipo: 14/10/2026, America/El_Salvador. Entrega **v0.3.2, fase 2**.
+Rama: `feature/mobile-https`. Base pública main/v0.3.1:
+`7b9b11826b0488cac26cb9febfa7f2741f186c45`.
+Remoto: https://github.com/Josu1202/SmartAulaUES.git. Consulta del 14/10/2026 para esta entrega:
+main tiene VERSION=0.3.1; fase 2 está en `a697e84589cb0c3a7c65a2520d12644a93c3b711`,
+también VERSION=0.3.1. Ambos árboles son iguales al código local v0.3.1 previamente entregado.
+Fases 1 y 2, incluida la corrección de bitácora/entorno CI, ya están integradas en main.
+El usuario pide HTTPS para probar desde el celular: se prepara Cloudflare Quick Tunnel hacia su Docker,
+con sus mismas cuentas/BD, sin dominio/cuenta de Cloudflare ni despliegue independiente.
+El enlace lo generará el contenedor tunnel en su computadora. No se ha iniciado aquí ni hecho push de v0.3.2.
+Docker/Cloudflare reales, NFC físico y nueva ejecución CI siguen pendientes; no afirmar esos resultados.
 
 ## Instrucciones vigentes del usuario
 
 Tres miembros humanos, módulos completos: usuario fase 1, miembro 2 asistencia/permisos, miembro 3
 seguimiento/cierre/entrega. Nombres 2–3 pendientes. Solicitud actual: desarrollar fase 2 con docentes
 separados de estudiantes, estudiantes masivos/por año, calendarios de cómputos reutilizables, docentes
-limitados a sus sesiones y gráficas reales. README contiene el contexto completo para otras IAs.
+limitados a sus sesiones y gráficas reales. Ahora se habilitan pruebas móviles por HTTPS manteniendo fase 2.
+README contiene el contexto completo para otras IAs.
 
 Se eligieron dos campos: entry_year (ingreso) y study_year (carrera), porque “año” admitía ambos usos.
 Sin promoción automática ni inferencia para usuarios antiguos. Ambos se filtran al inscribir grupos.
@@ -32,7 +32,7 @@ No React/Next. `siaa` en base/volumen/correos demo y prefijo NDEF mantiene compa
 Instantes UTC, visualización/fecha académica America/El_Salvador. Sin datos institucionales reales.
 pgAdmin opcional en perfil tools; no reemplaza las migraciones/formularios de Laravel.
 
-## Operativo desde v0.3.0; conservado en v0.3.1
+## Operativo desde v0.3.0; conservado en v0.3.2
 
 Fase 1 completa conservada: acceso/contraseñas/revocación, cuentas/perfiles/estado/carné/correo,
 ciclos/materias/grupos/cupos, cómputos individuales, inscripción/retiro/fechas históricas, CSV y bitácora.
@@ -56,25 +56,28 @@ ciclos/materias/grupos/cupos, cómputos individuales, inscripción/retiro/fechas
   justificación y avisos internos. Pendientes visibles tras finalizar; resolución no se reabre todavía.
 - Gráficas accesibles con conteos autorizados y vacíos honestos; no porcentaje institucional.
 - Auditoría y traducciones/filtros para entidades de ambas fases; no secretos ni rutas privadas en snapshots.
-- Dos migraciones nuevas; Docker permite cargas 6M/8M; script de carreras independiente en CI.
+- Dos migraciones de v0.3.0; Docker permite cargas 6M/8M; script de carreras independiente en CI.
+- v0.3.2: perfil mobile/tunnel, proxy HTTPS configurable, guía con URL/cookies/caché/reinicio y vuelta a HTTP local. No migraciones nuevas.
 
 ## Verificación y límites
 
 Consultar docs/test-results.md y verification.json para cantidades/evidencia final; no reutilizar cifras
 antiguas como pruebas de esta versión. Runtime PHP 8.4.25/Node 24.19.0, PostgreSQL 17.5 PGlite/PDO,
-casos aislados y aplicación real por HTTP. Navegador con NDEF simulado, sin teléfono físico.
+casos aislados y aplicación real por HTTP. Navegador con NDEF simulado, sin teléfono físico. En v0.3.2 se repitió el recorrido por un proxy TLS local
+(HTTPS): contexto seguro, cookies Secure, login, URLs/recursos y formularios comprobados; no túnel público real.
 Upgrade de esquema v0.2.0 conserva 23 cuentas/contraseñas, 40 inscripciones y 8 sesiones del seed.
 Script concurrente tiene smoke previo con conexiones serializadas; concurrencia real y batería conjunta
-quedan para PostgreSQL nativo/CI. El CI de v0.3.0 falló antes de ejecutar ese script; rerun de v0.3.1 pendiente.
+quedan para PostgreSQL nativo/CI. El CI de v0.3.0 reportado falló antes de ejecutar ese script; no se consultaron resultados CI de la integración posterior.
 Docker/pgAdmin y NFC Android/HTTPS físicos no ejecutados aquí.
 
 ## Próximo trabajo autorizado: estabilizar fase 2
 
-1. Actualizar la misma rama con v0.3.1, conservar .git/.env/APP_KEY/storage/volúmenes y repetir CI. Desde v0.3.0 no hay migraciones nuevas.
-2. Ejecutar batería y carreras con PostgreSQL 17 nativo/Compose; revisar el PR con otro miembro.
-3. Probar Android/Chrome real por HTTPS, cinco etiquetas y fallos/reintentos descritos en nfc-contract.md.
-4. Validar con coordinación calendarios, años y escenarios de permisos de la institución.
-5. Corregir hallazgos en ramas pequeñas y registrar versiones/evidencia. No tratar un mock NFC como
+1. Copiar v0.3.2 sobre un checkout de main/v0.3.1 en feature/mobile-https; conservar .git/.env/APP_KEY/storage/volúmenes.
+2. Seguir docs/mobile-https.md: crear el túnel en Docker, configurar la URL/cookies/proxy y reiniciar app.
+3. Ejecutar batería y carreras con PostgreSQL 17 nativo/Compose; revisar el PR con otro miembro.
+4. Probar Android/Chrome real por HTTPS, cinco etiquetas y fallos/reintentos descritos en nfc-contract.md.
+5. Validar con coordinación calendarios, años y escenarios de permisos de la institución.
+6. Corregir hallazgos en ramas pequeñas y registrar versiones/evidencia. No tratar un mock NFC como
    prueba física ni un ZIP como publicación GitHub. El usuario pidió permanecer en fase 2.
 
 Fase 3 sigue pendiente: política aprobada (75 %, denominador, tardanzas, plazos/justificadas), porcentaje
@@ -83,5 +86,5 @@ respaldo/restauración, HTTPS definitivo y manuales. Avisos internos y conteos b
 ESP32/PN532, biometría y APIs de hardware son ampliaciones posteriores.
 
 Otra IA debe leer README, AGENTS, CHANGELOG, development-phases, decisions, nfc-contract y test-results.
-Si scratch ya no está, recuperar SmartAulaUES_v0.3.1_fase2.zip; preservar el checkout Git del equipo.
+Si scratch ya no está, recuperar SmartAulaUES_v0.3.2_fase2.zip; preservar el checkout Git del equipo.
 No leer/editar materiales PLM externos. No editar migraciones compartidas ni publicar sin instrucción.

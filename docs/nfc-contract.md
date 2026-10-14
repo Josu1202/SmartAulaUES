@@ -3,6 +3,8 @@
 Las rutas de este documento ya existen. /sessions/{session} es la consola operativa de clase.
 /teacher/terminal enlaza clases en curso y conserva un diagnóstico separado que no registra asistencia.
 Mismo dominio, sesión web, cuenta activa, auth.session y CSRF; NFC requiere HTTPS/Android compatible.
+Prueba móvil por túnel Docker de v0.3.2: [mobile-https.md](mobile-https.md). El enlace se obtiene
+en tu computadora y comparte la instalación/BD actual; no es el alojamiento definitivo.
 
 ## Credenciales de coordinación
 

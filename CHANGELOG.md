@@ -1,5 +1,27 @@
 # Historial de versiones SmartAulaUES
 
+## [0.3.2] — 2026-10-14 · HTTPS móvil de pruebas
+
+### Implementado
+- Perfil Docker mobile con cloudflared oficial: enlace HTTPS temporal a la aplicación/BD actuales.
+- Middleware TrustDeploymentProxies configurable por SMARTAULAUES_TRUSTED_PROXIES, vacío por defecto.
+- Configuración resuelta tras bootstrap; X-Forwarded-Proto/For para esquema/IP, sin Host/Port reenviados.
+- Guía mobile-https.md: rama, copia, arranque/URL, .env/cookies, recursos compilados, cachés/reinicio,
+  prueba física NFC, detención y regreso a localhost; README/AGENTS/estado/decisiones/contrato actualizados.
+- Base pública main/v0.3.1 comprobada y reflejada en empaquetado. Rama feature/mobile-https.
+- Sin migraciones/dependencias nuevas; preserva el parche de CI v0.3.1 y ambas fases.
+
+### Verificado y límites
+- Reproducidos recursos/formularios HTTP detrás de un proxy HTTPS antes del arreglo.
+- 111 casos / 623 aserciones correctas, casos aislados con PostgreSQL 17.5 PGlite/PDO cuando requieren BD;
+  cero advertencias PHPUnit. Tres pruebas nuevas de proxy/cookies/URLs/IP y encabezados no confiables.
+- 14 pruebas JavaScript; Composer, Pint, Vite, Blade y YAML de Compose correctos.
+- Recorrido por proxy TLS local: 30 comprobaciones de tres perfiles y 39 mediciones en 1440/390/320 px,
+  contexto seguro/cookies Secure/URLs HTTPS, CSRF 419, NDEF simulado/reintento y 0 errores JavaScript.
+- Upgrade conserva 23 cuentas/contraseña, 40 inscripciones y 8 sesiones.
+- Docker/cloudflared reales, URL del equipo, chips físicos y nueva ejecución CI/carreras nativas pendientes.
+- El soporte temporal no se presenta como hosting definitivo ni fase 3 completada.
+
 ## [0.3.1] — 2026-10-14 · Parche de fase 2
 
 ### Corregido
