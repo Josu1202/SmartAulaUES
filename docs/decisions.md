@@ -1,4 +1,4 @@
-# Decisiones técnicas · 0.3.0
+# Decisiones técnicas · 0.3.2
 
 | Decisión | Motivo y aplicación |
 | --- | --- |
@@ -57,3 +57,14 @@
 
 La guía contiene decisiones por validar con coordinación: tardanzas, vigencias, plazos de permisos,
 regla de justificadas y aplicación institucional del 75 %. Esta base no las convierte en políticas definitivas.
+
+## HTTPS móvil de pruebas · v0.3.2
+
+| Decisión | Motivo y aplicación |
+| --- | --- |
+| Quick Tunnel de la instalación actual | Pruebas físicas del celular sin otra BD/cuentas ni comprar dominio; PC/Docker encendidos |
+| Perfil mobile opcional | tunnel no arranca con compose normal; detención no elimina volúmenes |
+| Configuración del proxy por request | .env/config ya cargados al validar X-Forwarded-Proto/For; default sin proxy |
+| Ignorar dominio/puerto reenviados | Solo Host original determina el destino de formularios/redirects; probados encabezados falsos |
+| Cookie Secure y recursos compilados | HTTPS real del teléfono, sin public/hot que apunte al localhost de la computadora |
+| Evidencia separada | TLS local con NDEF simulado comprobado; Docker/cloudflared y chips del usuario pendientes |

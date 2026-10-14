@@ -1,9 +1,15 @@
 # SmartAulaUES · Asistencia académica universitaria
 
-**v0.3.1 · Fase 2: estudiantes por año, calendarios reutilizables, clases, asistencia y permisos.**
-Aplicación Laravel/Blade sobre la base v0.2.0, commit `47f48ca4c37efb33809bd8cdf29bc349b0bc5d65`.
+**v0.3.2 · Fase 2: estudiantes por año, calendarios reutilizables, clases, asistencia y permisos.**
+Aplicación Laravel/Blade. Este incremento parte de main/v0.3.1, commit
+`7b9b11826b0488cac26cb9febfa7f2741f186c45`, conservando las fases 1 y 2.
 Repositorio del equipo: [Josu1202/SmartAulaUES](https://github.com/Josu1202/SmartAulaUES).
 La marca, el icono propio y el diseño Tabler negro, rojo y blanco se conservan.
+
+**Pruebas desde el celular en v0.3.2:** perfil Docker `mobile` con Cloudflare Quick Tunnel y
+reconocimiento configurable del proxy HTTPS en Laravel. Usa tu instalación, cuentas y PostgreSQL
+existentes. El enlace lo genera Docker en tu computadora; es temporal y requiere mantenerla encendida.
+Pasos completos, configuración, prueba NFC y regreso a localhost: [docs/mobile-https.md](docs/mobile-https.md).
 
 **Parche v0.3.1:** corrige el error 500 de la bitácora detectado en GitHub Actions cuando
 no había configuración de idioma español. Los filtros usan códigos estables y la bitácora
@@ -328,17 +334,18 @@ Cada incremento debe actualizar contexto y pruebas reales, distinguiendo motor e
 
 ## GitHub, empaquetado y evidencia
 
-Rama de esta entrega: `feature/phase-2-attendance`. Base local v0.2.0: `47f48ca4c37efb33809bd8cdf29bc349b0bc5d65`.
-Consulta del 14/10/2026: main sigue en v0.1.2 (`446396cb61353fbd391faab0078babe908e43980`);
-las ramas de fases 1 y 2 están subidas. Fase 2 está en `9a8361d7d8a45a73407fad02279d65695a67cb92`
-y su fuente coincide con v0.3.0. El CI reportado por el usuario falló; este parche corrige su causa.
-V0.3.1 aún debe subirse y verificarse en GitHub. Este ZIP incluye ambas fases y no hace push ni despliega.
+Rama de esta entrega: `feature/mobile-https`. Base: main/v0.3.1,
+`7b9b11826b0488cac26cb9febfa7f2741f186c45`, consultado el 14/10/2026.
+La rama anterior feature/phase-2-attendance está en `a697e84589cb0c3a7c65a2520d12644a93c3b711`.
+Ambos árboles coinciden con la entrega v0.3.1: las fases 1 y 2 y el arreglo de CI ya están en main.
+No se ha publicado v0.3.2 ni abierto un túnel en tu equipo. Este ZIP no hace push ni despliega.
+[docs/mobile-https.md](docs/mobile-https.md) explica la actualización, la URL temporal y el contexto del proxy.
 [docs/update-v0.3.1.md](docs/update-v0.3.1.md) explica el parche de CI y su subida a la misma rama.
 [docs/update-v0.3.0.md](docs/update-v0.3.0.md) conserva los pasos de instalación completa de fase 2.
 
 Actualiza VERSION, config/smartaulaues.php, package.json/package-lock.json y CHANGELOG al liberar.
 Con checkout limpio y commit registrado: `npm run build` y `composer run package` crean en `dist/`
-`SmartAulaUES_v0.3.1_fase2.zip`, manifiesto RELEASE.json con commit/hashes y SHA-256 del ZIP.
+`SmartAulaUES_v0.3.2_fase2.zip`, manifiesto RELEASE.json con commit/hashes y SHA-256 del ZIP.
 Incluye fuentes y assets compilados; excluye `.git`, `.env`, dependencias descargadas y datos privados.
 
 [docs/test-results.md](docs/test-results.md) y [docs/verification.json](docs/verification.json) registran

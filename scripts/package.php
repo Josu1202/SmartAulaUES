@@ -72,7 +72,7 @@ try {
     $zip->addFromString('SmartAulaUES/RELEASE.json', json_encode([
         'application' => 'SmartAulaUES', 'version' => $version, 'phase' => 2,
         'source_commit' => trim(gitOutput(['rev-parse', 'HEAD'], $root)),
-        'base_commit' => '47f48ca4c37efb33809bd8cdf29bc349b0bc5d65',
+        'base_commit' => '7b9b11826b0488cac26cb9febfa7f2741f186c45',
         'repository' => 'https://github.com/Josu1202/SmartAulaUES.git',
         'published_to_github' => false, 'files_sha256' => $hashes,
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES).PHP_EOL);

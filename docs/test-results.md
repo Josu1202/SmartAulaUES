@@ -1,3 +1,48 @@
+# Evidencia de verificación · SmartAulaUES v0.3.2
+
+## HTTPS móvil de pruebas · 14/10/2026 (El Salvador)
+
+| Comprobación ejecutada | Resultado |
+| --- | --- |
+| Runtime | PHP 8.4.25/pdo_pgsql, Node 24.19.0, PostgreSQL 17.5 PGlite/PDO |
+| PHPUnit aislado por caso | **111/111, 623 aserciones, cero warnings** con --fail-on-warning |
+| Entorno PHP | Sin .env durante la batería, ejemplo .env.testing y credenciales ficticias; locale/fallback en |
+| Tres pruebas nuevas de proxy | Formularios/recursos/redirects HTTPS y cookie Secure; IP/CIDR configurado; encabezados ignorados sin proxy autorizado |
+| JavaScript, npm test | **14/14** |
+| Composer validate/check-platform-reqs, Pint, Vite, Blade, git diff --check | Correctos |
+| compose.yaml | YAML/perfil mobile/servicio-origen/dependencia verificados; app sigue en 127.0.0.1 |
+| Navegador Chromium 153.0.8010.0 por proxy TLS local | **30 comprobaciones**, tres perfiles |
+| Pantallas en 1440/390/320 px | **39 mediciones**, sin desbordamiento horizontal de página |
+| Login/contexto/cookies/recursos | Contexto seguro, sesión y XSRF Secure, formularios/recursos HTTPS |
+| Sin CSRF | 419; solicitud rechazada |
+| Errores JavaScript | 0 |
+| Upgrade ficticio v0.2.0 | 23 cuentas/contraseña, 40 inscripciones y 8 sesiones conservadas |
+
+Antes del cambio fallaron dos regresiones: el proxy enviaba HTTPS pero la aplicación generaba
+formularios/URLs HTTP y usaba la IP interna. Tras el arreglo pasaron los tres casos y toda la batería.
+Se prueban además X-Forwarded-Host/Port falsos: no cambian el dominio/puerto de la respuesta.
+
+La batería PHP usó motor PGlite nuevo por caso; los casos de proxy no requieren BD. Se creó .env.testing
+como en CI para no depender del .env local. La configuración local se conservó y las copias se retiraron.
+No se presenta como batería conjunta contra PostgreSQL nativo.
+
+Se repitió el recorrido real de fase 2 descrito en la evidencia v0.3.0, ahora con HTTPS delante del
+servidor PHP. Un proxy TLS local conecta por HTTP a Laravel e inyecta esquema/IP reenviados como
+lo haría el túnel. El certificado de QA es local y el navegador lo admite solo para esta prueba:
+no es un certificado destinado al celular ni se solicita instalarlo al usuario.
+Se comprobó el contexto seguro, cookies Secure y ausencia de acciones/recursos HTTP. Funcionaron
+login, altas/CSV/formato/grupo/inscripciones, escritura/activación NFC simulada, lector/registro con
+respuesta perdida y reintento, manual/QR/enlace, evidencia privada de 5 MB, finalización, resolución,
+gráficas, bitácora y avisos. 39 mediciones en los tres anchos, menú móvil/Escape y CSRF 419.
+
+El transporte fue **TLS local**, no Cloudflare real. NDEF fue **simulado**, no lectura física.
+No se ejecutó Docker ni descargó/inició cloudflared aquí. La URL real se obtiene al ejecutar el perfil
+mobile en la computadora del usuario. Tampoco se repitió el script de carreras: PostgreSQL nativo/CI,
+Docker/Cloudflare y Chrome Android/etiquetas siguen pendientes de aceptación.
+La rama main pública ya contiene v0.3.1; este parche v0.3.2 aún no se ha subido ni integrado.
+
+---
+
 # Evidencia de verificación · SmartAulaUES v0.3.1
 
 ## Parche de CI · 14/10/2026 (El Salvador)

@@ -11,18 +11,27 @@ Esta división reemplaza el reparto backend/frontend/integración antiguo de la 
 Repositorio del usuario: https://github.com/Josu1202/SmartAulaUES.git. No afirmar que una entrega
 ZIP está publicada en GitHub. Los ZIP no contienen .git; conservar el checkout del usuario.
 
-v0.3.1 conserva fase 2 de v0.3.0 sobre v0.2.0 (47f48ca4c37efb33809bd8cdf29bc349b0bc5d65), rama
-feature/phase-2-attendance. Las anotaciones del usuario agregan directorios docentes/estudiantes,
+v0.3.2 conserva fase 2 de v0.3.0 y el parche v0.3.1. Base pública main/v0.3.1
+(7b9b11826b0488cac26cb9febfa7f2741f186c45), rama feature/mobile-https.
+Fases 1 y 2 ya están integradas en main; árbol verificado igual a la entrega v0.3.1. Las anotaciones del usuario agregan directorios docentes/estudiantes,
 estudiantes por entry_year y study_year (ambas interpretaciones de “año”), alta manual/CSV y
 actualización de años de cuentas existentes, inscripción por filtro y formatos de ciclo reutilizables.
 Formato usado y cómputos heredados son inmutables; no asignar fechas inventadas a registros anteriores.
 Docente administra sesiones/resultados/permisos de grupos propios; no estudiantes/inscripciones/calendarios.
 Conteos y avisos internos operativos; política/porcentaje/cierre/PDF/noticias siguen en fase 3.
-Leer docs/update-v0.3.1.md, docs/update-v0.3.0.md, nfc-contract.md y project-state.md antes de continuar.
+Leer docs/mobile-https.md, docs/update-v0.3.1.md, docs/update-v0.3.0.md, nfc-contract.md y project-state.md antes de continuar.
 Parche 0.3.1: AuditLog::ENTITY_TYPES valida códigos independientes del idioma; la bitácora usa
 etiquetas es explícitas porque la interfaz es española. No volver a validar con array_keys(__()).
 Defaults de locale/fallback es. CI copia .env.testing.example a .env.testing y falla ante warnings;
 regresión prueba locale es/en/zz con fallback en, tanto render como filtros válidos e inválidos.
+v0.3.2 agrega túnel Docker opcional (perfil mobile), sin dependencias/migraciones nuevas.
+TrustDeploymentProxies obtiene SMARTAULAUES_TRUSTED_PROXIES desde config en cada request tras el bootstrap;
+no leer config prematuramente al resolver HttpKernel. Default vacío; solo X-Forwarded-For/Proto confiables.
+Comodín * solo para pruebas con app en 127.0.0.1; servidor definitivo usa IP/CIDR reales del proxy.
+APP_URL real del túnel, APP_DEBUG=false y SESSION_SECURE_COOKIE=true; limpiar cachés y reiniciar app.
+No modificar .env/APP_KEY del usuario al copiar la entrega; URL real se obtiene en los logs de su equipo.
+TLS local y NDEF simulado no demuestran ejecución cloudflared ni lectura física. No afirmar URL pública
+sin haber iniciado el túnel real. Este soporte no sustituye HTTPS/hosting definitivo de fase 3.
 
 - Laravel 13, PHP 8.4, PostgreSQL 17, Blade y fuentes Tabler 1.6.1 adjuntas.
 - Negro, rojo y blanco. Reutilizar layouts/componentes; estilos SmartAulaUES en resources/css/app.css.

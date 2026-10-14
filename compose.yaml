@@ -50,6 +50,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    profiles: ["mobile"]
+    command: ["tunnel", "--no-autoupdate", "--url", "http://app:8080"]
+    restart: "no"
+    depends_on:
+      app:
+        condition: service_started
 volumes:
   siaa_db:
   pgadmin_data:
