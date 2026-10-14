@@ -28,6 +28,7 @@
                 @if ($errors->any())
                     <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
                 @endif
+                @if(session('status'))<div class="alert alert-success" role="status">{{ session('status') }}</div>@endif
                 <form method="POST" action="{{ route('login') }}">@csrf
                     <div class="mb-3"><label class="form-label" for="email">Correo electrónico</label><input
                             class="form-control form-control-lg @error('email') is-invalid @enderror" id="email"

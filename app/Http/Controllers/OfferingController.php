@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Academic\AcademicRegistry;
 use App\Models\Offering;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,12 +17,13 @@ class OfferingController extends Controller
         return view('academic.offerings.index', compact('offerings'));
     }
 
-    public function show(Request $request, Offering $offering): View
+    public function show(Request $request, Offering $offering, AcademicRegistry $registry): View
     {
         Gate::authorize('view', $offering);
         $offering->load(['subject', 'cycle', 'teacher', 'periods', 'sessions']);
-        $enrollments = $offering->enrollments()->visibleTo($request->user())->with('student')->get();
+        $enrollments = $offering->enrollments()->visibleTo($request->user())->with('student')->orderBy('id')->paginate(20);
+        $reservedSeats = $registry->reservedSeats($offering);
 
-        return view('academic.offerings.show', compact('offering', 'enrollments'));
+        return view('academic.offerings.show', compact('offering', 'enrollments', 'reservedSeats'));
     }
 }

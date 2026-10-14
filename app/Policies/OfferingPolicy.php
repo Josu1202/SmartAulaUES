@@ -8,6 +8,16 @@ use App\Models\User;
 
 class OfferingPolicy
 {
+    public function create(User $user): bool
+    {
+        return $user->active && $user->role === Role::Coordinator;
+    }
+
+    public function update(User $user, Offering $offering): bool
+    {
+        return $this->create($user);
+    }
+
     public function viewAny(User $user): bool
     {
         return $user->active;

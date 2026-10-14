@@ -1,0 +1,33 @@
+@extends('layouts.app')
+@section('title', 'Importaciones CSV')
+@section('content')
+    <x-page-heading title="Importaciones CSV" subtitle="Carga una plantilla, revisa los datos y confirma el lote completo." eyebrow="ORGANIZACIÓN ACADÉMICA" />
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6"><div class="card h-100"><div class="card-header"><h2 class="card-title">1. Cuentas de docentes y estudiantes</h2></div><div class="card-body">
+            <p class="text-secondary">Crea cuentas nuevas. Las cuentas de coordinación se crean individualmente.</p><a class="btn btn-sm btn-outline-dark mb-4" href="{{ route('admin.imports.template', 'users') }}">Descargar plantilla de usuarios</a>
+            <form method="POST" enctype="multipart/form-data" action="{{ route('admin.imports.preview') }}">@csrf<input type="hidden" name="kind" value="users">
+                <x-form-field name="file" id="users-file" label="Archivo CSV de usuarios" type="file" required accept=".csv,.txt" help="UTF-8, separado por comas. Hasta 500 registros y 1 MB." />
+                <x-form-field name="initial_password" label="Contraseña inicial del lote" type="password" required minlength="12" maxlength="128" autocomplete="new-password" help="Las cuentas nuevas usarán esta contraseña. Cada titular puede cambiarla en Mi cuenta." />
+                <x-form-field name="initial_password_confirmation" label="Confirmar contraseña del lote" type="password" required autocomplete="new-password" />
+                <button class="btn btn-primary" type="submit">Revisar usuarios<x-icon name="arrow" /></button>
+            </form>
+        </div></div></div>
+        <div class="col-lg-6"><div class="card h-100"><div class="card-header"><h2 class="card-title">2. Inscripciones a un grupo</h2></div><div class="card-body">
+            <p class="text-secondary">Los estudiantes deben existir y estar activos. Cada archivo corresponde a un grupo.</p><a class="btn btn-sm btn-outline-dark mb-4" href="{{ route('admin.imports.template', 'enrollments') }}">Descargar plantilla de inscripciones</a>
+            <form method="POST" enctype="multipart/form-data" action="{{ route('admin.imports.preview') }}">@csrf<input type="hidden" name="kind" value="enrollments">
+                <x-form-field name="offering_id" label="Grupo de destino" :options="['' => 'Selecciona un grupo'] + $offerings->mapWithKeys(fn($o) => [$o->id => $o->cycle->code.' · '.$o->subject->code.' · Grupo '.$o->group_code])->all()" required />
+                <x-form-field name="file" id="enrollments-file" label="Archivo CSV de inscripciones" type="file" required accept=".csv,.txt" help="Fechas AAAA-MM-DD. Deja active_to vacío si no hay retiro." />
+                <p class="form-hint mb-4">El lote respeta las fechas del ciclo y el cupo. Las inscripciones existentes se ajustan desde el grupo.</p>
+                <button class="btn btn-primary" type="submit">Revisar inscripciones<x-icon name="arrow" /></button>
+            </form>
+        </div></div></div>
+    </div>
+    @if($preview)
+        <div class="card" id="csv-preview"><div class="card-header d-flex justify-content-between flex-wrap"><h2 class="card-title">Vista previa · {{ $preview['kind'] === 'users' ? 'Usuarios' : 'Inscripciones' }}</h2><span class="badge-soft {{ $review['valid'] ? '' : 'badge-muted' }}">{{ count($review['entries']) }} registros · {{ $review['valid'] ? 'Listo para confirmar' : 'Requiere correcciones' }}</span></div>
+        <div class="card-body pb-0"><p class="text-secondary">La revisión dura 15 minutos y se comprueba de nuevo al confirmar. Cargar otro archivo reemplaza esta revisión.</p>@foreach($review['errors'] as $error)<div class="alert alert-danger" role="alert">{{ $error }}</div>@endforeach</div>
+        <div class="table-responsive"><table class="table table-vcenter"><thead><tr><th>Registro</th>@foreach(\App\Actions\Academic\CsvImporter::HEADERS[$preview['kind']] as $header)<th>{{ ['name' => 'Nombre', 'email' => 'Correo', 'role' => 'Perfil', 'student_code' => 'Carné', 'active_from' => 'Inicio', 'active_to' => 'Fin'][$header] }}</th>@endforeach<th>Revisión</th></tr></thead><tbody>
+            @foreach($review['entries'] as $entry)<tr><td>{{ $entry['line'] }}</td>@foreach($entry['fields'] as $key => $value)<td class="csv-cell">{{ $key === 'role' ? (['teacher' => 'Docente', 'student' => 'Estudiante'][$value] ?? $value) : ($value ?: '—') }}</td>@endforeach<td class="csv-cell">@if($entry['errors'])@foreach($entry['errors'] as $error)<div class="text-danger">{{ $error }}</div>@endforeach @else<span class="badge-soft">Válido</span>@endif</td></tr>@endforeach
+        </tbody></table></div>
+        <div class="card-footer"><form method="POST" action="{{ route('admin.imports.confirm') }}">@csrf<input type="hidden" name="nonce" value="{{ $preview['nonce'] }}"><button class="btn btn-primary" type="submit" @disabled(!$review['valid'])>Confirmar {{ count($review['entries']) }} {{ count($review['entries']) === 1 ? 'registro' : 'registros' }}</button><p class="form-hint mt-2 mb-0">Si hay errores, corrige el archivo y vuelve a cargarlo. Se guarda el lote completo o se rechaza completo.</p></form></div></div>
+    @endif
+@endsection

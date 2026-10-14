@@ -1,50 +1,64 @@
 # Estado de continuidad · SmartAulaUES
 
-Fecha de la base: 12/10/2026. Versión: 0.1.2. Rama: main. Tag: v0.1.2. Base original: v0.1.0.
+Fecha: 13/10/2026. Versión entregada: **0.2.0**. Rama de trabajo:
+`feature/phase-1-academic-administration`. Base: v0.1.2/main, commit
+`446396cb61353fbd391faab0078babe908e43980`.
+Remoto del usuario: **https://github.com/Josu1202/SmartAulaUES.git**. La base pública se recuperó y
+comparó con ese commit; los cambios de esta entrega no se han subido ni integrado en GitHub.
 
 ## Decisiones vigentes
 
-Laravel 13 + PHP 8.4 + PostgreSQL 17; vistas Blade; Tabler 1.6.1 adjunto; negro, rojo y blanco.
-Nombre oficial: SmartAulaUES. Icono propio: birrete y marca de asistencia en `public/brand/`.
-Una aplicación, tres perfiles, desarrollo universitario en seis semanas.
-Terminal principal: Android del docente que lee etiquetas NDEF de estudiantes.
-ESP32/PN532 y huella se consideran después del sistema web.
+Laravel 13/PHP 8.4/PostgreSQL 17, Blade/Tabler 1.6.1; negro, rojo y blanco. Nombre SmartAulaUES,
+icono propio en public/brand. Se conservan `siaa` en BD/proyecto/volumen/correos demo para reutilizar datos.
+UTC para instantes; America/El_Salvador para presentación y fecha de vigencia/cupo.
 
-## Construido en esta entrega
+Solicitud actual: **tres fases, una por miembro humano**, usuario responsable de fase 1. Se sustituye
+el reparto por especialidades de la guía por módulos completos. README y docs/development-phases.md
+son el contexto principal. Fases 2–3 no implementadas; responsables nominales todavía pendientes.
+NFC móvil Android/Chrome/HTTPS es prioridad; hardware/biometría posteriores.
 
-Acceso Fortify, salida, cuentas inactivas, límite de login, menú por rol, Policies de consulta;
-vistas de inicio, usuarios con búsqueda, ciclos, grupos, sesiones e inscripciones propias;
-base de datos con restricciones; seed idempotente; prueba Web NFC sin escritura ni registro.
-Dependencias PDF/QR instaladas; documentación, Docker de desarrollo, CI y control de versiones preparados.
+## Implementado en v0.2.0
 
-Parche v0.1.1: `--no-reload` en el arranque Docker conserva las variables de conexión del contenedor
-en el proceso HTTP. Se reprodujo y verificó con el Laravel instalado, sin ejecutar Docker aquí.
-Prueba de infraestructura: 1 caso, 2 aserciones; forma parte de PHPUnit/CI.
-README contiene la actualización de instalaciones v0.1.0. No cambia esquema, cuentas ni módulos.
+- Administración de cuentas, estado, perfiles/carné y correos normalizados; índice único lower(email).
+- Restablecimiento por coordinación con motivo y cambio personal de contraseña. Hash/revocación de
+  sesiones/remember_token; middleware auth.session. No hay envío de correo ni autoservicio de recuperación.
+- Crear/editar ciclos, catálogo y grupos; validar docentes activos/cupos y conservar identidad con historial.
+- Cómputos dentro de ciclo sin superposición; cómputos cerrados/en cierre y ciclos cerrados de lectura.
+- Inscripciones de estudiantes activos; cupo con lock padre; vigencia/retiro inclusivo, sin borrado;
+  protección de fechas asociadas a asistencias/solicitudes existentes.
+- CSV independiente de usuarios e inscripciones: plantillas, UTF-8/comas, 500 filas/1 MB, preview de 15 min,
+  errores, nonce/propietario/CSRF, revalidación, transacción completa y confirmación no repetible.
+- Bitácora de cambios con campos permitidos, actor y motivo; sin secretos.
+- pgAdmin 9.17 opcional, localhost:5050, perfil tools, volumen separado, conexión sin contraseña en JSON.
+- Forms Blade compartidos, navegación y diseño responsive; pruebas de reglas/roles/CSV/acceso.
 
-v0.1.2 incorpora el nombre SmartAulaUES y el icono propio en toda la interfaz, paquetes y documentación.
-La configuración del dominio es `config/smartaulaues.php`. CSS y plantillas usan prefijos smartaulaues.
-Se conservan los identificadores técnicos de la BD/Docker y correos demo para reutilizar instalaciones.
-`docs/update-v0.1.2.md` explica la actualización con un remoto Git existente.
+Archivo central: app/Actions/Academic/AcademicRegistry.php. Acciones de usuarios, auditoría e importación
+en la misma carpeta. Controladores Admin y Requests solo coordinan autorización/entrada. No duplicar reglas.
 
-## Pendiente, sin simulación
+## Límites y pendientes
 
-- CRUD académico y validación de docentes/estudiantes por rol al asignar; cupos transaccionales y fechas.
-- CSV con vista previa; administración de cuentas y restablecimiento controlado.
-- Programación, reprogramación, cancelación y finalización de clases desde formularios.
-- Alta/confirmación/revocación de etiquetas y prueba con el Android real.
-- Portal temporal, sesiones de lector e integración de RegisterAttendance con NFC/QR/enlace/manual.
-- Autorizaciones de escritura por recurso, hash normalizado e idempotencia transaccional de eventos.
-- Permisos, correcciones, notificaciones, calendario e historial del estudiante.
-- Cálculo de 75 %, cierre, instantánea y PDF privado versionado.
-- HTTPS, operación, respaldo/restauración y entrega de la demostración completa.
+- Fase 2: formularios de clases, estados, portales/lector, alta/revocación NFC y registro unificado;
+  QR/enlace/manual, ausentes, permisos, evidencias privadas y correcciones.
+- Fase 3: porcentaje/historial/calendario, avisos/notificaciones, política validada, cierre/snapshot/PDF
+  privado, HTTPS, respaldo/restauración probado e integración final.
+- Validar 75 %, tardanzas, justificadas, denominador, plazos y reglas de retiro. config/attendance.php
+  contiene solo propuesta demo; policy_version de nuevos cómputos usa esa propuesta.
+- PostgreSQL/Compose/pgAdmin nativos y GitHub Actions deben verificarse en equipo con Docker/CI.
+- Teléfono NFC y escritura/comprobación física de etiquetas todavía pendientes. No se ha desplegado una URL pública.
+- Tests y navegador del entorno usan PostgreSQL 17.5 embebido vía PGlite/PDO. Registrar las limitaciones
+  en docs/test-results.md; no confundirlo con pruebas nativas de concurrencia/carga.
 
-## Cómo retomar
+## Cómo continuar con otra IA
 
-1. Leer este archivo, CHANGELOG y docs/decisions.
-2. Usar `smartaulaues/` o el ZIP SmartAulaUES_v0.1.2_base.zip si el espacio local dejó de estar disponible.
-3. Crear una rama para la función solicitada, preservando diseño y arquitectura.
-4. Añadir pruebas de su comportamiento y permisos; actualizar estado y changelog al liberar.
-5. Crear la siguiente etiqueta y entrega. No presentar módulos pendientes como terminados.
+1. Leer README, AGENTS.md, CHANGELOG, docs/development-phases.md, decisions.md y test-results.md.
+2. Recuperar `SmartAulaUES_v0.2.0_fase1.zip` si el workspace ya no está; usar el checkout GitHub existente
+   para preservar su historial. ZIP sin .git/.env/dependencias; no equivale a cambios publicados.
+3. Completar la comprobación Docker/CI de fase 1 y asignar los nombres de responsables 2–3.
+4. Trabajar funciones de fase 2 en ramas pequeñas con Policies del docente asignado, fechas de vigencia,
+   estado de ciclo/cómputo y orden de locks ciclo → grupo → recurso.
+5. Probar NFC físico pronto. El diagnóstico actual lee NDEF pero no registra ni escribe etiquetas.
+6. Actualizar README/estado/changelog con cada función/versionado. No presentar tablas/dependencias
+   preparadas como módulos terminados. No hacer push, merge ni publicación sin instrucción del usuario.
 
-No existe URL publicada ni remoto GitHub. No se han tomado decisiones de teléfono real ni de alojamiento.
+Una actualización conserva .env, APP_KEY, contraseñas y volumen; aplica únicamente nuevas migraciones.
+`docs/update-v0.2.0.md` incluye la incorporación a GitHub mediante rama/PR sin reemplazar `.git`.

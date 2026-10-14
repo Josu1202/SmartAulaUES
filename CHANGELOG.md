@@ -1,5 +1,32 @@
 # Historial de versiones SmartAulaUES
 
+## [0.2.0] — 2026-10-13 · Fase 1
+
+### Implementado
+- Administración de usuarios, perfiles/estado/carné, restablecimiento por coordinación y contraseña propia.
+- Normalización de correo/carné, índice único lower(email) y revocación de sesiones/remember_token.
+- Alta/edición de ciclos, catálogo, grupos/docentes/cupos, cómputos e inscripciones con vigencia/retiro.
+- Fechas sin superposición, ciclos/cómputos cerrados de lectura, motivos y preservación de historial.
+- Cupos transaccionales que reservan inscripciones futuras; retiro inclusivo, sin eliminar filas.
+- CSV de usuarios e inscripciones: plantillas, preview 15 min/500 filas/1 MB, revalidación y lote completo.
+- Bitácora con actor/antes/después/motivo y campos permitidos, sin contraseñas/tokens.
+- pgAdmin 9.17 opcional para desarrollo; volumen independiente y conexión sin contraseña en JSON.
+- Formularios/navegación Blade y diseño negro/rojo/blanco conservando marca e icono.
+
+### Documentación y versiones
+- Tres fases por módulos completos, usuario responsable de fase 1; contratos y pendientes de miembros 2–3.
+- README ampliado para el equipo y otras IAs; continuidad, CSV, instalación y actualización compatible.
+- Base pública verificada en Josu1202/SmartAulaUES; desarrollo en feature/phase-1-academic-administration.
+- ZIP sin .git/secretos/dependencias; script de empaquetado con commit/hashes. Sin push ni merge remotos.
+- Setup conserva APP_KEY existente; requisitos PHP explícitos comprobables por Composer.
+
+### Verificado y límites
+- 66 casos PHPUnit/313 aserciones correctas, motores PostgreSQL 17.5 PGlite aislados por caso.
+- 8 pruebas NDEF; Composer, Pint, Vite, Blade y estructura Compose correctos.
+- Flujo HTTP real con tres perfiles, altas/retiro/CSV/bitácora/contraseña; CSRF 419, 0 errores JS.
+- Nueve pantallas en 1440/390/320 px, sin desbordamiento horizontal de página.
+- Batería conjunta en PostgreSQL nativo, Docker/pgAdmin, CI y NFC físico aún pendientes. Fases 2–3 sin implementar.
+
 ## [0.1.2] — 2026-10-12
 
 ### Actualizado

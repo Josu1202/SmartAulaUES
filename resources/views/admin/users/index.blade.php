@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Usuarios')
 @section('content')
-    <x-page-heading title="Usuarios" subtitle="Directorio de cuentas académicas. Consulta disponible en esta versión." />
+    <x-page-heading title="Usuarios" subtitle="Administra las cuentas, sus perfiles y su acceso al sistema." eyebrow="ADMINISTRACIÓN"><a class="btn btn-primary" href="{{ route('admin.users.create') }}">Crear cuenta<x-icon name="arrow" /></a></x-page-heading>
     <div class="card">
         <form class="filter-bar" method="GET" action="{{ route('admin.users.index') }}">
             <div class="filter-search"><label class="visually-hidden" for="q">Buscar nombre, correo o
@@ -25,6 +25,7 @@
                         <th>Perfil</th>
                         <th>Carné</th>
                         <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,8 +39,9 @@
                             <td><span
                                     class="badge-soft {{ $user->active ? '' : 'badge-muted' }}">{{ $user->active ? 'Activo' : 'Inactivo' }}</span>
                             </td>
+                            <td><a class="btn btn-sm btn-outline-dark" href="{{ route('admin.users.edit', $user) }}">Editar</a></td>
                     </tr>@empty<tr>
-                            <td colspan="4" class="text-secondary text-center py-5">No se encontraron usuarios.</td>
+                            <td colspan="5" class="text-secondary text-center py-5">No se encontraron usuarios.</td>
                         </tr>
                     @endforelse
                 </tbody>

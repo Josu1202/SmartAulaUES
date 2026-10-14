@@ -1,45 +1,126 @@
 # SmartAulaUES · Asistencia académica universitaria
 
-**Versión 0.1.2 — cimientos de la aplicación.** Base Laravel real para desarrollar función por función.
-Utiliza la guía de desarrollo v2.0 del 11/10/2026, entregada con el nombre anterior SIAA, y las fuentes
-de Tabler adjuntas. Diseño negro, rojo y blanco. SmartAulaUES es el nombre oficial desde v0.1.2.
+**v0.2.0 · Fase 1: cuentas y organización académica.** Desarrollo real a partir de la primera
+versión publicada en [Josu1202/SmartAulaUES](https://github.com/Josu1202/SmartAulaUES).
+La base revisada fue v0.1.2, commit `446396cb61353fbd391faab0078babe908e43980`.
+La guía original conserva SIAA en su nombre; el nombre oficial del sistema es **SmartAulaUES**.
+Se mantiene el icono propio, Tabler y la paleta negra, roja y blanca.
 
-## Qué puedes usar ahora
+## División del trabajo: tres fases, tres responsables
 
-- Iniciar/cerrar sesión con Fortify. Registro público deshabilitado y cuentas inactivas bloqueadas.
-- Entrar como coordinación, docente o estudiante. Menú y consultas restringidos al perfil.
-- Consultar grupos, docentes, sesiones e inscripciones. El estudiante ve solo su propia inscripción.
-- Consultar usuarios y ciclos como coordinación; buscar usuarios y filtrar perfiles.
-- Abrir la cuenta personal y una página de **prueba de lectura NFC** para un dispositivo compatible.
-- Instalar migraciones y un escenario ficticio: 23 usuarios, 2 materias/grupos, 40 inscripciones y 8 sesiones.
+El usuario solicitó el 13/10/2026 dividir el desarrollo por módulos y asumir personalmente la fase 1.
+Cada responsable entrega sus formularios, reglas, autorización y pruebas. Esta división sustituye
+el reparto por especialidades A/backend, B/frontend y C/integración de la guía; mantiene sus funciones.
+Los nombres de los miembros 2 y 3 todavía están por asignar: no se inventan responsables.
 
-**Aún no registra asistencias.** CRUD académico, asignación de etiquetas, NFC conectado al servidor,
-QR/enlace/manual, permisos, CSV, noticias y cierre PDF son los próximos módulos. Las pantallas pendientes
-lo indican expresamente. Las tablas/modelos ya existen como base, sin simular funciones terminadas.
+| Fase | Responsable | Alcance y entrega | Estado en este ZIP |
+| --- | --- | --- | --- |
+| **1. Organización académica** | **Tú, miembro 1** | Cuentas/perfiles/estado/acceso; ciclos; catálogo; grupos/docentes/cupos; cómputos; inscripciones y retiros; CSV con revisión; bitácora; instalación y contratos para continuar | Implementada en v0.2.0; comprobación final en Docker/CI pendiente |
+| **2. Clases, asistencia y permisos** | Miembro 2 | Programar/reprogramar/cancelar/finalizar clases; alta y revocación NFC; lector autenticado; registro unificado NFC/QR/enlace/manual; justificaciones, evidencias privadas y correcciones | Pendiente; tablas/modelos y diagnóstico NFC disponibles |
+| **3. Seguimiento, cierre y entrega** | Miembro 3 | Porcentajes provisionales, historial, noticias/notificaciones; cierre por cómputo y PDF privado versionado; integración, HTTPS, respaldo/restauración y manuales | Pendiente; dependencias PDF y estructura de datos disponibles |
 
-## Tecnologías y dependencias
+La guía propone seis semanas y unas 12 h por persona/semana. Organización orientativa:
+semanas 1–2, fase 1; semanas 3–4, fase 2; semanas 5–6, fase 3 e integración. Los responsables
+2 y 3 pueden preparar contratos, criterios, pruebas y diseños mientras se construye la fase 1.
+**La viabilidad NFC en el Android real y HTTPS debe comprobarse desde la primera semana**, sin esperar
+al final. El prototipo ESP32/PN532 y la biometría son ampliaciones posteriores.
+
+Consulta [docs/development-phases.md](docs/development-phases.md) para límites, dependencias,
+criterios de aceptación y tareas de cada responsable. Cada función pequeña tiene issue, rama y PR;
+una fase puede tener varios incrementos. Una tabla existente no significa que el módulo ya funcione.
+
+## Funciones operativas de la fase 1
+
+- Acceso Fortify, salida, usuarios activos, límite de intentos, sin registro público. Tres perfiles:
+  coordinación, docente y estudiante. El estudiante ve únicamente su inscripción en cada grupo.
+- Coordinación crea/edita cuentas y las desactiva conservando su historial. Carné obligatorio para
+  estudiantes; correo único sin distinguir mayúsculas. No se cambia el perfil de cuentas con historial
+  ni se permite quitar a la coordinación su propio acceso.
+- Restablecimiento de contraseña por coordinación con motivo; cambio personal desde **Mi cuenta**,
+  con verificación de contraseña actual. Contraseñas de al menos 12 caracteres y revocación de sesiones.
+- Crear/editar ciclos, materias y grupos, asignar docentes activos y validar el cupo.
+- Crear/editar cómputos dentro del ciclo, sin fechas superpuestas. Los cómputos cerrados son de lectura.
+- Inscribir estudiantes activos y ajustar vigencia/retiro sin borrar filas ni excluir registros históricos.
+- CSV separado de usuarios e inscripciones: plantilla, revisión de errores, confirmación transaccional,
+  caducidad de 15 minutos, control de duplicados y comprobación final de cupo/datos. Máximo 500 filas/1 MB.
+- Bitácora de altas, cambios, restablecimientos e importaciones. Actor, antes/después y motivo;
+  sin contraseñas, hashes de acceso, tokens ni archivo CSV completo en la bitácora.
+- pgAdmin **opcional** en Docker para consultar PostgreSQL durante el desarrollo.
+
+**Todavía no se registran asistencias ni se producen reportes.** Programación de clases desde formularios,
+credenciales NFC, QR/enlace/manual, permisos, cierre, seguimiento y noticias corresponden a fases 2–3.
+El lector actual es un diagnóstico que lee NDEF; no guarda asistencias. Los módulos pendientes lo indican.
+
+## Reglas que el equipo debe conservar
+
+Las escrituras académicas comparten `app/Actions/Academic/AcademicRegistry.php`. Se bloquea el ciclo
+antes del grupo en las transacciones; el CSV utiliza las mismas acciones que los formularios.
+No escribir directamente en las tablas desde nuevos controladores/importadores para saltarse reglas.
+
+| Regla | Decisión actual |
+| --- | --- |
+| Historial | Sin endpoints DELETE. Desactivar cuenta/materia, registrar retiro o cerrar ciclo |
+| Identidad del grupo | Ciclo, materia y código no cambian si existen cómputos, sesiones o inscripciones |
+| Cupo | Reserva una plaza toda inscripción cuyo fin sea vacío o >= `max(hoy en El Salvador, inicio del ciclo)`, incluso si empieza en el futuro. Las cuentas inactivas conservan la plaza hasta registrar retiro |
+| Retiro | `active_to` es inclusivo; la plaza se libera al día siguiente. Volver a inscribir al mismo estudiante exige editar la vigencia existente |
+| Fechas | Ciclo contiene cómputos, sesiones e inscripciones. Cómputos del mismo grupo sin superposición, incluso en los límites |
+| Cambios sensibles | Motivo obligatorio al cambiar fechas, estado, vigencia, cupo o docente; se auditan en la misma transacción |
+| Cierre | Ciclo cerrado y cómputo cerrado/en cierre son de lectura. No cerrar ciclo con cómputos abiertos o sesiones pendientes. El cierre oficial de cómputos pertenece a fase 3 |
+| Consulta tras retiro | Se conserva el acceso del estudiante a su grupo histórico. Esto **no** autoriza registrar asistencia fuera de vigencia |
+| Tiempo | Instantes UTC; presentación `America/El_Salvador`. Fechas académicas se almacenan como DATE |
+| CSV | Solo altas de docente/estudiante e inscripciones nuevas. No sobrescribe cuentas, no importa coordinación, no confirma filas parcialmente |
+
+El 75 %, tardanzas, justificadas, plazos y denominador aún necesitan validación institucional antes
+de implementarse. `config/attendance.php` contiene una **propuesta de demostración**, no una regla aprobada.
+Los cómputos nuevos conservan su `policy_version` propuesta; fase 3 deberá fijar la política aprobada y la instantánea.
+
+## Tecnologías
 
 | Parte | Base |
 | --- | --- |
-| Servidor | PHP 8.4; Laravel 13 (parche exacto en composer.lock) |
-| Datos | PostgreSQL 17; instantes UTC, visualización America/El_Salvador |
-| Vistas | Blade; fuentes SCSS Tabler 1.6.1 del ZIP proporcionado |
-| Recursos | Node 24 LTS; npm y Vite; Bootstrap JS 5.3.8 |
-| Acceso | Laravel Fortify y Policies propias |
-| Integraciones preparadas | Dompdf y endroid/qr-code instalados; sin endpoints de reporte/QR todavía |
-| Calidad | PHPUnit, pruebas NDEF con node:test, Pint y workflow de GitHub Actions |
+| Servidor | PHP 8.4, Laravel 13, Fortify; versiones exactas en composer.lock |
+| Datos | PostgreSQL 17; Policies, restricciones SQL y acciones transaccionales |
+| Vistas | Blade, fuentes Tabler 1.6.1 adjuntas; recursos locales, sin CDN |
+| Recursos | Node 24 LTS, npm, Vite; Bootstrap JS 5.3.8 |
+| Herramientas | Compose de desarrollo; pgAdmin 9.17 opcional |
+| Calidad | PHPUnit, pruebas NDEF con node:test, Pint y GitHub Actions con PostgreSQL 17 |
+| Preparación futura | Dompdf y endroid/qr-code instalados; sin flujos de reporte/QR todavía |
 
-No hay una segunda aplicación frontend ni un servidor Node permanente. No se usa CDN para la interfaz.
-Se conservan composer.lock y package-lock.json para reproducir las dependencias.
+No hay otro frontend ni servidor Node permanente. Se conservan ambos archivos lock.
+Los nombres técnicos `siaa` de base, volumen/proyecto Docker y cuentas demo permanecen para reutilizar
+los datos de la primera versión. No cambies esos nombres para actualizar la marca.
 
-## Instalación con Docker (Windows, Linux o macOS)
+## Actualizar tu primera versión ya instalada
 
-Requiere Docker con Compose. Ejecuta los comandos dentro de esta carpeta.
+Lee [docs/update-v0.2.0.md](docs/update-v0.2.0.md). Extrae el ZIP aparte y copia sus archivos sobre
+una **rama nueva de tu repositorio**, conservando `.git`, `.env`, APP_KEY y los datos/volúmenes.
+Este ZIP contiene el código y los recursos compilados; **no incluye `.git` ni dependencias descargadas**.
+No sustituye el historial de GitHub. Después de copiar los archivos, desde tu proyecto:
 
-1. Copia `.env.example` a `.env`. En PowerShell: `Copy-Item .env.example .env`.
-2. Define `DB_PASSWORD` y `DEMO_PASSWORD` con contraseñas nuevas. `DEMO_PASSWORD` debe tener al menos
-   12 caracteres. Mantén `APP_ENV=local`, `DB_CONNECTION=pgsql` y `DEMO_SEED=true`.
-3. Ejecuta, en este orden:
+```bash
+docker compose up -d db
+docker compose build app
+docker compose run --rm app composer install
+docker compose run --rm node npm ci
+docker compose run --rm node npm run build
+docker compose run --rm app php artisan optimize:clear
+docker compose run --rm app php artisan migrate
+docker compose up -d --force-recreate app
+```
+
+Abre http://localhost:8080 y entra con tu cuenta existente. **No regeneres APP_KEY, no reemplaces `.env`
+ni ejecutes migrate:fresh para actualizar.** El seeder sigue sin cambiar contraseñas existentes.
+La migración nueva agrega unicidad del correo sin distinguir mayúsculas y conserva los datos.
+El documento de actualización explica qué hacer si había correos duplicados por mayúsculas.
+
+## Instalación nueva con Docker: Windows, Linux o macOS
+
+Requiere Docker Desktop/Engine con Compose. Comandos desde la carpeta `SmartAulaUES` extraída.
+
+1. Copia `.env.example` a `.env`. PowerShell: `Copy-Item .env.example .env`.
+2. Define contraseñas nuevas en `DB_PASSWORD` y `DEMO_PASSWORD`. La segunda requiere al menos
+   12 caracteres. Conserva `APP_ENV=local`, `DB_CONNECTION=pgsql` y `DEMO_SEED=true` para la demo.
+3. Ejecuta:
 
 ```bash
 docker compose up -d db
@@ -52,10 +133,10 @@ docker compose run --rm node npm run build
 docker compose up -d app
 ```
 
-Abre **http://localhost:8080**. PostgreSQL usa el puerto del host **55432**, para convivir con otra
-instancia en 5432. Dentro de Docker la aplicación usa `db:5432` automáticamente.
-Si 8080 está ocupado, añade `APP_PORT=8090` y cambia `APP_URL=http://localhost:8090` en `.env`.
-Los recursos compilados se incluyen en el ZIP como comodidad; vuelve a compilarlos al editar el diseño.
+Abre **http://localhost:8080**. PostgreSQL publica **55432** en tu equipo. Dentro de Docker la aplicación
+usa **db:5432**. `--no-reload` en Dockerfile conserva esa dirección en el proceso HTTP; no lo elimines.
+Si 8080 está ocupado, añade `APP_PORT=8090` y usa `APP_URL=http://localhost:8090` en `.env`.
+Los puertos se publican únicamente en el equipo local. Este Compose es de desarrollo.
 
 ```bash
 docker compose run --rm app php artisan test --compact
@@ -63,74 +144,44 @@ docker compose run --rm node npm test
 docker compose stop
 ```
 
-La base `siaa_test` se crea al inicializar un volumen nuevo. Si ya existía el volumen:
-`docker compose exec db createdb -U siaa siaa_test` (ajusta el usuario si lo cambiaste).
-Conservar el volumen mantiene los datos. `docker compose down -v` los elimina: no forma parte del arranque.
-La configuración Docker es de **desarrollo**, no un despliegue de producción.
+El volumen nuevo crea `siaa_test`. Si tu volumen ya existía y falta esa base:
+`docker compose exec db createdb -U siaa siaa_test` (adapta el usuario si lo cambiaste).
+La base de pruebas debe usarse exclusivamente para pruebas, que recrean sus tablas.
+`docker compose stop` conserva datos. **`docker compose down -v` elimina los volúmenes** y no es parte del arranque.
 
-### Actualización a SmartAulaUES v0.1.2
+### pgAdmin opcional
 
-Sigue [docs/update-v0.1.2.md](docs/update-v0.1.2.md) para incorporar el cambio de nombre y el icono
-a una instalación o repositorio existente. La configuración del sistema ahora está en
-`config/smartaulaues.php`. Actualiza en tu `.env`:
+La aplicación administra usuarios/grupos desde sus formularios. pgAdmin sirve para inspeccionar la BD;
+PostgreSQL y Laravel gestionan los datos y migraciones aunque pgAdmin no se inicie.
 
-```dotenv
-APP_NAME=SmartAulaUES
-MAIL_FROM_NAME=SmartAulaUES
-VITE_APP_NAME=SmartAulaUES
-```
-
-La marca usa una configuración única en las vistas. `SMARTAULAUES_DISPLAY_TIMEZONE` sustituye
-al nombre de variable anterior, que se sigue aceptando si ya estaba en tu `.env`.
-La base, el proyecto/volumen de Docker y los correos de prueba mantienen sus identificadores técnicos
-`siaa` para que la actualización reutilice los datos y las contraseñas existentes.
-No se modifican las relaciones, el esquema ni la contraseña de las cuentas.
-
-El icono propio (birrete y marca de asistencia) está en `public/brand/smartaulaues-icon.svg`,
-con versiones PNG de 192/512 px y favicon SVG/ICO. Se integra en el logotipo del menú y del acceso.
-
-### Corrección de conexión Docker desde v0.1.0
-
-Si el navegador muestra `Connection refused` contra `127.0.0.1:55432` aunque instalaste con Docker,
-actualiza el último comando de tu `Dockerfile`:
-
-```dockerfile
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080", "--no-reload"]
-```
-
-Laravel descarta variables externas al crear el proceso HTTP con recarga automática de `.env`.
-`--no-reload` conserva `DB_HOST=db` y `DB_PORT=5432`, definidos por Compose. El puerto 55432
-de `.env` sigue sirviendo para conexiones desde tu equipo; no lo cambies para aplicar este parche.
-
-Desde la carpeta donde está `compose.yaml`, con Docker Desktop abierto:
+Añade a tu `.env` un `PGADMIN_PASSWORD` nuevo, `PGADMIN_EMAIL=admin@example.com` y `PGADMIN_PORT=5050`.
+Si copiaste `.env.example` estos campos ya existen; solo falta la contraseña.
 
 ```bash
-docker compose up -d db
-docker compose build app
-docker compose run --rm app php artisan config:clear
-docker compose up -d --force-recreate app
-docker compose ps
+docker compose --profile tools up -d pgadmin
 ```
 
-Recarga http://localhost:8080. Si persiste, consulta `docker compose logs --tail=80 app db`.
-Si faltan tablas porque las migraciones no terminaron, ejecuta
-`docker compose run --rm app php artisan migrate --seed`.
-Esta actualización no requiere copiar de nuevo `.env` ni generar otra `APP_KEY`.
-Al cambiar `.env` con este arranque, usa `docker compose restart app`.
+Abre **http://localhost:5050**, entra con `PGADMIN_EMAIL`/`PGADMIN_PASSWORD` y abre el servidor
+**SmartAulaUES · desarrollo**. Para conectar a PostgreSQL introduce **DB_PASSWORD**, que es una contraseña
+diferente de la del portal pgAdmin. El servidor precargado usa host `db`, puerto `5432`, base/usuario `siaa`.
+Si personalizaste DB_DATABASE/DB_USERNAME, edita la conexión en pgAdmin. No guardes contraseñas en servers.json.
+No cambies tablas manualmente como sustituto de una migración versionada.
 
-## Instalación local, sin Docker
+`docker compose stop pgadmin` detiene la herramienta. Su volumen independiente conserva preferencias;
+no modifica el volumen de PostgreSQL. Instalar la aplicación no obliga a iniciar pgAdmin.
 
-Requisitos: PHP 8.4, Composer 2, PostgreSQL 17, Node 24 y npm.
-Extensiones: pdo_pgsql, mbstring, XML/DOM, ctype, curl, fileinfo, intl, gd, zip y bcmath.
-`composer check-platform-reqs` comprueba los requisitos del entorno real.
+## Instalación local sin Docker
+
+PHP 8.4, Composer 2, PostgreSQL 17, Node 24/npm. Extensiones: pdo_pgsql, mbstring, XML/DOM, ctype,
+curl, fileinfo, intl, gd, zip y bcmath. `composer check-platform-reqs` verifica requisitos reales.
 
 ```bash
 php scripts/configure.php
 ```
 
-Este comando crea `.env` con contraseñas locales aleatorias y muestra la contraseña ficticia.
-No sobrescribe un `.env` existente. Adapta DB_HOST, DB_PORT, DB_USERNAME y DB_PASSWORD a tu PostgreSQL.
-Crea dos bases con tu usuario: **siaa** y **siaa_test**; las pruebas solo aceptan nombres con sufijo `_test`.
+Crea `.env` con contraseñas aleatorias y muestra la contraseña de las cuentas ficticias. Conserva
+un `.env` existente. Adapta DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD a tu PostgreSQL y crea las bases
+**siaa** y **siaa_test** con tu usuario.
 
 ```bash
 composer install
@@ -141,100 +192,123 @@ npm run build
 php artisan serve --port=8080
 ```
 
-Abre **http://localhost:8080**. Para editar recursos con recarga: `npm run dev` en otra terminal.
-`composer run setup` automatiza instalación, migraciones y compilación **después** de configurar `.env`
-y arrancar PostgreSQL. No restaura ni elimina tu base.
+Estos comandos corresponden a instalación nueva; una actualización conserva APP_KEY.
+Para editar recursos con recarga ejecuta `npm run dev` en otra terminal.
+`composer run setup` automatiza una instalación con `.env`/PostgreSQL previamente configurados;
+conserva una APP_KEY existente y no elimina la BD.
 
-Para probar localmente, copia `.env.testing.example` a `.env.testing`, define sus credenciales de `siaa_test`
-y ejecuta `php artisan key:generate --env=testing`. Luego:
+Para pruebas locales, copia `.env.testing.example` a `.env.testing`, configura credenciales de
+`siaa_test` y ejecuta `php artisan key:generate --env=testing`. Después:
 
 ```bash
 composer validate --strict
 composer check-platform-reqs
+vendor/bin/pint --test
 php artisan test --compact
 npm test
 npm run build
 ```
 
-Las pruebas recrean las tablas de `siaa_test`; usa una base exclusivamente de pruebas.
-
-## Cuentas ficticias
+## Cuentas ficticias y diagnóstico de acceso
 
 | Perfil | Correo |
 | --- | --- |
 | Coordinación | coordinacion@siaa.test |
-| Docente del grupo 1 | docente1@siaa.test |
-| Docente del grupo 2 | docente2@siaa.test |
+| Docente 1 / 2 | docente1@siaa.test / docente2@siaa.test |
 | Estudiante 01 | estudiante01@siaa.test |
-| Otros estudiantes | estudiante02@siaa.test ... estudiante20@siaa.test |
+| Otros estudiantes | estudiante02@siaa.test … estudiante20@siaa.test |
 
-Todas usan inicialmente **el valor de DEMO_PASSWORD de tu .env**. No se incluye una contraseña real
-ni APP_KEY en el ZIP. Repetir el seeder no duplica cuentas ni cambia contraseñas ya existentes.
-El seeder de demostración se bloquea fuera de local/testing. Con DEMO_SEED=false no crea cuentas.
-La recuperación de acceso controlada por coordinación se desarrollará en otra versión.
+Las cuentas nuevas del seed usan **DEMO_PASSWORD de `.env`**. El ZIP no contiene contraseñas, APP_KEY ni
+una BD prellenada. Seed idempotente: 23 usuarios, 2 materias/grupos, 40 inscripciones y 8 sesiones ficticias.
+Solo crea cuentas en local/testing con `DEMO_SEED=true`; no restablece contraseñas ya existentes.
+Coordinación puede recuperar el acceso de otras cuentas desde **Usuarios → Editar → Restablecer acceso**.
 
-## Recorrido para revisar la base
-
-1. Entra como coordinación y revisa Inicio, Usuarios, Ciclos y Materias y grupos.
-2. Entra como docente1: solo aparecerá su grupo de Análisis de sistemas.
-3. Entra como estudiante01: dentro de un grupo solo verás su inscripción.
-4. Abre Asistencias o Permisos para ver su estado de próxima versión.
-5. Desde una URL HTTPS y un Android compatible, abre Prueba del lector NFC.
-
-La detección de NDEFReader no garantiza hardware NFC. La prueba lee contenido NDEF sin mostrar el token,
-no escribe etiquetas y no confirma asistencia. Ver [docs/nfc-contract.md](docs/nfc-contract.md).
-
-## Organización del código
-
-| Carpeta | Responsabilidad |
-| --- | --- |
-| app/Models, Enums | Entidades, relaciones y estados del esquema |
-| app/Http/Controllers | Consultas y vistas; sin reglas de asistencia duplicadas |
-| app/Policies, Http/Middleware | Recursos autorizados, roles y usuarios activos |
-| app/Actions/Attendance, Reports | Espacio reservado para acciones transaccionales de próximas versiones |
-| app/Http/Requests | Validadores específicos que se incorporarán con cada formulario |
-| resources/views/layouts, components | Diseño compartido y componentes reutilizables |
-| resources/views/admin, academic, terminal, profile | Pantallas de la versión base |
-| resources/vendor/tabler/scss | Fuentes originales seleccionadas del ZIP; mantener sus avisos de licencia |
-| resources/scss/tabler.scss, css/app.css | Configuración de Tabler y diseño SmartAulaUES |
-| resources/js/nfc-reader.js | Prueba real de lectura, todavía sin registrar en servidor |
-| database/migrations, seeders, factories | Esquema, datos ficticios y escenarios de prueba |
-| tests, .github | Pruebas y preparación de integración continua |
-| docs | Alcance, decisiones, modelo de datos, contratos y versiones |
-
-## Git y conexión posterior con GitHub
-
-El ZIP contiene `.git`, con **v0.1.0**, **v0.1.1** y **v0.1.2** en **main**.
-No hay remoto conectado. Después de crear un repositorio **vacío** en GitHub:
+Si cambiaste DEMO_PASSWORD después del primer seed, las cuentas anteriores mantienen su contraseña inicial.
+Si aparece `Connection refused` comprueba `docker compose ps` y `docker compose logs --tail=80 app db`.
+Si PostgreSQL dice `password authentication failed`, cambiar DB_PASSWORD en `.env` **no cambia** la
+contraseña del usuario de un volumen existente. Para sincronizarla sin borrar datos:
 
 ```bash
-git status
-git remote add origin https://github.com/TU_USUARIO/smartaulaues.git
-git push -u origin main
-git push origin v0.1.0 v0.1.1 v0.1.2
+docker compose exec db psql -U siaa -d postgres
 ```
 
-Configura tu identidad personal para los commits siguientes con `git config user.name` y `git config user.email`.
-Si GitHub creó un README inicial, usa un repositorio vacío o integra ese historial sin un push forzado.
-No subas .env, vendor, node_modules, claves ni evidencias privadas. Evita subir el ZIP completo al repositorio.
+Dentro de psql ejecuta `\password siaa`, escribe dos veces el mismo valor de DB_PASSWORD y sal con `\q`.
+Después ejecuta `docker compose run --rm app php artisan config:clear` y `docker compose restart app`.
+Adapta `siaa` al usuario real de tu base. No publiques tu `.env` ni pegues sus contraseñas en un issue.
 
-Cada función nueva se trabaja en una rama, por ejemplo `feature/academic-cycles`, con revisión y pruebas.
-[docs/versioning.md](docs/versioning.md) describe cómo actualizar y registrar la versión.
-[docs/project-state.md](docs/project-state.md) es el punto de continuidad de este entorno.
+## Recorrido para probar la fase 1
 
-## Validación y siguiente etapa
+1. Entra como coordinación. Crea docente y estudiante (con carné), ciclo y materia.
+2. Crea un grupo con docente/cupo y abre su detalle. Define cómputos sin superponer fechas.
+3. Inscribe al estudiante. Edita vigencia/retiro con motivo; comprueba que la fila se conserva.
+4. En Importaciones descarga una plantilla. Carga un CSV con duplicados: muestra errores y bloquea
+   confirmar. Corrígelo y confirma; comprueba usuarios/inscripciones y bitácora.
+5. En Usuarios restablece una contraseña; entra con ella y cámbiala desde Mi cuenta.
+6. Entra como docente: solo consulta sus grupos. Entra como estudiante: solo ve su inscripción;
+   URLs directas de administración dan 403.
+7. Abre Asistencias/Permisos/Reportes: continúan marcados como pendientes. El diagnóstico NFC
+   no guarda asistencia; requiere HTTPS y un dispositivo compatible para lectura física.
 
-Los resultados y límites reales están en [docs/test-results.md](docs/test-results.md).
-El workflow se podrá ejecutar en GitHub cuando conectes el repositorio; no se presenta como ya ejecutado.
-No se ha probado un teléfono físico, HTTPS externo, Docker ni el prototipo ESP32/PN532.
+El seed ya incluye cómputos y sesiones. Para recorrer altas sin alterar ese escenario crea otro ciclo/grupo.
+[docs/csv-imports.md](docs/csv-imports.md) contiene formatos y ejemplos ficticios.
 
-Siguiente incremento recomendado: CRUD de ciclos, catálogo, grupos e inscripciones con control de cupos;
-comprobar NFC/HTTPS en el dispositivo real desde la primera semana.
+## Mapa del código y contexto para otras IAs
 
-## Referencias y licencias
+| Ruta | Responsabilidad |
+| --- | --- |
+| app/Actions/Academic | Reglas transaccionales, gestión de cuentas, auditoría e importación |
+| app/Http/Requests | Autorización de coordinación, normalización y validación de formularios |
+| app/Http/Controllers/Admin | Operaciones administrativas; delegan reglas a acciones |
+| app/Policies, Http/Middleware | Acceso por perfil/recurso, estado y sesión vigente |
+| app/Models, Enums | Entidades, relaciones y estados del esquema |
+| resources/views/layouts, components | Diseño compartido; x-form-field muestra errores y etiquetas |
+| resources/views/admin, academic, profile | Gestión académica y consultas restringidas |
+| resources/vendor/tabler/scss, resources/scss, resources/css | Plantilla proporcionada y diseño SmartAulaUES |
+| resources/js/nfc-reader.js | Diagnóstico real NDEF; conexión al servidor pendiente |
+| database/migrations, seeders, factories | Esquema incremental, demo y escenarios de pruebas |
+| tests, .github/workflows/ci.yml | Pruebas e integración con PostgreSQL 17 nativo |
+| docker/pgadmin, compose.yaml | Entorno local y consulta opcional de PostgreSQL |
+| docs, AGENTS.md, CHANGELOG.md | Contexto, decisiones, límites, contratos, criterios y versiones |
 
-- Guía adjunta: [docs/reference/Guia_de_desarrollo_SIAA_v2.pdf](docs/reference/Guia_de_desarrollo_SIAA_v2.pdf).
+Antes de modificar: leer **este README**, [AGENTS.md](AGENTS.md), [docs/project-state.md](docs/project-state.md),
+[docs/development-phases.md](docs/development-phases.md), [docs/decisions.md](docs/decisions.md) y CHANGELOG.
+La guía está en `docs/reference/Guia_de_desarrollo_SIAA_v2.pdf`; la marca y los contratos actuales prevalecen
+sobre nombres o reparto de trabajo antiguos. No cambiar Laravel/Blade por React, no simular módulos pendientes,
+no duplicar reglas ni editar migraciones compartidas. Mantener UTC y privacidad por recurso.
+
+Para cada cambio: definir fase/criterio de aceptación, trabajar en rama, añadir pruebas útiles, ejecutar
+comprobaciones y actualizar README/estado/changelog. Registrar resultados **reales**, distinguiendo motor
+embebido, PostgreSQL nativo, Docker y teléfono físico. La siguiente IA debe conocer qué falta verificar.
+
+## GitHub y versiones
+
+Remoto del equipo: **https://github.com/Josu1202/SmartAulaUES.git**. Primera base pública verificada:
+commit `446396cb61353fbd391faab0078babe908e43980`. La entrega se prepara en
+`feature/phase-1-academic-administration`; no se publica automáticamente en el remoto.
+No subas el ZIP como código del repositorio: copia los archivos fuente en tu checkout y conserva `.git`.
+[docs/update-v0.2.0.md](docs/update-v0.2.0.md) incluye los comandos para rama, commit, push y PR.
+
+[docs/versioning.md](docs/versioning.md) registra incrementos propuestos. Actualiza VERSION,
+config/smartaulaues.php, package.json/package-lock.json y CHANGELOG al liberar. Cada PR requiere revisión
+de otro miembro y CI antes de integrar. No usar push forzado ni publicar secretos, evidencias privadas o datos reales.
+
+## Evidencia y límites
+
+Para preparar otra entrega desde un checkout limpio y con los cambios registrados:
+`npm run build` y `composer run package`. Crea el ZIP en `dist/`, con fuentes versionadas,
+assets compilados, `RELEASE.json` (commit y hashes por archivo) y checksum SHA-256. Excluye secretos,
+dependencias, datos y `.git`; no publica nada en GitHub. Para fases posteriores adapta el nombre del
+paquete y los campos de fase en scripts/package.php.
+
+[docs/test-results.md](docs/test-results.md) y [docs/verification.json](docs/verification.json) registran la
+verificación de v0.2.0 y conservan resultados anteriores por versión. La ejecución de Docker/pgAdmin,
+CI en GitHub y NFC físico se confirma en el equipo real; no se presenta como realizada en este entorno.
+La fase 1 proporciona código operativo; una liberación institucional requiere las fases restantes y sus pruebas.
+
+## Referencias
+
+- [Guía proporcionada](docs/reference/Guia_de_desarrollo_SIAA_v2.pdf).
 - [Laravel 13](https://laravel.com/docs/13.x/installation), [Fortify](https://laravel.com/docs/13.x/fortify).
-- [Tabler con Laravel](https://docs.tabler.io/ui/getting-started/frameworks/laravel).
-- [Web NFC](https://developer.chrome.com/docs/capabilities/nfc).
-- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) conserva los créditos de las dependencias.
+- [pgAdmin en contenedor](https://www.pgadmin.org/docs/pgadmin4/9.17/container_deployment.html).
+- [Web NFC](https://developer.chrome.com/docs/capabilities/nfc), [contrato NFC](docs/nfc-contract.md).
+- [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) conserva los avisos de las dependencias.

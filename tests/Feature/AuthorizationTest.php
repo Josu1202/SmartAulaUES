@@ -14,7 +14,7 @@ class AuthorizationTest extends TestCase
     public function test_student_and_teacher_cannot_open_coordinator_pages(): void
     {
         foreach ([User::factory()->create(), User::factory()->teacher()->create()] as $user) {
-            $this->actingAs($user)->get('/admin/users')->assertForbidden();
+            $this->withSession(['password_hash_web' => $user->password])->actingAs($user)->get('/admin/users')->assertForbidden();
             $this->actingAs($user)->get('/admin/cycles')->assertForbidden();
         }
     }
@@ -65,7 +65,8 @@ class AuthorizationTest extends TestCase
     public function test_mobile_reader_page_is_restricted_to_teachers_and_coordinator(): void
     {
         $this->actingAs(User::factory()->create())->get('/teacher/terminal')->assertForbidden();
-        $this->actingAs(User::factory()->teacher()->create())->get('/teacher/terminal')->assertOk()->assertSee('Esta prueba no registra asistencias');
+        $teacher = User::factory()->teacher()->create();
+        $this->withSession(['password_hash_web' => $teacher->password])->actingAs($teacher)->get('/teacher/terminal')->assertOk()->assertSee('Esta prueba no registra asistencias');
     }
 
     public function test_session_policy_denies_an_unassigned_teacher(): void

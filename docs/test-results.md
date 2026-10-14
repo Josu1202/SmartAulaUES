@@ -1,3 +1,65 @@
+# Evidencia de verificación · SmartAulaUES v0.2.0
+
+## Fase 1 — 13/10/2026
+
+| Comprobación ejecutada | Resultado |
+| --- | --- |
+| Instalación desde composer.lock/package-lock.json | Correcta; PHP 8.4.25 con pdo_pgsql y Node 24.19.0 |
+| PHPUnit, casos ejecutados individualmente | **66/66 casos; 313 aserciones correctas** |
+| Motor de datos de los casos PHP | PostgreSQL 17.5 embebido mediante PGlite/PDO; motor nuevo por caso |
+| NDEF, npm test | 8/8 casos correctos |
+| Composer validate/check-platform-reqs | Correctos; requisitos PHP explícitos |
+| Pint, Vite y Blade | Correctos |
+| Migraciones/seed por PDO | Aplicados; escenario ficticio original y alta de registros desde formularios |
+| Navegador Chromium 153, acceso real de tres perfiles | 19 comprobaciones completadas; flujos detallados abajo |
+| Nueve pantallas × tres anchos: 1440, 390 y 320 px | 27 mediciones; 0 desbordamientos horizontales de página |
+| JavaScript durante el recorrido | 0 errores de página |
+| CSRF en escritura real sin token | 419; escritura rechazada |
+| Compose/pgAdmin | YAML, perfil opcional, rutas/conexión sin contraseña y etiqueta 9.17 comprobados; contenedores no ejecutados |
+
+### Reglas verificadas en PHP
+
+Se conserva la batería de acceso/autorización/constraints/seeder de la base y se amplía para comprobar:
+creación completa de ciclo → materia → grupo → cómputo → inscripción; render de formularios;
+403 a docentes/estudiantes; normalización y unicidad de correo/carné; rol con historial; desactivación
+sin borrado; contraseña propia/restablecimiento y rechazo del hash de sesión anterior; docentes activos;
+fechas dentro del ciclo/sin superposición; alcance de IDs anidados; identidad estable del grupo;
+cupo anticipado, retiro inclusivo y capacidad mínima; conservación de asistencias/sesiones al editar
+fechas, incluidas sesiones que cruzan medianoche; ciclos/cómputos cerrados de lectura y restricciones
+al cerrar ciclo; CSV sin escritura en preview, errores/duplicados, confirmación completa, no sobreescritura,
+conflictos o cupos que cambian entre pasos, caducidad/nonce, plantillas y escape HTML.
+
+Cada caso se ejecutó con PHPUnit y conexión PDO a un motor aislado; se repitieron los casos afectados
+por correcciones posteriores. El agregado final incluye resultados correctos de los 66 casos del
+código entregado; no se presenta como una ejecución conjunta en PostgreSQL nativo.
+
+### Recorrido real por navegador
+
+Coordinación inició sesión, creó estudiante/ciclo/materia/grupo/cómputo, inscribió y registró retiro;
+rechazó CSV duplicado, confirmó CSV de dos cuentas y CSV de inscripción al grupo; consultó la bitácora.
+Se rechazó un POST sin token con 419. Docente consultó sus grupos y recibió 403 en administración.
+Estudiante entró con la contraseña creada, consultó solo su inscripción en un grupo compartido,
+recibió 403 en importaciones, cambió su contraseña, salió y volvió a entrar con la nueva.
+
+Se midieron inicio, usuarios, alta de usuario, alta de ciclo, alta de grupo, detalle de grupo, CSV,
+bitácora y cuenta en los tres anchos. Tablas usan desplazamiento dentro de sus contenedores;
+la página no se desborda. Menú móvil/Escape y vistas de grupo/formulario inspeccionados visualmente.
+La aplicación ejecutada es la Laravel del proyecto y su esquema PostgreSQL con datos ficticios;
+no un HTML suelto ni un layout con usuario simulado. Las capturas/datos temporales no se incluyen en ZIP.
+
+### Límites de esta evidencia
+
+Este entorno no ejecuta Docker ni PostgreSQL nativo como servicio. PGlite soporta una conexión y no
+reproduce el ciclo de conexiones de una batería conjunta ni demuestra concurrencia/carga nativas.
+**Ejecutar la batería normal en CI/PostgreSQL 17 y Compose/pgAdmin en el equipo real sigue pendiente**.
+El workflow existente lo configura; no se afirma que GitHub Actions ya pasó ni que se publicó la rama.
+
+No se probó Android/NFC físico, escritura de etiquetas, HTTPS externo, registro de asistencia,
+PDF oficial, respaldo/restauración o ESP32. Esas funciones y pruebas pertenecen a fases 2–3.
+Los resultados de versiones anteriores se conservan a continuación sin atribuirlos a este incremento.
+
+---
+
 # Evidencia de verificación · SmartAulaUES v0.1.2
 
 ## Marca e icono v0.1.2 — 12/10/2026

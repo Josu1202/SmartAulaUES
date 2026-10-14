@@ -1,4 +1,4 @@
-# Decisiones técnicas · 0.1.2
+# Decisiones técnicas · 0.2.0
 
 | Decisión | Motivo y aplicación |
 | --- | --- |
@@ -21,6 +21,15 @@
 | Sin Sanctum aún | NFC móvil usa la sesión web. API del ESP32 y sus credenciales son ampliación posterior |
 | Docker de desarrollo | PHP 8.4 y PostgreSQL 17 sin depender de un XAMPP con PHP 8.2 |
 | Servidor Docker sin recarga de .env | `--no-reload` conserva la dirección `db:5432` inyectada por Compose; reiniciar app al cambiar .env |
+| Tres fases por módulos completos | Solicitud del usuario 13/10/2026; cada responsable implementa servidor/vista/pruebas de su fase. Reemplaza el reparto A/B/C por especialidades de la guía |
+| Fase 1 v0.2.0 | Administración de cuentas/ciclos/catálogo/grupos/cómputos/inscripciones, CSV y bitácora; fases 2–3 pendientes |
+| pgAdmin opcional | Perfil tools y volumen independiente; PostgreSQL/Laravel funcionan sin pgAdmin; conexión precargada sin contraseña |
+| Correo sin distinguir mayúsculas | Normalización en formularios/login/CSV e índice único lower(email), migración incremental |
+| Retiro inclusivo y reserva anticipada | active_to incluye el día final; inscripciones futuras reservan plaza; modificar vigencia existente al reincorporar |
+| Preservar identidades e historial | No DELETE; identidad de grupo no cambia con datos; roles con enlaces no cambian; motivos para modificaciones sensibles |
+| CSV completo por lote | Preview 15 min/500 filas/1 MB; hash inicial en sesión, no contraseña en CSV; revalidación y una transacción |
+| Claves existentes conservadas en setup | scripts/setup.php genera APP_KEY solo si falta; actualizar no invalida sesiones cifradas/datos por rotar clave |
+| Entrega ZIP sin Git | Preservar el checkout/remoto del equipo; copiar fuentes sobre rama, revisar y publicar por PR; historia registrada en CHANGELOG |
 
 La guía contiene decisiones por validar con coordinación: tardanzas, vigencias, plazos de permisos,
 regla de justificadas y aplicación institucional del 75 %. Esta base no las convierte en políticas definitivas.

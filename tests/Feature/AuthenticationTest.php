@@ -29,6 +29,13 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_existing_mixed_case_email_can_still_authenticate(): void
+    {
+        $user = User::factory()->create(['email' => 'Legacy@Example.Test']);
+        $this->post('/login', ['email' => 'LEGACY@example.test', 'password' => 'Test-password-2026!'])->assertRedirect('/dashboard');
+        $this->assertAuthenticatedAs($user);
+    }
+
     public function test_inactive_user_cannot_login(): void
     {
         $user = User::factory()->inactive()->create();

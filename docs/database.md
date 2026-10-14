@@ -1,11 +1,12 @@
 # Modelo de datos
 
-Migraciones secuenciales del framework y cuatro migraciones propias. Usar migraciones nuevas cuando
+Migraciones secuenciales del framework, cuatro migraciones originales de dominio y una nueva en v0.2.0.
+Usar migraciones nuevas cuando
 la versión inicial ya se haya compartido o tenga datos: no cambiar silenciosamente un esquema aplicado.
 
 | Tabla | Propósito / restricción clave |
 | --- | --- |
-| users | Cuenta, rol, active, correo único y carné único opcional |
+| users | Cuenta, rol, active, correo único (también lower(email)) y carné único opcional en BD/obligatorio en altas de estudiantes |
 | academic_cycles | Ciclo; código único y fechas coherentes |
 | subjects | Catálogo independiente; código único |
 | offerings | Materia/ciclo/grupo único; docente y capacidad > 0 |
@@ -43,5 +44,7 @@ Las tablas referenciadas tienen UNIQUE(id, offering_id). No se usa borrado en ca
 
 Las constraints **no verifican por sí solas** el rol del docente, cupos restantes, inscripción vigente,
 ventana del portal, idempotencia por cuerpo, visibilidad de archivos o reglas del 75 %.
-Esas validaciones deben vivir en Requests/Policies/Actions de los siguientes incrementos.
+v0.2.0 valida roles de asignación, cupos y fechas académicas en Requests/Policies/Actions/Academic,
+con locks ciclo → grupo → recurso y bitácora. La vigencia para registrar asistencia, ventana de portal,
+credenciales e idempotencia se implementan en fase 2; cierre/cálculo/descargas privadas en fase 3.
 En esta entrega no existen endpoints para escribir asistencias, credenciales, permisos o reportes.
