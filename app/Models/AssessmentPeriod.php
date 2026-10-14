@@ -11,7 +11,7 @@ class AssessmentPeriod extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['offering_id', 'number', 'starts_on', 'ends_on', 'state', 'policy_version', 'closed_at'];
+    protected $fillable = ['offering_id', 'number', 'starts_on', 'ends_on', 'state', 'policy_version', 'closed_at', 'format_period_id'];
 
     protected function casts(): array
     {

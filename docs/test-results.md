@@ -1,3 +1,139 @@
+# Evidencia de verificación · SmartAulaUES v0.3.0
+
+## Fase 2 · 13/10/2026 (El Salvador)
+
+| Comprobación ejecutada | Resultado |
+| --- | --- |
+| Runtime | PHP 8.4.25/pdo_pgsql, Node 24.19.0, PostgreSQL 17.5 PGlite/PDO |
+| PHPUnit aislado por caso | **106/106 casos, 566 aserciones correctas** |
+| JavaScript, npm test | **14/14**: NDEF, UUID y memoria de reintento |
+| Composer validate --strict / check-platform-reqs | Correctos |
+| Pint --test, Vite, Blade y git diff --check | Correctos |
+| Actualización del esquema v0.2.0 con seed previo | 23 cuentas/contraseña, 40 inscripciones y 8 sesiones conservadas; años anteriores NULL |
+| Laravel real por HTTP, tres perfiles, Chromium 153.0.8010.0 | **29 comprobaciones** completadas |
+| Pantallas de administración/consulta y consola en curso, 1440/390/320 px | **39 mediciones**, sin desbordamiento horizontal de página |
+| Errores JavaScript de página | 0 |
+| Escritura HTTP sin CSRF | 419 |
+| Script de procesos de registro | 4 escenarios correctos en smoke de conexiones PGlite serializadas; concurrencia nativa no demostrada |
+| NFC del navegador | NDEF simulado para escritura/scan; servidor real para alta y asistencia, sin dispositivo físico |
+
+### Reglas comprobadas
+
+Se conservan los casos de fase 1: autenticación/sesiones/roles, fechas/historial/cupos, CSV y restricciones.
+Fase 2 agrega directorios y años/altas masivas; actualización acotada de años sin reset de acceso;
+formato/copia/fechas/solapamiento y calendario usado protegido; inscripción filtrada/atómica;
+programación propia/UTC/no solapamiento docente, estados y generación de ausencias/justificadas;
+credenciales pendientes/expiradas/revocadas/activas, lector propio y métodos habilitados;
+registro único/UUID/cuerpo/replay, UUID normalizado/IDs de formulario, cuentas/inscripciones no vigentes;
+correcciones auditadas, permisos/evidencia privada/decisión inmutable y límite de 5 MB;
+privacidad de resultados/solicitudes/archivos/avisos, estadísticas y permisos pendientes autorizados.
+
+Los casos usan motor nuevo por prueba mediante PDO, con reejecución de casos afectados tras correcciones.
+El agregado corresponde al código entregado; no se presenta como batería conjunta contra PostgreSQL nativo.
+
+### Recorrido por navegador y actualización
+
+Primero se aplicó el esquema de fase 1 a una BD ficticia, se sembró y se ejecutaron migraciones de fase 2:
+contraseña/IDs/inscripciones/sesiones conservados, sin años inventados. Coordinación creó dos estudiantes
+por lote manual y tres por CSV con años, clasificó una cuenta anterior por CSV y filtró directorios.
+Creó ciclo/formato de tres cómputos/grupo, que heredó todas las fechas, y seleccionó cinco alumnos por año.
+Se comprobó formato utilizado bloqueado y rechazo de URLs administrativas para docente.
+
+Coordinación emitió/escribió/leyó/activó una credencial mediante NDEF simulado. El docente real programó
+su clase, la inició y abrió QR/enlace/NFC/manual. Se perdió deliberadamente una respuesta NFC después
+del guardado: la UI mostró Sin confirmar, reintentó con el mismo UUID, recibió replay y conservó una fila.
+Se confirmó presencia manual con motivo. Apertura/cierre dinámicos actualizaron el estado del portal.
+
+Estudiante abrió la ruta temporal QR como invitado, inició sesión conservando el fragmento en memoria
+y confirmó solo su inscripción. Enlace posterior no duplicó esa presencia. Otro estudiante adjuntó
+PDF ficticio cercano a 5 MB y solicitó permiso. El docente finalizó: tres presencias y dos ausencias,
+solicitud pendiente conservada. Descargó evidencia privada y aprobó: una ausencia pasó a justificada.
+Gráficas de docente/estudiante mostraron conteos autorizados; avisos y filtro de bitácora fueron reales.
+
+Se midieron doce páginas en los tres anchos y la consola en curso en esos anchos (39 medidas).
+Las tablas desplazan dentro de su contenedor; menú móvil/Escape y gráficas/formularios inspeccionados.
+El código Laravel y sus assets compilados se ejecutaron, sin mock de resultados/BD. Capturas y fixtures
+no se entregan ni se publican. Solo la API del dispositivo NFC se simuló en el navegador.
+
+### Carreras y límites pendientes
+
+`tests/Concurrency/attendance-races.php` usa procesos PHP independientes, barrera de inicio y BD _test
+migrada; comprueba mismo UUID/cuerpo, NFC/enlace/manual, mismo UUID/cuerpos distintos y registro frente
+a finalizar clase. Limpia únicamente sus fixtures. El script pasó un smoke con socket PGlite serializado;
+ese transporte no produce transacciones nativas paralelas. **Ejecutarlo con PostgreSQL 17 real y CI**
+sigue pendiente. GitHub Actions incluye la batería normal y ese script; no se ha ejecutado aquí.
+
+Docker/pgAdmin, Android/Chrome/etiquetas/HTTPS reales y respaldo/restauración no se ejecutaron.
+La escritura/scan simulados no certifican viabilidad física. NFC físico se acepta con el plan de
+nfc-contract.md. No se han implementado porcentaje oficial, cierre/snapshot/PDF, noticias ni hardware
+ESP32/biometría. No se afirma despliegue, push ni CI exitoso en GitHub.
+
+La evidencia anterior se conserva a continuación con su versión original.
+
+---
+
+# Evidencia de verificación · SmartAulaUES v0.2.0
+
+## Fase 1 — 13/10/2026
+
+| Comprobación ejecutada | Resultado |
+| --- | --- |
+| Instalación desde composer.lock/package-lock.json | Correcta; PHP 8.4.25 con pdo_pgsql y Node 24.19.0 |
+| PHPUnit, casos ejecutados individualmente | **66/66 casos; 313 aserciones correctas** |
+| Motor de datos de los casos PHP | PostgreSQL 17.5 embebido mediante PGlite/PDO; motor nuevo por caso |
+| NDEF, npm test | 8/8 casos correctos |
+| Composer validate/check-platform-reqs | Correctos; requisitos PHP explícitos |
+| Pint, Vite y Blade | Correctos |
+| Migraciones/seed por PDO | Aplicados; escenario ficticio original y alta de registros desde formularios |
+| Navegador Chromium 153, acceso real de tres perfiles | 19 comprobaciones completadas; flujos detallados abajo |
+| Nueve pantallas × tres anchos: 1440, 390 y 320 px | 27 mediciones; 0 desbordamientos horizontales de página |
+| JavaScript durante el recorrido | 0 errores de página |
+| CSRF en escritura real sin token | 419; escritura rechazada |
+| Compose/pgAdmin | YAML, perfil opcional, rutas/conexión sin contraseña y etiqueta 9.17 comprobados; contenedores no ejecutados |
+
+### Reglas verificadas en PHP
+
+Se conserva la batería de acceso/autorización/constraints/seeder de la base y se amplía para comprobar:
+creación completa de ciclo → materia → grupo → cómputo → inscripción; render de formularios;
+403 a docentes/estudiantes; normalización y unicidad de correo/carné; rol con historial; desactivación
+sin borrado; contraseña propia/restablecimiento y rechazo del hash de sesión anterior; docentes activos;
+fechas dentro del ciclo/sin superposición; alcance de IDs anidados; identidad estable del grupo;
+cupo anticipado, retiro inclusivo y capacidad mínima; conservación de asistencias/sesiones al editar
+fechas, incluidas sesiones que cruzan medianoche; ciclos/cómputos cerrados de lectura y restricciones
+al cerrar ciclo; CSV sin escritura en preview, errores/duplicados, confirmación completa, no sobreescritura,
+conflictos o cupos que cambian entre pasos, caducidad/nonce, plantillas y escape HTML.
+
+Cada caso se ejecutó con PHPUnit y conexión PDO a un motor aislado; se repitieron los casos afectados
+por correcciones posteriores. El agregado final incluye resultados correctos de los 66 casos del
+código entregado; no se presenta como una ejecución conjunta en PostgreSQL nativo.
+
+### Recorrido real por navegador
+
+Coordinación inició sesión, creó estudiante/ciclo/materia/grupo/cómputo, inscribió y registró retiro;
+rechazó CSV duplicado, confirmó CSV de dos cuentas y CSV de inscripción al grupo; consultó la bitácora.
+Se rechazó un POST sin token con 419. Docente consultó sus grupos y recibió 403 en administración.
+Estudiante entró con la contraseña creada, consultó solo su inscripción en un grupo compartido,
+recibió 403 en importaciones, cambió su contraseña, salió y volvió a entrar con la nueva.
+
+Se midieron inicio, usuarios, alta de usuario, alta de ciclo, alta de grupo, detalle de grupo, CSV,
+bitácora y cuenta en los tres anchos. Tablas usan desplazamiento dentro de sus contenedores;
+la página no se desborda. Menú móvil/Escape y vistas de grupo/formulario inspeccionados visualmente.
+La aplicación ejecutada es la Laravel del proyecto y su esquema PostgreSQL con datos ficticios;
+no un HTML suelto ni un layout con usuario simulado. Las capturas/datos temporales no se incluyen en ZIP.
+
+### Límites de esta evidencia
+
+Este entorno no ejecuta Docker ni PostgreSQL nativo como servicio. PGlite soporta una conexión y no
+reproduce el ciclo de conexiones de una batería conjunta ni demuestra concurrencia/carga nativas.
+**Ejecutar la batería normal en CI/PostgreSQL 17 y Compose/pgAdmin en el equipo real sigue pendiente**.
+El workflow existente lo configura; no se afirma que GitHub Actions ya pasó ni que se publicó la rama.
+
+No se probó Android/NFC físico, escritura de etiquetas, HTTPS externo, registro de asistencia,
+PDF oficial, respaldo/restauración o ESP32. Esas funciones y pruebas pertenecen a fases 2–3.
+Los resultados de versiones anteriores se conservan a continuación sin atribuirlos a este incremento.
+
+---
+
 # Evidencia de verificación · SmartAulaUES v0.1.2
 
 ## Marca e icono v0.1.2 — 12/10/2026

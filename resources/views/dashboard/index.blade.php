@@ -33,11 +33,10 @@
         <div class="card stat-card"><span class="stat-icon"><x-icon name="calendar" /></span><span
                 class="stat-label">Próximas sesiones</span><strong>{{ $sessions->count() }}</strong><small>Hasta 5 próximas
                 en este panel</small></div>
-        <div class="card stat-card stat-policy"><span class="stat-icon"><x-icon name="chart" /></span><span
-                class="stat-label">Umbral del
-                proyecto</span><strong>{{ config('attendance.minimum_percentage') }}<span>%</span></strong><small>Regla
-                propuesta de asistencia</small></div>
+        <div class="card stat-card stat-policy"><span class="stat-icon"><x-icon name="file" /></span><span
+                class="stat-label">Permisos pendientes</span><strong data-pending-count>{{ $statistics['pending_requests'] }}</strong><small>{{ $user->role === \App\Enums\Role::Student ? 'Mis solicitudes por resolver' : 'Solicitudes por revisar' }}</small></div>
     </div>
+    <div class="row g-4 mb-4"><div class="col-lg-6"><x-statistical-chart title="Sesiones por estado" :data="$statistics['sessions']" subtitle="Clases de los grupos autorizados para tu cuenta."/></div><div class="col-lg-6"><x-statistical-chart title="Resultados registrados" :data="$statistics['results']" subtitle="Resultados de las clases en curso y realizadas."/></div><div class="col-lg-6"><x-statistical-chart title="Presencias por método" :data="$statistics['methods']" subtitle="Cada resultado se cuenta una sola vez; los reintentos no aumentan esta gráfica."/></div>@if($user->role === \App\Enums\Role::Coordinator)<div class="col-lg-6"><x-statistical-chart title="Estudiantes por año de carrera" :data="$statistics['years']" subtitle="Cuentas activas; los registros antiguos sin año aparecen como Sin asignar."/></div>@endif</div>
     <div class="dashboard-grid">
         <section class="card">
             <div class="card-header">

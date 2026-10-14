@@ -24,3 +24,5 @@
 *.sqlite-*
 .DS_Store
 /backup/
+/dist/
+/RELEASE.json

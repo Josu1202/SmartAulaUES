@@ -15,11 +15,11 @@ class AttendanceEvent extends Model
 
     protected $keyType = 'string';
 
-    protected $fillable = ['event_id', 'actor_id', 'reader_session_id', 'credential_id', 'request_hash', 'outcome', 'received_at', 'attendance_id'];
+    protected $fillable = ['event_id', 'actor_id', 'reader_session_id', 'credential_id', 'request_hash', 'outcome', 'received_at', 'attendance_id', 'session_id', 'response', 'http_status'];
 
     protected function casts(): array
     {
-        return ['received_at' => 'immutable_datetime'];
+        return ['received_at' => 'immutable_datetime', 'response' => 'array'];
     }
 
     public function actor(): BelongsTo

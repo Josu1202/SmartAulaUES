@@ -17,6 +17,7 @@ $databasePassword = bin2hex(random_bytes(16));
 $demoPassword = 'SmartAulaUES-'.bin2hex(random_bytes(9)).'!';
 $template = preg_replace('/^DB_PASSWORD=$/m', 'DB_PASSWORD='.$databasePassword, $template);
 $template = preg_replace('/^DEMO_PASSWORD=$/m', 'DEMO_PASSWORD='.$demoPassword, $template);
+$template = preg_replace('/^PGADMIN_PASSWORD=$/m', 'PGADMIN_PASSWORD='.bin2hex(random_bytes(18)), $template);
 file_put_contents($root.'/.env', $template);
 chmod($root.'/.env', 0600);
 fwrite(STDOUT, ".env local creado.\nContraseña de las cuentas ficticias: {$demoPassword}\n");

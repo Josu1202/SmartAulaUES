@@ -1,0 +1,10 @@
+@extends('layouts.app')
+@section('title', $session->exists ? 'Reprogramar sesión' : 'Programar sesión')
+@section('content')
+<a class="back-link" href="{{ route('offerings.show', $offering) }}">← Grupo</a><x-page-heading :title="$session->exists ? 'Reprogramar sesión' : 'Programar sesión'" :subtitle="$offering->subject->name.' · Grupo '.$offering->group_code"/>
+<div class="card"><div class="card-body"><form method="POST" action="{{ $session->exists ? route('offerings.sessions.update', [$offering, $session]) : route('offerings.sessions.store', $offering) }}">@csrf @if($session->exists) @method('PUT') @endif
+<x-form-field name="period_id" label="Cómputo del calendario" :value="$session->period_id" :options="[''=>'Selecciona un cómputo'] + $periods->mapWithKeys(fn($p)=>[$p->id => 'Cómputo '.$p->number.' · '.$p->starts_on->format('d/m/Y').' — '.$p->ends_on->format('d/m/Y')])->all()" required help="El docente selecciona un cómputo existente; su número y fechas los define coordinación."/>
+<div class="row"><div class="col-md-6"><x-form-field name="starts_at" label="Inicio de la clase" type="datetime-local" :value="$session->starts_at?->timezone(config('smartaulaues.display_timezone'))->format('Y-m-d\TH:i')" required /></div><div class="col-md-6"><x-form-field name="ends_at" label="Fin de la clase" type="datetime-local" :value="$session->ends_at?->timezone(config('smartaulaues.display_timezone'))->format('Y-m-d\TH:i')" required /></div></div>
+<x-form-field name="modality" label="Modalidad" :value="$session->modality" :options="['in_person'=>'Presencial','online'=>'En línea','event'=>'Evento']" required/>
+@if($session->exists)<x-form-field name="reason" label="Motivo de la modificación" type="textarea" required maxlength="1000"/>@endif<p class="form-hint">Horas de El Salvador. El horario debe quedar dentro del cómputo y no superponerse con otra clase del docente.</p><div class="form-actions"><button class="btn btn-primary">{{ $session->exists ? 'Guardar modificación' : 'Programar sesión' }}</button><a class="btn btn-outline-secondary" href="{{ route('offerings.show', $offering) }}">Cancelar</a></div></form></div></div>
+@endsection

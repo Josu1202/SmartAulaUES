@@ -1,0 +1,6 @@
+@extends('layouts.app')
+@section('title', 'Avisos internos')
+@section('content')
+<x-page-heading title="Avisos internos" subtitle="Cambios de sesiones y respuestas a solicitudes de tu espacio académico."/>
+@forelse($notifications as $notification)<article class="card mb-3 {{ $notification->read_at ? '' : 'notice-unread' }}"><div class="card-body"><div class="d-flex justify-content-between flex-wrap gap-2"><h2 class="h3">{{ $notification->data['title'] }}</h2><small class="text-secondary">{{ $notification->created_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i') }}</small></div><p class="text-secondary">{{ $notification->data['message'] }}</p><div class="d-flex flex-wrap gap-2"><a class="btn btn-sm btn-outline-dark" href="{{ $notification->data['url'] }}">Abrir detalle</a>@if(!$notification->read_at)<form method="POST" action="{{ route('notifications.read', $notification->id) }}">@csrf<button class="btn btn-sm btn-primary">Marcar como leído</button></form>@endif</div></div></article>@empty<div class="card empty-panel"><x-icon name="bell"/><h2>Sin avisos por ahora</h2><p>Los cambios de clases y permisos aparecerán aquí.</p></div>@endforelse{{ $notifications->links() }}
+@endsection

@@ -16,5 +16,5 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn (Request $request) => $request->is('api/*') || $request->expectsJson());
-        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'credential_token']);
+        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'initial_password', 'initial_password_confirmation', 'credential_token', 'portal_token', 'evidence']);
     })->create();

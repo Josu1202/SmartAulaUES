@@ -12,13 +12,13 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role', 'student_code', 'active'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'student_code', 'active', 'entry_year', 'study_year'];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected function casts(): array
     {
-        return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'role' => Role::class, 'active' => 'boolean'];
+        return ['email_verified_at' => 'datetime', 'password' => 'hashed', 'role' => Role::class, 'active' => 'boolean', 'entry_year' => 'integer', 'study_year' => 'integer'];
     }
 
     public function taughtOfferings(): HasMany

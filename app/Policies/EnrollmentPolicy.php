@@ -8,6 +8,16 @@ use App\Models\User;
 
 class EnrollmentPolicy
 {
+    public function create(User $user): bool
+    {
+        return $user->active && $user->role === Role::Coordinator;
+    }
+
+    public function update(User $user, Enrollment $enrollment): bool
+    {
+        return $this->create($user);
+    }
+
     public function view(User $user, Enrollment $enrollment): bool
     {
         if (! $user->active) {

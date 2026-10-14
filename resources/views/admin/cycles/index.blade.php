@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Ciclos académicos')
 @section('content')
-    <x-page-heading title="Ciclos académicos" subtitle="Consulta la organización de la oferta académica." />
+    <x-page-heading title="Ciclos académicos" subtitle="Define las fechas y el estado de cada ciclo." eyebrow="ORGANIZACIÓN ACADÉMICA"><a class="btn btn-primary" href="{{ route('admin.cycles.create') }}">Crear ciclo<x-icon name="arrow" /></a></x-page-heading>
     <div class="card">
         <div class="table-responsive">
             <table class="table table-vcenter">
@@ -12,6 +12,7 @@
                         <th>Fin</th>
                         <th>Grupos</th>
                         <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,8 +25,9 @@
                             <td><span
                                     class="badge-soft">{{ ['planned' => 'Planificado', 'active' => 'Activo', 'closed' => 'Cerrado'][$cycle->status] }}</span>
                             </td>
+                            <td><a class="btn btn-sm btn-outline-dark" href="{{ route('admin.cycles.edit', $cycle) }}">{{ $cycle->status === 'closed' ? 'Consultar' : 'Editar' }}</a></td>
                     </tr>@empty<tr>
-                            <td colspan="5" class="text-secondary text-center py-5">No hay ciclos académicos.</td>
+                            <td colspan="6" class="text-secondary text-center py-5">No hay ciclos académicos.</td>
                         </tr>
                     @endforelse
                 </tbody>

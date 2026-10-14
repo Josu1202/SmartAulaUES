@@ -1,24 +1,92 @@
 <?php
 
+use App\Http\Controllers\AbsenceRequestController;
 use App\Http\Controllers\Admin\AcademicCycleController;
+use App\Http\Controllers\Admin\AssessmentPeriodController;
+use App\Http\Controllers\Admin\AuditController;
+use App\Http\Controllers\Admin\CycleFormatController;
+use App\Http\Controllers\Admin\EnrollmentController;
+use App\Http\Controllers\Admin\ImportController;
+use App\Http\Controllers\Admin\NfcCredentialController;
+use App\Http\Controllers\Admin\OfferingController as AdminOfferingController;
+use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TerminalController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
-Route::middleware(['auth', 'active'])->group(function (): void {
+Route::get('/check-in/{portal}', [CheckInController::class, 'show'])->name('checkin.show');
+Route::middleware(['auth', 'active', 'auth.session'])->group(function (): void {
+    Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
+    Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
+    Route::get('/offerings/{offering}/sessions/create', [SessionController::class, 'create'])->name('offerings.sessions.create');
+    Route::post('/offerings/{offering}/sessions', [SessionController::class, 'store'])->name('offerings.sessions.store');
+    Route::get('/offerings/{offering}/sessions/{session}/edit', [SessionController::class, 'edit'])->scopeBindings()->name('offerings.sessions.edit');
+    Route::put('/offerings/{offering}/sessions/{session}', [SessionController::class, 'update'])->scopeBindings()->name('offerings.sessions.update');
+    Route::post('/sessions/{session}/state/{operation}', [SessionController::class, 'transition'])->whereIn('operation', ['start', 'finish', 'cancel'])->name('sessions.state');
+    Route::post('/sessions/{session}/portals', [AttendanceController::class, 'open'])->middleware('throttle:20,1')->name('sessions.portals');
+    Route::post('/portals/{portal}/close', [AttendanceController::class, 'close'])->name('portals.close');
+    Route::post('/teacher/reader-sessions', [AttendanceController::class, 'reader'])->middleware('role:coordinator,teacher')->name('readers.store');
+    Route::delete('/teacher/reader-sessions/{readerSession}', [AttendanceController::class, 'closeReader'])->middleware('role:coordinator,teacher')->name('readers.close');
+    Route::post('/teacher/nfc-readings', [AttendanceController::class, 'nfc'])->middleware(['role:coordinator,teacher', 'throttle:120,1'])->name('readings.store');
+    Route::post('/sessions/{session}/manual-attendance', [AttendanceController::class, 'manual'])->middleware(['role:coordinator,teacher', 'throttle:120,1'])->name('sessions.manual');
+    Route::post('/sessions/{session}/attendances/{attendance}/correct', [AttendanceController::class, 'correct'])->name('sessions.correct');
+    Route::post('/check-in/{portal}', [CheckInController::class, 'store'])->middleware(['role:student', 'throttle:30,1'])->name('checkin.store');
+    Route::get('/requests', [AbsenceRequestController::class, 'index'])->name('requests.index');
+    Route::get('/sessions/{session}/request', [AbsenceRequestController::class, 'create'])->name('requests.create');
+    Route::post('/sessions/{session}/request', [AbsenceRequestController::class, 'store'])->middleware('throttle:12,1')->name('requests.store');
+    Route::get('/requests/{absenceRequest}', [AbsenceRequestController::class, 'show'])->name('requests.show');
+    Route::post('/requests/{absenceRequest}/resolve', [AbsenceRequestController::class, 'resolve'])->name('requests.resolve');
+    Route::get('/requests/{absenceRequest}/evidence', [AbsenceRequestController::class, 'evidence'])->name('requests.evidence');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/profile', ProfileController::class)->name('profile');
+    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->middleware('throttle:6,1')->name('profile.password');
     Route::get('/offerings', [OfferingController::class, 'index'])->name('offerings.index');
     Route::get('/offerings/{offering}', [OfferingController::class, 'show'])->name('offerings.show');
+    Route::redirect('/modules/imports', '/admin/imports')->middleware('role:coordinator');
+    Route::redirect('/modules/attendance', '/sessions');
+    Route::redirect('/modules/requests', '/requests');
+    Route::redirect('/modules/credentials', '/admin/nfc-credentials')->middleware('role:coordinator');
     Route::get('/modules/{module}', ModuleController::class)->name('modules.show');
     Route::prefix('admin')->name('admin.')->middleware('role:coordinator')->group(function (): void {
-        Route::get('/users', UserController::class)->name('users.index');
-        Route::get('/cycles', AcademicCycleController::class)->name('cycles.index');
+        Route::get('/students/batch', [ImportController::class, 'manualForm'])->name('students.batch');
+        Route::post('/students/batch', [ImportController::class, 'manualPreview'])->block(60, 10)->middleware('throttle:12,1')->name('students.batch.preview');
+        foreach (['students' => 'student', 'teachers' => 'teacher'] as $directory => $role) {
+            Route::get('/'.$directory, [UserController::class, 'index'])->defaults('directory_role', $role)->name($directory.'.index');
+            Route::get('/'.$directory.'/create', [UserController::class, 'create'])->defaults('directory_role', $role)->name($directory.'.create');
+            Route::post('/'.$directory, [UserController::class, 'store'])->defaults('directory_role', $role)->name($directory.'.store');
+            Route::get('/'.$directory.'/{user}/edit', [UserController::class, 'edit'])->defaults('directory_role', $role)->name($directory.'.edit');
+            Route::put('/'.$directory.'/{user}', [UserController::class, 'update'])->defaults('directory_role', $role)->name($directory.'.update');
+        }
+        Route::resource('formats', CycleFormatController::class)->except(['show', 'destroy']);
+        Route::get('/nfc-credentials', [NfcCredentialController::class, 'index'])->name('credentials.index');
+        Route::post('/nfc-credentials', [NfcCredentialController::class, 'store'])->middleware('throttle:20,1')->name('credentials.store');
+        Route::post('/nfc-credentials/{credential}/confirm', [NfcCredentialController::class, 'confirm'])->name('credentials.confirm');
+        Route::post('/nfc-credentials/{credential}/revoke', [NfcCredentialController::class, 'revoke'])->name('credentials.revoke');
+        Route::get('/offerings/{offering}/students', [EnrollmentController::class, 'batch'])->name('offerings.students');
+        Route::post('/offerings/{offering}/students', [EnrollmentController::class, 'storeBatch'])->name('offerings.students.store');
+        Route::resource('users', UserController::class)->except(['show', 'destroy']);
+        Route::put('/users/{user}/password', [UserController::class, 'resetPassword'])->middleware('throttle:10,1')->name('users.password');
+        Route::resource('cycles', AcademicCycleController::class)->except(['show', 'destroy']);
+        Route::resource('subjects', SubjectController::class)->except(['show', 'destroy']);
+        Route::resource('offerings', AdminOfferingController::class)->only(['create', 'store', 'edit', 'update']);
+        Route::resource('offerings.periods', AssessmentPeriodController::class)->only(['create', 'store', 'edit', 'update'])->scoped();
+        Route::resource('offerings.enrollments', EnrollmentController::class)->only(['create', 'store', 'edit', 'update'])->scoped();
+        Route::get('/audit', AuditController::class)->name('audit.index');
+        Route::get('/imports', [ImportController::class, 'index'])->name('imports.index');
+        Route::get('/imports/templates/{kind}', [ImportController::class, 'template'])->name('imports.template');
+        Route::post('/imports/preview', [ImportController::class, 'preview'])->middleware('throttle:12,1')->block(60, 10)->name('imports.preview');
+        Route::post('/imports/confirm', [ImportController::class, 'confirm'])->middleware('throttle:12,1')->block(60, 10)->name('imports.confirm');
     });
     Route::get('/teacher/terminal', TerminalController::class)->middleware('role:coordinator,teacher')->name('terminal.index');
 });

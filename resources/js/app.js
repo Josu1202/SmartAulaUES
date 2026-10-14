@@ -49,3 +49,10 @@ for (const button of document.querySelectorAll("[data-password-toggle]")) {
     });
 }
 initializeNfcDiagnostic(document.querySelector("[data-nfc-diagnostic]"));
+
+import { initializeAcademicForms, initializeAttendanceConsole, initializeManualAttendance, initializeCredentials, initializeCheckIn } from './attendance-live.js';
+initializeAcademicForms();
+initializeAttendanceConsole(document.querySelector('[data-attendance-console]'));
+initializeManualAttendance();
+initializeCredentials(document.querySelector('[data-credential-manager]'));
+initializeCheckIn(document.querySelector('[data-checkin]'));

@@ -38,4 +38,9 @@ class ClassSession extends Model
     {
         return $this->hasMany(AttendancePortal::class, 'session_id');
     }
+
+    public function absenceRequests(): HasMany
+    {
+        return $this->hasMany(AbsenceRequest::class, 'session_id');
+    }
 }
