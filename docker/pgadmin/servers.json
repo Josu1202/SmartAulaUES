@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "SmartAulaUES · desarrollo",
+      "Group": "SmartAulaUES",
+      "Host": "db",
+      "Port": 5432,
+      "MaintenanceDB": "siaa",
+      "Username": "siaa",
+      "SSLMode": "prefer",
+      "SavePassword": false
+    }
+  }
+}

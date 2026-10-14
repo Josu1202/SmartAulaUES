@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-install -j$(nproc) pdo_pgsql mbstring intl zip gd bcmath \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/smartaulaues-uploads.ini
 WORKDIR /var/www/html
 RUN useradd -m -u 1000 app && chown app:app /var/www/html
 USER app

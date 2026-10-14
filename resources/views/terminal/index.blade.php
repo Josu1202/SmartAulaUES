@@ -1,8 +1,9 @@
 @extends('layouts.app')
-@section('title', 'Prueba del lector NFC')
+@section('title', 'Terminal NFC')
 @section('content')
-    <x-page-heading title="Prueba del lector NFC"
-        subtitle="Comprueba la lectura de una etiqueta de prueba desde un celular compatible." />
+    <x-page-heading title="Terminal NFC"
+        subtitle="Abre una clase en curso para registrar asistencias o utiliza el diagnóstico del dispositivo." />
+    <div class="card mb-4"><div class="card-header"><h2 class="card-title">Clases en curso</h2></div><div class="card-body">@forelse($sessions as $session)<a class="btn btn-outline-dark me-2 mb-2" href="{{ route('sessions.show', $session) }}">{{ $session->offering->subject->name }} · Grupo {{ $session->offering->group_code }}</a>@empty<p class="text-secondary mb-0">Inicia una sesión desde tu grupo para abrir el registro y el lector de la clase.</p>@endforelse</div></div>
     <div class="terminal-grid">
         <section class="card terminal-card" data-nfc-diagnostic>
             <div class="card-body"><span class="badge-soft">Prueba de lectura</span>

@@ -1,28 +1,35 @@
-# Desarrollo por versiones
+# Desarrollo por versiones · SmartAulaUES
 
-main contiene el incremento instalable. feature/nombre-de-funcion contiene una tarea breve.
-Usar develop solo si el equipo decide necesitar integración intermedia.
+main contiene incrementos revisados/instalables. feature/... contiene trabajo con criterios y pruebas.
+Usar develop solo si el equipo acuerda una integración intermedia. Cada miembro implementa su módulo
+completo; ninguna IA debe asignar nombres ficticios o afirmar que el ZIP ya fue publicado.
 
-1. Crear issue con perfil, flujo, criterios de aceptación y responsable.
-2. `git switch -c feature/academic-cycles`.
-3. Implementar función, validación, permisos, interfaz, errores y pruebas.
-4. Ejecutar las comprobaciones pertinentes; registrar resultados y actualizar CHANGELOG/project-state.
-5. Abrir PR y revisar con otra persona del equipo; integrar sin secretos ni archivos generados.
-6. Al liberar, actualizar VERSION, config/smartaulaues.php y package.json; `npm install --package-lock-only`.
-7. Commit y etiqueta anotada: `git tag -a v0.2.0 -m "v0.2.0 - módulo académico"`.
+1. Issue con perfil, flujo, errores, criterios y responsable; rama desde base correcta.
+2. Implementar servidor/vista/permisos/validaciones y pruebas útiles.
+3. Registrar verificación real y actualizar README, CHANGELOG y docs/project-state.
+4. PR/revisión de otro miembro, CI con PostgreSQL nativo y aceptación requerida antes de integrar.
+5. Actualizar VERSION, config/smartaulaues.php, package.json y package-lock.json al liberar.
+6. Commit/etiqueta anotada; empaquetar desde checkout limpio y assets compilados.
 
-| Incremento orientativo | Resultado |
+| Versión | Estado / resultado |
 | --- | --- |
-| 0.1.0 | Base Laravel, acceso, consultas, diseño y diagnóstico NFC |
-| 0.1.1 | Corrección de variables de conexión en el servidor HTTP Docker |
-| 0.1.2 | Nombre SmartAulaUES e icono propio, con actualización compatible |
-| 0.2.0 | CRUD académico, asignaciones, vigencias e inscripciones con cupos |
-| 0.3.0 | Credenciales NDEF, confirmación de alta y lector autenticado |
-| 0.4.0 | Registro unificado NFC/QR/enlace/manual, idempotencia y finalización |
-| 0.5.0 | Permisos, correcciones, avisos e historial |
-| 0.6.0 | Cierre de cómputos, cálculo y PDF versionado |
-| 1.0.0-demo | Integración estabilizada, respaldo/HTTPS y demostración de seis semanas |
+| 0.1.0 | Base Laravel/acceso/consultas/diseño/diagnóstico NFC |
+| 0.1.1 | Corrección de conexión del servidor HTTP Docker |
+| 0.1.2 | Marca SmartAulaUES e icono, actualización compatible |
+| 0.2.0 | Fase 1: acceso/cuentas/CRUD académico/cupos/vigencias/CSV/bitácora |
+| 0.3.0 | Fase 2: años/directorios/formatos, sesiones, credenciales y registro NFC/QR/enlace/manual, permisos/evidencias, correcciones, avisos y conteos |
+| Próximas 0.x | Hallazgos/estabilización de fase 2 y luego incrementos concretos de fase 3 |
+| 1.0.0-demo | Propuesta futura: integración/HTTPS/respaldo y demostración aceptada |
 
-Los números son una propuesta para registrar avances; cada solicitud concreta define el próximo alcance.
-La viabilidad NFC/HTTPS se comprueba en la primera semana, aunque su integración tenga otra etiqueta.
-No se usan etiquetas de versión para afirmar un despliegue que no se ha hecho.
+El plan anterior sugería 0.3 para credenciales, 0.4 para registro y 0.5 para permisos. La solicitud
+actual reúne esos flujos en v0.3.0; no existen entregas 0.4/0.5 por el mero hecho de estar previstas.
+Las etiquetas registran fuente; no certifican despliegue, CI o pruebas físicas.
+
+Remoto https://github.com/Josu1202/SmartAulaUES.git. Base local v0.2.0:
+47f48ca4c37efb33809bd8cdf29bc349b0bc5d65. Último main remoto observado: v0.1.2,
+446396cb61353fbd391faab0078babe908e43980. v0.3.0 se prepara en feature/phase-2-attendance,
+con historial local conservado y ZIP sin .git. Seguir update-v0.3.0.md para copiar/publicar desde el
+checkout del usuario; revisar dependencia de fase 1 si todavía no se integró. No sobrescribir etiquetas.
+
+`composer run package` requiere commit limpio, usa archivos versionados y public/build, excluye
+secretos/dependencias/datos y crea ZIP/checksum/manifiesto con commit y hashes. No hace push.

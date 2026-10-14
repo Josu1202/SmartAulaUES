@@ -21,4 +21,9 @@ class AcademicCycle extends Model
     {
         return $this->hasMany(Offering::class, 'cycle_id');
     }
+
+    public function formats(): HasMany
+    {
+        return $this->hasMany(CycleFormat::class, 'cycle_id');
+    }
 }

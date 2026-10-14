@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { credentialFromMessage, eventId, EventMemory } from '../../resources/js/attendance-live.js';
+const text = value => ({ records: [{ recordType: 'text', encoding: 'utf-8', data: new TextEncoder().encode(value) }] });
+test('a retry keeps its event ID while the payload remains the same', () => { let n=0;const memory=new EventMemory(()=>`event-${++n}`);const a=memory.packet({reader_session_id:'reader',credential_token:'token'});const b=memory.packet({credential_token:'token',reader_session_id:'reader'});assert.equal(a.event_id,b.event_id);assert.equal(n,1); });
+test('a changed credential or target receives a different event ID',()=>{let n=0;const m=new EventMemory(()=>`event-${++n}`);assert.notEqual(m.packet({credential_token:'a'}).event_id,m.packet({credential_token:'b'}).event_id);});
+test('clearing a completed operation removes its token and retry identity',()=>{const m=new EventMemory();const id=m.packet({credential_token:'private-memory-value'}).event_id;m.clear();assert.equal(m.current,null);assert.equal(m.fingerprint,null);assert.notEqual(m.packet({credential_token:'private-memory-value'}).event_id,id);});
+test('live decoding accepts only the single SmartAulaUES NDEF text record',()=>{const token='SIAA:C1:'+'A'.repeat(43);assert.equal(credentialFromMessage(text(token)),token);assert.equal(credentialFromMessage(text(token+'\n')),null);assert.equal(credentialFromMessage({records:[]}),null);assert.equal(credentialFromMessage({records:[...text(token).records,...text(token).records]}),null);});
+test('unreadable data and non-text records never reuse an earlier student token',()=>{assert.equal(credentialFromMessage({records:[{recordType:'text',encoding:'invalid-encoding',data:new Uint8Array([1])}]}),null);assert.equal(credentialFromMessage({records:[{recordType:'url',data:new Uint8Array()}]}),null);});
+test('generated registration identifiers are UUID v4 values',()=>{assert.match(eventId(),/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);});

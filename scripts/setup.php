@@ -14,10 +14,14 @@ if (! file_exists('.env')) {
 }
 $commands = [
     ['composer', 'install', '--no-interaction'],
-    [PHP_BINARY, 'artisan', 'key:generate', '--no-interaction'],
     [PHP_BINARY, 'artisan', 'migrate', '--seed', '--no-interaction'],
     ['npm', 'ci'], ['npm', 'run', 'build'],
 ];
+// Setup is also used on an existing checkout. Never rotate an installed encryption key.
+$environment = file_get_contents('.env');
+if (! preg_match('/^APP_KEY=.+$/m', $environment)) {
+    array_splice($commands, 1, 0, [[PHP_BINARY, 'artisan', 'key:generate', '--no-interaction']]);
+}
 foreach ($commands as $command) {
     fwrite(STDOUT, '> '.implode(' ', $command).PHP_EOL);
     $process = proc_open($command, [STDIN, STDOUT, STDERR], $pipes, $root);

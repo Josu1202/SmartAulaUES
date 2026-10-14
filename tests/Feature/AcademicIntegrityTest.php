@@ -64,4 +64,11 @@ class AcademicIntegrityTest extends TestCase
         $this->expectException(QueryException::class);
         DB::transaction(fn () => DB::table('users')->where('id', $user->id)->update(['role' => 'superuser']));
     }
+
+    public function test_email_uniqueness_is_case_insensitive_at_database_level(): void
+    {
+        User::factory()->create(['email' => 'unique@example.test']);
+        $this->expectException(QueryException::class);
+        DB::transaction(fn () => User::factory()->create(['email' => 'UNIQUE@example.test']));
+    }
 }

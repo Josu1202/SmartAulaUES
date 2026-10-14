@@ -1,70 +1,530 @@
 {
-  "version": "0.1.2",
-  "date": "2026-10-12",
-  "php": {
-    "verified_version": "0.1.0",
-    "cases": 27,
-    "passed": 27,
-    "assertions": 80,
-    "mode": "fresh PostgreSQL 17.5 (PGlite) engine per case",
-    "native_full_suite": "pending",
-    "rerun_in_current_version": false
+  "application": "SmartAulaUES",
+  "version": "0.3.1",
+  "date": "2026-10-14",
+  "phase": 2,
+  "base_commit": "f03122d458339c27d38dbd10354746913d875bd0",
+  "repository": "https://github.com/Josu1202/SmartAulaUES.git",
+  "published_to_github": false,
+  "remote_phase2_at_inspection": "9a8361d7d8a45a73407fad02279d65695a67cb92",
+  "runtime": {
+    "php": "8.4.25",
+    "node": "24.19.0",
+    "pdo_pgsql": true,
+    "postgresql": "17.5 (PGlite)"
   },
-  "ndef": {
-    "verified_version": "0.1.2",
-    "tests": 8,
-    "passed": 8
+  "reported_github_failure": {
+    "version": "0.3.0",
+    "failed": 1,
+    "warnings": 105,
+    "assertions": 565,
+    "error": "array_keys() called on missing audit.entities translation",
+    "concurrency_step_reached": false
+  },
+  "regression_before_fix": {
+    "locale": "en",
+    "fallback_locale": "en",
+    "audit_route_status": 500,
+    "new_audit_tests": "failed",
+    "missing_environment_file_warning": "reproduced after the audit fix"
+  },
+  "php": {
+    "cases": 108,
+    "passed": 108,
+    "assertions": 610,
+    "warnings": 0,
+    "mode": "fresh PostgreSQL 17.5 (PGlite) engine per case via PDO",
+    "locale": "en",
+    "fallback_locale": "en",
+    "local_env_file_present": false,
+    "test_environment": "copy .env.testing.example to .env.testing; fictitious process credentials override it",
+    "fail_on_warning": true,
+    "native_full_suite": "pending"
+  },
+  "audit_regressions": {
+    "locales": [
+      "es",
+      "en",
+      "zz"
+    ],
+    "fallback_locale": "en",
+    "real_fixture_rows": true,
+    "entity_codes_accepted": 14,
+    "translated_and_unknown_filter_values": "422"
+  },
+  "javascript": {
+    "tests": 14,
+    "passed": 14,
+    "command": "npm --ignore-scripts=false test"
+  },
+  "checks": {
+    "composer_validate": "passed",
+    "composer_platform": "passed",
+    "pint": "passed",
+    "vite": "passed",
+    "blade": "passed",
+    "git_diff_check": "passed"
   },
   "browser": {
-    "verified_version": "0.1.0",
-    "result": "passed",
-    "desktop": "1440x960",
-    "mobile": "390x844",
-    "roles": 3,
-    "csrf_missing": 419,
-    "javascript_errors": 0,
-    "checks": [
-      "login",
-      "real group queries",
-      "user search",
-      "student privacy",
-      "direct role URLs",
-      "pending modules",
-      "mobile menu and Escape",
-      "no horizontal page overflow"
-    ],
-    "rerun_in_current_version": false
-  },
-  "http_environment_regression": {
-    "verified_version": "0.1.2",
-    "cases": 1,
-    "passed": 1,
-    "assertions": 2,
-    "before": "127.0.0.1:55432",
-    "after": "db:5432",
-    "transport": "HTTP",
-    "database_accessed": false
+    "rerun_in_current_version": false,
+    "previous_evidence_version": "0.3.0"
   },
   "docker": "not executed",
+  "pgadmin_runtime": "not executed",
+  "github_actions": "patch rerun pending user push; v0.3.0 failure supplied by user",
   "hardware_nfc": "not tested",
-  "application": "SmartAulaUES",
-  "branding": {
-    "verified_version": "0.1.2",
-    "result": "passed",
-    "viewport_widths": [
-      1440,
-      390,
-      320
-    ],
-    "javascript_errors": 0,
-    "horizontal_overflow": false,
-    "scope": "actual login HTTP; application shell with an in-memory coordinator; no database queries",
-    "icons": [
-      "SVG",
-      "PNG 192",
-      "PNG 512",
-      "SVG favicon",
-      "ICO favicon"
-    ]
+  "native_concurrency": "not tested",
+  "new_migrations": 0,
+  "previous_version_evidence": {
+    "application": "SmartAulaUES",
+    "version": "0.3.0",
+    "date": "2026-10-13",
+    "timezone": "America/El_Salvador",
+    "phase": 2,
+    "branch": "feature/phase-2-attendance",
+    "base_commit": "47f48ca4c37efb33809bd8cdf29bc349b0bc5d65",
+    "repository": "https://github.com/Josu1202/SmartAulaUES.git",
+    "published_to_github": false,
+    "runtime": {
+      "php": "8.4.25",
+      "node": "24.19.0",
+      "pdo_pgsql": true,
+      "postgresql": "17.5 (PGlite)"
+    },
+    "php": {
+      "cases": 106,
+      "passed": 106,
+      "assertions": 566,
+      "mode": "fresh PostgreSQL 17.5 (PGlite) engine per case via PDO; affected cases rerun after final changes",
+      "native_full_suite": "pending"
+    },
+    "javascript": {
+      "tests": 14,
+      "passed": 14,
+      "scope": "NDEF decoder, UUID generation and retry identity"
+    },
+    "upgrade": {
+      "from": "0.2.0 schema",
+      "users_preserved": 23,
+      "enrollments_preserved": 40,
+      "sessions_preserved": 8,
+      "password_unchanged": true,
+      "legacy_years_null": true
+    },
+    "browser": {
+      "checks": [
+        "Upgrade preserves phase 1 accounts, passwords, enrollment and sessions",
+        "Real coordinator login",
+        "Manual bulk student registration: review, then two accounts",
+        "Student CSV creates accounts with their entry and study years",
+        "Year update CSV classifies an existing account without resetting its password",
+        "Separate directories and combined year filters",
+        "Coordinator defines a reusable three-period format once",
+        "New group inherits all three periods and dates without duplicate entry",
+        "Filtered batch enrollment adds only the selected annual cohort",
+        "Used cycle format is visibly immutable",
+        "Simulated NDEF issue, write, read and activation use the real server",
+        "Teacher administration boundaries enforced on direct URLs",
+        "Assigned teacher schedules and starts a class using its inherited period",
+        "Portal opens with real QR image, fragment token and close control",
+        "Lost NFC response stays unconfirmed; retry reuses UUID and creates no duplicate",
+        "Manual presence is confirmed with a required reason",
+        "Live registration console fits desktop and narrow mobile screens",
+        "Open and close controls track dynamically created portals",
+        "Student follows the temporary QR route, logs in and confirms only their own attendance",
+        "Link and QR converge on one result for the same student",
+        "Student submits a pending absence request with private evidence",
+        "Finish preserves three presences, generates two absences and keeps pending permission",
+        "Assigned teacher privately downloads evidence and approves one justified absence",
+        "Charts display real attendance counts for the authorized teacher",
+        "Student charts and internal notifications show only their own records",
+        "Audit filters and Spanish labels cover phase 2 activity",
+        "Twelve real pages fit 1440, 390 and 320px; mobile menu and Escape work",
+        "CSRF-less session mutation is rejected with 419",
+        "No JavaScript page errors in the complete workflow"
+      ],
+      "widths": [
+        1440,
+        390,
+        320
+      ],
+      "measurements": [
+        {
+          "url": "/sessions/:session (in progress)",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/sessions/:session (in progress)",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/sessions/:session (in progress)",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/dashboard",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/admin/students?study_year=2",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/admin/teachers",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/admin/students/batch",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/admin/formats",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/admin/formats/1/edit",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/offerings/3",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/sessions/9",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/requests",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/admin/nfc-credentials",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/notifications",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/admin/imports",
+          "width": 1440,
+          "scroll": 1440
+        },
+        {
+          "url": "/dashboard",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/admin/students?study_year=2",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/admin/teachers",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/admin/students/batch",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/admin/formats",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/admin/formats/1/edit",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/offerings/3",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/sessions/9",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/requests",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/admin/nfc-credentials",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/notifications",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/admin/imports",
+          "width": 390,
+          "scroll": 390
+        },
+        {
+          "url": "/dashboard",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/admin/students?study_year=2",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/admin/teachers",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/admin/students/batch",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/admin/formats",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/admin/formats/1/edit",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/offerings/3",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/sessions/9",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/requests",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/admin/nfc-credentials",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/notifications",
+          "width": 320,
+          "scroll": 320
+        },
+        {
+          "url": "/admin/imports",
+          "width": 320,
+          "scroll": 320
+        }
+      ],
+      "javascript_errors": 0,
+      "ndef": "simulated browser API; no hardware",
+      "upgrade": {
+        "from": "0.2.0 schema",
+        "users_preserved": 23,
+        "enrollments_preserved": 40,
+        "sessions_preserved": 8,
+        "password_unchanged": true,
+        "legacy_years_null": true
+      },
+      "result": "passed",
+      "chromium": "153.0.8010.0",
+      "page_measurements": 39,
+      "horizontal_overflow": false,
+      "csrf_missing": 419,
+      "roles": 3
+    },
+    "concurrency_harness": {
+      "scenarios": 4,
+      "smoke": "passed",
+      "transport": "serialized PGlite connections; does not demonstrate native races",
+      "native_execution": "pending; configured in GitHub Actions"
+    },
+    "checks": {
+      "composer_validate": "passed",
+      "composer_platform": "passed",
+      "pint": "passed",
+      "vite": "passed",
+      "blade": "passed",
+      "git_diff_check": "passed"
+    },
+    "docker": "not executed",
+    "pgadmin_runtime": "not executed",
+    "github_actions": "not executed here",
+    "hardware_nfc": "not tested; browser NDEF mock only",
+    "native_concurrency": "not tested",
+    "previous_version_evidence": {
+      "application": "SmartAulaUES",
+      "version": "0.2.0",
+      "date": "2026-10-13",
+      "phase": 1,
+      "base_commit": "446396cb61353fbd391faab0078babe908e43980",
+      "repository": "https://github.com/Josu1202/SmartAulaUES.git",
+      "published_to_github": false,
+      "runtime": {
+        "php": "8.4.25",
+        "node": "24.19.0",
+        "pdo_pgsql": true,
+        "postgresql": "17.5 (PGlite)"
+      },
+      "php": {
+        "cases": 66,
+        "passed": 66,
+        "assertions": 313,
+        "mode": "fresh PostgreSQL 17.5 (PGlite) engine per case via PDO",
+        "native_full_suite": "pending"
+      },
+      "ndef": {
+        "tests": 8,
+        "passed": 8
+      },
+      "browser": {
+        "result": "passed",
+        "chromium": "153.0.8010.0",
+        "roles": 3,
+        "checks": [
+          "Real coordinator login",
+          "Create student with password/carne",
+          "Create cycle",
+          "Create subject",
+          "Create group with teacher/capacity",
+          "Create assessment period",
+          "Enroll active student",
+          "Withdraw student while preserving enrollment",
+          "Invalid CSV preview blocks confirmation",
+          "Valid CSV preview and atomic confirmation",
+          "Audit displays actual writes",
+          "CSV enrollment into selected group",
+          "CSRF missing rejected with 419",
+          "Nine real pages at 1440/390/320px without page overflow",
+          "Mobile menu and Escape",
+          "Teacher own groups and blocked administration",
+          "Student own enrollment and blocked imports",
+          "Own password change logs out and new password logs in",
+          "No JavaScript page errors"
+        ],
+        "widths": [
+          1440,
+          390,
+          320
+        ],
+        "page_measurements": 27,
+        "horizontal_overflow": false,
+        "javascript_errors": 0,
+        "csrf_missing": 419
+      },
+      "checks": {
+        "composer_validate": "passed",
+        "composer_platform": "passed",
+        "pint": "passed",
+        "vite": "passed",
+        "blade": "passed",
+        "compose_yaml": "passed",
+        "pgadmin_tag": "9.17 verified on registry"
+      },
+      "docker": "not executed",
+      "pgadmin_runtime": "not executed",
+      "github_actions": "not executed here",
+      "hardware_nfc": "not tested",
+      "native_concurrency": "not tested",
+      "previous_version_evidence": {
+        "version": "0.1.2",
+        "date": "2026-10-12",
+        "php": {
+          "verified_version": "0.1.0",
+          "cases": 27,
+          "passed": 27,
+          "assertions": 80,
+          "mode": "fresh PostgreSQL 17.5 (PGlite) engine per case",
+          "native_full_suite": "pending",
+          "rerun_in_current_version": false
+        },
+        "ndef": {
+          "verified_version": "0.1.2",
+          "tests": 8,
+          "passed": 8
+        },
+        "browser": {
+          "verified_version": "0.1.0",
+          "result": "passed",
+          "desktop": "1440x960",
+          "mobile": "390x844",
+          "roles": 3,
+          "csrf_missing": 419,
+          "javascript_errors": 0,
+          "checks": [
+            "login",
+            "real group queries",
+            "user search",
+            "student privacy",
+            "direct role URLs",
+            "pending modules",
+            "mobile menu and Escape",
+            "no horizontal page overflow"
+          ],
+          "rerun_in_current_version": false
+        },
+        "http_environment_regression": {
+          "verified_version": "0.1.2",
+          "cases": 1,
+          "passed": 1,
+          "assertions": 2,
+          "before": "127.0.0.1:55432",
+          "after": "db:5432",
+          "transport": "HTTP",
+          "database_accessed": false
+        },
+        "docker": "not executed",
+        "hardware_nfc": "not tested",
+        "application": "SmartAulaUES",
+        "branding": {
+          "verified_version": "0.1.2",
+          "result": "passed",
+          "viewport_widths": [
+            1440,
+            390,
+            320
+          ],
+          "javascript_errors": 0,
+          "horizontal_overflow": false,
+          "scope": "actual login HTTP; application shell with an in-memory coordinator; no database queries",
+          "icons": [
+            "SVG",
+            "PNG 192",
+            "PNG 512",
+            "SVG favicon",
+            "ICO favicon"
+          ]
+        }
+      }
+    }
   }
 }

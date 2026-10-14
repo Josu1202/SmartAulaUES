@@ -26,11 +26,16 @@ class Offering extends Model
         };
     }
 
-    protected $fillable = ['cycle_id', 'subject_id', 'teacher_id', 'group_code', 'capacity'];
+    protected $fillable = ['cycle_id', 'subject_id', 'teacher_id', 'group_code', 'capacity', 'cycle_format_id'];
+
+    public function cycleFormat(): BelongsTo
+    {
+        return $this->belongsTo(CycleFormat::class);
+    }
 
     protected function casts(): array
     {
-        return [];
+        return ['cycle_id' => 'integer', 'subject_id' => 'integer', 'teacher_id' => 'integer', 'capacity' => 'integer', 'cycle_format_id' => 'integer'];
     }
 
     public function cycle(): BelongsTo

@@ -11,6 +11,12 @@
     "license": "proprietary",
     "require": {
         "php": "^8.4",
+        "ext-bcmath": "*",
+        "ext-gd": "*",
+        "ext-intl": "*",
+        "ext-mbstring": "*",
+        "ext-pdo_pgsql": "*",
+        "ext-zip": "*",
         "barryvdh/laravel-dompdf": "^3.1",
         "endroid/qr-code": "^6.1",
         "laravel/fortify": "^1.41",
@@ -51,6 +57,7 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
+        "package": "@php scripts/package.php",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

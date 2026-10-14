@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Materias y grupos')
 @section('content')
-    <x-page-heading title="Materias y grupos" subtitle="Consulta el ciclo, el docente y las sesiones de tus grupos." />
+    <x-page-heading title="Materias y grupos" subtitle="Consulta el ciclo, el docente y las sesiones de tus grupos.">@can('create', \App\Models\Offering::class)<a class="btn btn-primary" href="{{ route('admin.offerings.create') }}">Crear grupo<x-icon name="arrow" /></a>@endcan</x-page-heading>
     <div class="row g-4">
         @forelse($offerings as $offering)
             <div class="col-md-6">

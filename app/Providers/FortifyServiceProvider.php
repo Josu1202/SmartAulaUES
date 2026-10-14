@@ -17,7 +17,7 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::loginView(fn () => view('auth.login'));
         Fortify::authenticateUsing(function (Request $request): ?User {
-            $user = User::where('email', Str::lower(trim((string) $request->input('email'))))->first();
+            $user = User::whereRaw('lower(email) = ?', [Str::lower(trim((string) $request->input('email')))])->first();
             if ($user && $user->active && Hash::check((string) $request->input('password'), $user->password)) {
                 return $user;
             }

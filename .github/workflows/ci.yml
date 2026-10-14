@@ -30,6 +30,8 @@ jobs:
       DEMO_SEED: "false"
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare isolated test environment
+        run: cp .env.testing.example .env.testing
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.4"
@@ -46,4 +48,5 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
-      - run: php artisan test --compact
+      - run: php artisan test --compact --display-warnings --fail-on-warning
+      - run: php tests/Concurrency/attendance-races.php --env=testing
