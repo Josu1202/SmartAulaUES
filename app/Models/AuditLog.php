@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AuditLog extends Model
 {
+    public const ENTITY_TYPES = [
+        'User', 'AcademicCycle', 'CycleFormat', 'Subject', 'Offering', 'AssessmentPeriod', 'Enrollment',
+        'CsvImport', 'ClassSession', 'AttendancePortal', 'ReaderSession', 'NfcCredential', 'Attendance', 'AbsenceRequest',
+    ];
+
     public $timestamps = false;
 
     protected $fillable = ['actor_id', 'entity_type', 'entity_id', 'action', 'before', 'after', 'reason', 'created_at'];

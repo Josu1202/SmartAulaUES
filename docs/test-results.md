@@ -1,3 +1,37 @@
+# Evidencia de verificación · SmartAulaUES v0.3.1
+
+## Parche de CI · 14/10/2026 (El Salvador)
+
+El usuario compartió la ejecución GitHub de v0.3.0: **1 fallo, 105 warnings, 565 aserciones**.
+Se reprodujo el TypeError de AuditController con APP_LOCALE=en/APP_FALLBACK_LOCALE=en:
+la traducción audit.entities devolvía una cadena. La prueba nueva también falló antes de corregir.
+Tras corregirlo, una ejecución sin .env reprodujo la advertencia de phpdotenv al leer ese archivo;
+CI ahora copia .env.testing.example a .env.testing antes de instalar/ejecutar.
+
+| Comprobación ejecutada en v0.3.1 | Resultado |
+| --- | --- |
+| Runtime | PHP 8.4.25/pdo_pgsql, Node 24.19.0, PostgreSQL 17.5 PGlite/PDO |
+| PHPUnit aislado por caso, 108 casos definidos y ejecutados | **108/108, 610 aserciones correctas** |
+| Entorno de la batería | Sin .env; .env.testing copiado del ejemplo, claves/BD ficticias por variables de proceso, locale/fallback en |
+| Warnings PHPUnit, con --display-warnings --fail-on-warning | **0**, sin ocultarlos ni suprimirlos |
+| Regresión de bitácora | Datos reales de prueba, etiquetas y filtros con es/en/zz; fallback en |
+| Validación de entidades | 14 códigos admitidos; etiquetas traducidas/valor desconocido rechazados con 422 |
+| JavaScript, npm test | **14/14** |
+| Composer validate --strict / check-platform-reqs | Correctos |
+| Pint --test, Vite, Blade y git diff --check | Correctos |
+
+La configuración temporal se retiró y se restauró el .env local después de las pruebas.
+El catálogo de códigos de auditoría es independiente del idioma; la vista española solicita etiquetas
+es explícitas, sin exigir otra configuración al usuario. El parche no agrega migraciones.
+
+La batería se ejecutó por casos aislados, con motor PGlite nuevo para cada caso, no como suite conjunta
+contra PostgreSQL nativo. El formato normal de PHPUnit se usó para detectar warnings; no se ignoraron.
+No se repitieron las 29 comprobaciones/39 mediciones de navegador ni el smoke de carreras de v0.3.0;
+su evidencia permanece con aquella versión. NFC físico tampoco se probó en este parche.
+La nueva ejecución de GitHub Actions y carreras nativas queda pendiente de subir v0.3.1 a la rama del PR.
+
+---
+
 # Evidencia de verificación · SmartAulaUES v0.3.0
 
 ## Fase 2 · 13/10/2026 (El Salvador)
@@ -29,7 +63,8 @@ correcciones auditadas, permisos/evidencia privada/decisión inmutable y límite
 privacidad de resultados/solicitudes/archivos/avisos, estadísticas y permisos pendientes autorizados.
 
 Los casos usan motor nuevo por prueba mediante PDO, con reejecución de casos afectados tras correcciones.
-El agregado corresponde al código entregado; no se presenta como batería conjunta contra PostgreSQL nativo.
+El agregado corresponde al código entregado con el .env local en español; no se presenta como batería conjunta contra PostgreSQL nativo.
+El fallo posterior de CI sin ese entorno quedó registrado y corregido en v0.3.1.
 
 ### Recorrido por navegador y actualización
 

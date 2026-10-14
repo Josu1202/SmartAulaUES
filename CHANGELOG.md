@@ -1,5 +1,24 @@
 # Historial de versiones SmartAulaUES
 
+## [0.3.1] — 2026-10-14 · Parche de fase 2
+
+### Corregido
+- Error 500 de la bitácora en GitHub Actions: los filtros ya no toman array_keys de una traducción ausente.
+- Códigos de entidades definidos en AuditLog y etiquetas de bitácora españolas con locale/fallback externos.
+- Idioma/fallback por defecto es, acorde con la interfaz española.
+- CI prepara .env.testing desde su ejemplo; evita warnings por .env ausente y falla ante nuevas advertencias.
+- Sin cambios de dependencias, migraciones, cuentas, datos académicos ni tokens NFC.
+
+### Verificado y contexto
+- Reproducción del fallo de v0.3.0 con locale en y del warning por archivo de entorno ausente.
+- Dos regresiones nuevas: render con datos/filtros en es/en/zz y códigos válidos/inválidos con fallback en.
+- 108 casos / 610 aserciones correctas mediante PostgreSQL 17.5 PGlite/PDO aislado, sin .env, con el
+  entorno de pruebas preparado como CI y locale/fallback en; cero warnings con --fail-on-warning.
+- 14 pruebas JavaScript; Composer, Pint, Vite y Blade correctos.
+- Rama de fase 2 del usuario comprobada en remoto; parche preparado para actualizar el mismo PR.
+- README/AGENTS/estado/evidencia y guía update-v0.3.1.md actualizados para el equipo y otras IAs.
+- CI nativo posterior al push pendiente; no se afirma ejecución verde de GitHub ni prueba NFC física.
+
 ## [0.3.0] — 2026-10-13 · Fase 2
 
 ### Implementado

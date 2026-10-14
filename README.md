@@ -1,9 +1,15 @@
 # SmartAulaUES · Asistencia académica universitaria
 
-**v0.3.0 · Fase 2: estudiantes por año, calendarios reutilizables, clases, asistencia y permisos.**
+**v0.3.1 · Fase 2: estudiantes por año, calendarios reutilizables, clases, asistencia y permisos.**
 Aplicación Laravel/Blade sobre la base v0.2.0, commit `47f48ca4c37efb33809bd8cdf29bc349b0bc5d65`.
 Repositorio del equipo: [Josu1202/SmartAulaUES](https://github.com/Josu1202/SmartAulaUES).
 La marca, el icono propio y el diseño Tabler negro, rojo y blanco se conservan.
+
+**Parche v0.3.1:** corrige el error 500 de la bitácora detectado en GitHub Actions cuando
+no había configuración de idioma español. Los filtros usan códigos estables y la bitácora
+mantiene etiquetas en español, incluso con locale/fallback en inglés. CI prepara su propio
+`.env.testing` desde el ejemplo para evitar advertencias de archivo ausente; no usa tus claves.
+No hay migraciones nuevas. Actualización y subida: [docs/update-v0.3.1.md](docs/update-v0.3.1.md).
 
 ## Tres fases, un responsable por fase
 
@@ -323,13 +329,16 @@ Cada incremento debe actualizar contexto y pruebas reales, distinguiendo motor e
 ## GitHub, empaquetado y evidencia
 
 Rama de esta entrega: `feature/phase-2-attendance`. Base local v0.2.0: `47f48ca4c37efb33809bd8cdf29bc349b0bc5d65`.
-La última consulta del remoto seguía mostrando main/v0.1.2 en `446396cb61353fbd391faab0078babe908e43980`;
-no se verificó que v0.2.0 estuviera integrado. Este ZIP incluye ambas fases y no hace push ni despliega.
-[docs/update-v0.3.0.md](docs/update-v0.3.0.md) explica rama/commit/push/PR conservando el historial.
+Consulta del 14/10/2026: main sigue en v0.1.2 (`446396cb61353fbd391faab0078babe908e43980`);
+las ramas de fases 1 y 2 están subidas. Fase 2 está en `9a8361d7d8a45a73407fad02279d65695a67cb92`
+y su fuente coincide con v0.3.0. El CI reportado por el usuario falló; este parche corrige su causa.
+V0.3.1 aún debe subirse y verificarse en GitHub. Este ZIP incluye ambas fases y no hace push ni despliega.
+[docs/update-v0.3.1.md](docs/update-v0.3.1.md) explica el parche de CI y su subida a la misma rama.
+[docs/update-v0.3.0.md](docs/update-v0.3.0.md) conserva los pasos de instalación completa de fase 2.
 
 Actualiza VERSION, config/smartaulaues.php, package.json/package-lock.json y CHANGELOG al liberar.
 Con checkout limpio y commit registrado: `npm run build` y `composer run package` crean en `dist/`
-`SmartAulaUES_v0.3.0_fase2.zip`, manifiesto RELEASE.json con commit/hashes y SHA-256 del ZIP.
+`SmartAulaUES_v0.3.1_fase2.zip`, manifiesto RELEASE.json con commit/hashes y SHA-256 del ZIP.
 Incluye fuentes y assets compilados; excluye `.git`, `.env`, dependencias descargadas y datos privados.
 
 [docs/test-results.md](docs/test-results.md) y [docs/verification.json](docs/verification.json) registran

@@ -1,11 +1,17 @@
 # Estado de continuidad · SmartAulaUES
 
-Fecha de trabajo del equipo: 13/10/2026, America/El_Salvador. Entrega **v0.3.0, fase 2**.
+Fecha de trabajo del equipo: 14/10/2026, America/El_Salvador. Entrega **v0.3.1, fase 2**.
 Rama: `feature/phase-2-attendance`. Base local v0.2.0:
 `47f48ca4c37efb33809bd8cdf29bc349b0bc5d65`.
-Remoto: https://github.com/Josu1202/SmartAulaUES.git. Su última consulta mostraba main/v0.1.2
-`446396cb61353fbd391faab0078babe908e43980`; no se comprobó integración de v0.2.0.
-No se ha hecho push/PR/merge de esta entrega ni desplegado una URL pública.
+Remoto: https://github.com/Josu1202/SmartAulaUES.git. Consulta del 14/10/2026:
+main sigue en v0.1.2 (`446396cb61353fbd391faab0078babe908e43980`), fase 1 está en
+feature/phase-1-academic-administration (`f357add8f73c48dd93965fc78e7e7fa45ac04245`) y
+fase 2 en feature/phase-2-attendance (`9a8361d7d8a45a73407fad02279d65695a67cb92`).
+La fuente de fase 2 del remoto coincide con la entrega local v0.3.0. No está integrada en main.
+El usuario compartió CI fallido: 1 fallo/105 warnings/565 aserciones en v0.3.0. El filtro de bitácora
+trataba una traducción no disponible como array; las advertencias correspondían a .env ausente.
+El parche v0.3.1 corrige ambos problemas y agrega regresiones, sin nuevas migraciones ni fase 3.
+No se ha publicado este parche ni desplegado una URL pública. No afirmar CI verde antes de su nueva ejecución.
 
 ## Instrucciones vigentes del usuario
 
@@ -26,7 +32,7 @@ No React/Next. `siaa` en base/volumen/correos demo y prefijo NDEF mantiene compa
 Instantes UTC, visualización/fecha académica America/El_Salvador. Sin datos institucionales reales.
 pgAdmin opcional en perfil tools; no reemplaza las migraciones/formularios de Laravel.
 
-## Operativo en v0.3.0
+## Operativo desde v0.3.0; conservado en v0.3.1
 
 Fase 1 completa conservada: acceso/contraseñas/revocación, cuentas/perfiles/estado/carné/correo,
 ciclos/materias/grupos/cupos, cómputos individuales, inscripción/retiro/fechas históricas, CSV y bitácora.
@@ -58,12 +64,13 @@ Consultar docs/test-results.md y verification.json para cantidades/evidencia fin
 antiguas como pruebas de esta versión. Runtime PHP 8.4.25/Node 24.19.0, PostgreSQL 17.5 PGlite/PDO,
 casos aislados y aplicación real por HTTP. Navegador con NDEF simulado, sin teléfono físico.
 Upgrade de esquema v0.2.0 conserva 23 cuentas/contraseñas, 40 inscripciones y 8 sesiones del seed.
-Script concurrente tiene smoke con conexiones serializadas; concurrencia real y batería conjunta
-quedan para PostgreSQL nativo/CI. Docker/pgAdmin, GitHub Actions y NFC Android/HTTPS físicos no ejecutados aquí.
+Script concurrente tiene smoke previo con conexiones serializadas; concurrencia real y batería conjunta
+quedan para PostgreSQL nativo/CI. El CI de v0.3.0 falló antes de ejecutar ese script; rerun de v0.3.1 pendiente.
+Docker/pgAdmin y NFC Android/HTTPS físicos no ejecutados aquí.
 
 ## Próximo trabajo autorizado: estabilizar fase 2
 
-1. Copiar fuentes a checkout conservando .git/.env/APP_KEY/storage/volúmenes; aplicar migraciones.
+1. Actualizar la misma rama con v0.3.1, conservar .git/.env/APP_KEY/storage/volúmenes y repetir CI. Desde v0.3.0 no hay migraciones nuevas.
 2. Ejecutar batería y carreras con PostgreSQL 17 nativo/Compose; revisar el PR con otro miembro.
 3. Probar Android/Chrome real por HTTPS, cinco etiquetas y fallos/reintentos descritos en nfc-contract.md.
 4. Validar con coordinación calendarios, años y escenarios de permisos de la institución.
@@ -76,5 +83,5 @@ respaldo/restauración, HTTPS definitivo y manuales. Avisos internos y conteos b
 ESP32/PN532, biometría y APIs de hardware son ampliaciones posteriores.
 
 Otra IA debe leer README, AGENTS, CHANGELOG, development-phases, decisions, nfc-contract y test-results.
-Si scratch ya no está, recuperar SmartAulaUES_v0.3.0_fase2.zip; preservar el checkout Git del equipo.
+Si scratch ya no está, recuperar SmartAulaUES_v0.3.1_fase2.zip; preservar el checkout Git del equipo.
 No leer/editar materiales PLM externos. No editar migraciones compartidas ni publicar sin instrucción.

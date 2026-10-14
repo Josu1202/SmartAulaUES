@@ -15,8 +15,11 @@ class AuditController extends Controller
     public function __invoke(Request $request): View
     {
         Gate::authorize('viewAny', User::class);
-        $filters = $request->validate(['entity' => ['nullable', Rule::in(array_keys(__('audit.entities')))]]);
+        $filters = $request->validate(['entity' => ['nullable', Rule::in(AuditLog::ENTITY_TYPES)]]);
 
-        return view('admin.audit.index', ['logs' => AuditLog::with('actor')->when($filters['entity'] ?? null, fn ($q, $entity) => $q->where('entity_type', $entity))->orderByDesc('id')->paginate(15)->withQueryString()]);
+        return view('admin.audit.index', [
+            'logs' => AuditLog::with('actor')->when($filters['entity'] ?? null, fn ($q, $entity) => $q->where('entity_type', $entity))->orderByDesc('id')->paginate(15)->withQueryString(),
+            'entityLabels' => collect(AuditLog::ENTITY_TYPES)->mapWithKeys(fn ($entity) => [$entity => __('audit.entities.'.$entity, [], 'es')])->all(),
+        ]);
     }
 }

@@ -11,14 +11,18 @@ Esta división reemplaza el reparto backend/frontend/integración antiguo de la 
 Repositorio del usuario: https://github.com/Josu1202/SmartAulaUES.git. No afirmar que una entrega
 ZIP está publicada en GitHub. Los ZIP no contienen .git; conservar el checkout del usuario.
 
-v0.3.0 implementa fase 2 sobre v0.2.0 (47f48ca4c37efb33809bd8cdf29bc349b0bc5d65), rama
+v0.3.1 conserva fase 2 de v0.3.0 sobre v0.2.0 (47f48ca4c37efb33809bd8cdf29bc349b0bc5d65), rama
 feature/phase-2-attendance. Las anotaciones del usuario agregan directorios docentes/estudiantes,
 estudiantes por entry_year y study_year (ambas interpretaciones de “año”), alta manual/CSV y
 actualización de años de cuentas existentes, inscripción por filtro y formatos de ciclo reutilizables.
 Formato usado y cómputos heredados son inmutables; no asignar fechas inventadas a registros anteriores.
 Docente administra sesiones/resultados/permisos de grupos propios; no estudiantes/inscripciones/calendarios.
 Conteos y avisos internos operativos; política/porcentaje/cierre/PDF/noticias siguen en fase 3.
-Leer docs/update-v0.3.0.md, nfc-contract.md y project-state.md antes de continuar.
+Leer docs/update-v0.3.1.md, docs/update-v0.3.0.md, nfc-contract.md y project-state.md antes de continuar.
+Parche 0.3.1: AuditLog::ENTITY_TYPES valida códigos independientes del idioma; la bitácora usa
+etiquetas es explícitas porque la interfaz es española. No volver a validar con array_keys(__()).
+Defaults de locale/fallback es. CI copia .env.testing.example a .env.testing y falla ante warnings;
+regresión prueba locale es/en/zz con fallback en, tanto render como filtros válidos e inválidos.
 
 - Laravel 13, PHP 8.4, PostgreSQL 17, Blade y fuentes Tabler 1.6.1 adjuntas.
 - Negro, rojo y blanco. Reutilizar layouts/componentes; estilos SmartAulaUES en resources/css/app.css.
