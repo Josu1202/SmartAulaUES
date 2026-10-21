@@ -1,5 +1,37 @@
 # Estado de continuidad · SmartAulaUES
 
+## Estado actual: A01 local para revisión
+
+La revisión vigente añade tabla de Resultados de asistencia en el grupo, con period_id y results_page;
+retira la pantalla independiente y normaliza explícitamente los 2 cómputos de desarrollo en siaa.
+Una segunda revisión del comando encontró 0 candidatos/0 protegidos. El usuario declaró datos de desarrollo,
+sin uso académico real; no se inventa aprobación formal universitaria. El cálculo sigue actualizable.
+Consulta colectiva por lote, privacidad por perfil, toda la historia académica y sesiones completas por fila.
+Prueba real de permiso: finalizar → solicitar → aprobar → recargar produce 80.00 % → 90.00 %, sin duplicados.
+Evidencia vigente: docs/a01-table-verification.md; notas externas: docs/change-notes-status.md.
+Implementación terminada y validación local completada: 134 pruebas/831 aserciones sin warnings,
+seis comprobaciones concurrentes nativas, ejemplo ejecutable 90.00 % y nueve medidas visuales por perfil/ancho.
+Sin integración mediante PR, commit, push ni merge; versión 0.3.2 conservada. Sin errores funcionales conocidos en A01.
+La sección siguiente conserva el registro anterior de A01 y sus decisiones sustituidas sobre pantalla/políticas.
+
+## Registro anterior de A01 (sustituido por la revisión de tabla)
+
+Base comprobada 4873cbf, feature/p3a-a01-calculo-asistencia; release 0.3.2 sin cambios.
+Fase 3A corresponde al integrante 2, fase 3B al integrante 3 (reparto F3 r1).
+A01 añade política project-2026-v1, calculador, consulta autorizada consistente y pantalla de política.
+Solo nuevos cómputos reciben la política. Los existentes conservan demo/desconocidas sin calcularlas.
+Confirmación del proyecto: 75 %, presentes + justificadas aprobadas / realizadas elegibles;
+no aprobación institucional. Faltantes/inconsistencias anulan porcentaje/conclusión, no la fracción.
+No se implementan QR geográfico, cierre, PDF ni dashboards nuevos. Sin migraciones/dependencias nuevas.
+Contrato definitivo: [attendance-calculation-contract.md](attendance-calculation-contract.md).
+Evidencia de esta ejecución y pendientes: [a01-verification.md](a01-verification.md).
+Verificación final 18/10: 124 pruebas/728 aserciones correctas sin warnings, exclusivamente en siaa_test;
+cuatro carreras de registro y dos de lectura consistente nativas comprobadas en esta tarea.
+Composer, Pint, 14 pruebas JavaScript y build correctos; queda advertencia Sass heredada documentada.
+Sin commit/push/merge. Se conserva el cambio previo en .env.example y no se incorpora Microsoft/.
+
+## Registro histórico de la entrega 0.3.2
+
 Fecha de trabajo del equipo: 14/10/2026, America/El_Salvador. Entrega **v0.3.2, fase 2**.
 Rama: `feature/mobile-https`. Base pública main/v0.3.1:
 `7b9b11826b0488cac26cb9febfa7f2741f186c45`.

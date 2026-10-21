@@ -28,7 +28,7 @@ class AuditRecorder
             Subject::class => ['code', 'name', 'active'],
             Offering::class => ['cycle_id', 'subject_id', 'teacher_id', 'group_code', 'capacity', 'cycle_format_id'],
             CycleFormat::class => ['cycle_id', 'name', 'version', 'active', 'periods'],
-            AssessmentPeriod::class => ['offering_id', 'number', 'starts_on', 'ends_on', 'state'],
+            AssessmentPeriod::class => ['offering_id', 'number', 'starts_on', 'ends_on', 'state', 'policy_version'],
             Enrollment::class => ['offering_id', 'student_id', 'active_from', 'active_to'],
             ClassSession::class => ['offering_id', 'period_id', 'starts_at', 'ends_at', 'modality', 'state', 'change_reason'],
             AttendancePortal::class => ['session_id', 'opens_at', 'expires_at', 'closed_at', 'enabled_methods'],
@@ -44,6 +44,14 @@ class AuditRecorder
     {
         AuditLog::create([
             'actor_id' => $actor->id, 'entity_type' => class_basename($model), 'entity_id' => (string) $model->getKey(),
+            'action' => $action, 'before' => $before, 'after' => $this->snapshot($model), 'reason' => $reason,
+        ]);
+    }
+
+    public function recordSystem(Model $model, string $action, array $before, string $reason): void
+    {
+        AuditLog::create([
+            'actor_id' => null, 'entity_type' => class_basename($model), 'entity_id' => (string) $model->getKey(),
             'action' => $action, 'before' => $before, 'after' => $this->snapshot($model), 'reason' => $reason,
         ]);
     }

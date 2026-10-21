@@ -6,6 +6,7 @@ return [
     'offering.created' => 'Grupo creado', 'offering.updated' => 'Grupo actualizado', 'period.created' => 'Cómputo creado', 'period.updated' => 'Cómputo actualizado',
     'enrollment.created' => 'Inscripción creada', 'enrollment.updated' => 'Vigencia actualizada', 'import.confirmed' => 'Importación confirmada',
     'user.years_updated' => 'Años del estudiante actualizados',
+    'period.policy_normalized' => 'Reglamento de desarrollo actualizado',
     'format.created' => 'Formato de ciclo creado', 'format.updated' => 'Formato de ciclo actualizado',
     'session.created' => 'Sesión programada', 'session.updated' => 'Sesión reprogramada', 'session.start' => 'Clase iniciada', 'session.finish' => 'Clase finalizada', 'session.cancel' => 'Clase cancelada',
     'portal.opened' => 'Registro abierto', 'portal.closed' => 'Registro cerrado', 'reader.opened' => 'Lector iniciado', 'reader.closed' => 'Lector detenido',

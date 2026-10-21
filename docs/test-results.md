@@ -1,5 +1,12 @@
 # Evidencia de verificación · SmartAulaUES v0.3.2
 
+La implementación final de A01 con tabla, normalización y lectura colectiva se verifica en
+[a01-table-verification.md](a01-table-verification.md). No reutilizar cifras anteriores como evidencia nueva.
+
+El trabajo local A01, sin nueva release, registra su ejecución Compose/PostgreSQL nativa por separado
+en [a01-verification.md](a01-verification.md). Las cifras y limitaciones siguientes corresponden a sus
+entregas históricas; no sustituyen la evidencia de A01 ni acreditan NFC físico.
+
 ## HTTPS móvil de pruebas · 14/10/2026 (El Salvador)
 
 | Comprobación ejecutada | Resultado |

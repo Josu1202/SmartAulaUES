@@ -1,5 +1,11 @@
 # Modelo de datos · v0.3.0
 
+A01 sobre v0.3.2 conserva este esquema, sin migraciones nuevas. `assessment_periods.policy_version`
+recibe project-2026-v1 en cómputos nuevos. Se normalizaron explícitamente 2 cómputos de desarrollo;
+la operación excluye cierres y cualquier ReportVersion, audita con actor_id null y conserva fechas/datos.
+La definición inmutable está en código y se devuelve en el contrato de cálculo. ReportVersion sigue reservado para A03/B02.
+La consulta de A01 toma locks compartidos ciclo → grupo → cómputo y no escribe resultados.
+
 Migraciones incrementales; se conservan las originales y la de v0.2.0. Fase 2 agrega dos migraciones
 2026_10_14 (UTC): años/formatos y contrato de eventos/unicidad NFC. No se edita un esquema compartido.
 
@@ -50,5 +56,7 @@ Orden de bloqueo: ciclo → grupo → cómputo/sesión → recurso; registro añ
 por UUID normalizado. Los eventos guardan resultados seguros, nunca el token; índice/locks no sustituyen
 pruebas de procesos independientes con PostgreSQL nativo.
 
-Las gráficas agrupan consultas autorizadas, sin generar datos. Fase 3 diseñará cálculo aprobado,
-cierre/snapshot/PDF y reapertura; AssessmentPeriod.policy_version conserva la propuesta demo actual.
+Las gráficas existentes agrupan consultas autorizadas, sin generar datos. A01 incorpora cálculo
+provisional mediante AttendanceSummary; cierre/snapshot/PDF y reapertura siguen pendientes.
+AssessmentPeriod.policy_version solo se cambia en desarrollo mediante la operación explícita autorizada,
+no desde una consulta ni como un alias de versiones desconocidas.

@@ -1,0 +1,16 @@
+# Notas de cambio · estado y asignación
+
+Se leyó el original `notasDeCambio_SmartAulaUES.txt` proporcionado en Downloads y se contrastó con código.
+Esta lista no declara entregados A02–A05 ni B01–B07; separa su trabajo de la definición de terminado de A01.
+
+| Solicitud | Estado | Evidencia / trabajo restante | Módulo o asignación sugerida |
+| --- | --- | --- | --- |
+| Eliminar Entorno de demostración / Simulación | Parcial global; cumplido en A01 | La tabla expresa reglamento vigente y cálculo actualizable; el layout académico muestra Campus. Login aún conserva su texto condicional. No se quitaron protecciones DEMO_SEED ni se presentaron fixtures como reales. | Limpieza restante de experiencia B04/B05, sin bloquear A01 |
+| Carrera de 1.º a 5.º y egresados | Pendiente | Requests/BD actuales aceptan 1–10. Conservar entry_year separado. Requiere definir representación de egresado y migración nueva; no inventar un entero. | Organización académica / coordinación con A05 y B04 |
+| Clave inicial común para altas masivas | Cumplido en la implementación existente | ImportController exige contraseña común fuera del CSV, confirmación y 12–128 caracteres; guarda hash en revisión. CsvImporter::confirm aplica ese hash a todas las altas. Lote manual reutiliza el flujo. Pruebas CSV/lote existentes conservadas; no se reimplementó. | Ya existente, mantener contrato en A05 |
+| Credenciales NFC secuenciales por año | Pendiente | Emisión actual individual. Requiere selección de lote, avance por estudiante, expiración y confirmación física de cada etiqueta, sin tokens persistidos. | Incremento propio de credenciales fase 2 / coordinación con A02 |
+| NFC desde teléfono del estudiante sin tarjeta | Pendiente de decisión y viabilidad | Web NFC actual lee/escribe NDEF; no se ha validado un mecanismo que convierta el teléfono del alumno en una tarjeta compatible. No se promete HCE o sustitución universal. | Estudio propio de registro/NFC, fuera de A01 |
+| Finalizar clase al vencer horario | Pendiente | SessionWorkflow finaliza explícitamente. Expirar portal no finaliza una clase ni prueba que se realizó. Se deben definir condiciones/evidencia, idempotencia y scheduler, sin inventar clases ni aprobar permisos. | A03 con operación B07 |
+
+Ranking, gráficas, tendencias, dashboards y exportaciones siguen asignados a B01/B02; la tabla mínima
+de resultados forma parte de A01. Certificación, snapshots y reapertura corresponden a A03.

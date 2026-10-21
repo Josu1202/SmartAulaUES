@@ -2,6 +2,8 @@
 
 namespace Tests\Infrastructure;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\TransferException;
 use Illuminate\Filesystem\Filesystem;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
@@ -63,18 +65,24 @@ PHP);
                 'APP_PACKAGES_CACHE' => false,
             ]);
             $process->start();
-            $context = stream_context_create(['http' => ['timeout' => 1]]);
+            // Cold PHP bootstrap over a Windows Docker bind mount was measured at 14 seconds.
+            // Allow startup within a bounded deadline and assert the actual HTTP configuration.
+            $client = new Client(['timeout' => 30, 'connect_timeout' => 1]);
             $body = false;
-            $deadline = microtime(true) + 15;
+            $httpError = '';
+            $deadline = microtime(true) + 45;
             while (microtime(true) < $deadline && $process->isRunning()) {
-                $body = @file_get_contents('http://127.0.0.1:'.$port.'/probe', false, $context);
-                if ($body !== false) {
+                try {
+                    $body = (string) $client->get('http://127.0.0.1:'.$port.'/probe')->getBody();
                     break;
+                } catch (TransferException $exception) {
+                    // A connection refused while the child starts is a retry, not a PHP warning.
+                    $httpError = $exception->getMessage();
                 }
                 usleep(100000);
             }
 
-            $this->assertNotFalse($body, $process->getOutput().$process->getErrorOutput());
+            $this->assertNotFalse($body, $process->getOutput().$process->getErrorOutput().$httpError);
             $this->assertSame(['host' => 'db', 'port' => '5432', 'database' => 'siaa_test'], json_decode($body, true, flags: JSON_THROW_ON_ERROR));
         } finally {
             $process?->stop(1);

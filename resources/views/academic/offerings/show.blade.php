@@ -56,6 +56,7 @@
             </table>
         </div>
     </div>
+    @include('academic.offerings.attendance-results')
     <div class="card">
         <div class="card-header d-flex justify-content-between flex-wrap">
             <h2 class="card-title">

@@ -1,5 +1,17 @@
 # Tres fases de desarrollo · SmartAulaUES
 
+## Reparto vigente F3 r1
+
+El integrante 2 desarrolla 3A: A01 política/cálculo, A02 QR geográfico, A03 cierre y reapertura,
+A04 grupos y A05 CSV. El integrante 3 desarrolla 3B: B01 dashboards, B02 PDF/CSV,
+B03 historia/noticias, B04 experiencia, B05 demo, B06 rendimiento y B07 operación.
+Este reparto sustituye la asignación histórica de fase 3 completa al miembro 3, conservada abajo.
+A01 local implementa reglamento vigente, cálculo único y tabla básica por cómputo en el grupo;
+normaliza datos de desarrollo explícitamente, sin tocar cierres/reportes. B consume el contrato
+en attendance-calculation-contract.md. El resto sigue pendiente; no hay certificación institucional.
+
+## Contexto histórico de fases 1–2 y propuesta inicial de fase 3
+
 Organización solicitada el 13/10/2026: un miembro humano por fase, con módulos completos
 (servidor/interfaz/reglas/pruebas). Usuario: fase 1; nombres de miembros 2–3 aún pendientes.
 Esta división conserva RF01–RF08 de la guía y sustituye su reparto por especialidades.

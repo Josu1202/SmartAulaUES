@@ -21,7 +21,7 @@
                         name="menu" /></button><span class="topbar-crumb">Espacio
                     académico<span>/</span><strong>@yield('title', 'Inicio')</strong></span></div>
             <div class="d-flex align-items-center gap-3"><span
-                    class="demo-pill">{{ config('smartaulaues.demo_enabled') ? 'Demostración' : 'Campus' }}</span>
+                    class="demo-pill">Campus</span>
                 <div class="dropdown"><button class="user-menu" type="button"
                         aria-label="Menú de {{ auth()->user()->name }}" data-bs-toggle="dropdown"
                         aria-expanded="false"><span
