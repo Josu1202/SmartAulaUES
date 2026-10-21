@@ -1,8 +1,8 @@
 # SmartAulaUES · Asistencia académica universitaria
 
 **v0.3.2 · Fase 2: estudiantes por año, calendarios reutilizables, clases, asistencia y permisos.**
-Aplicación Laravel/Blade. Este incremento parte de main/v0.3.1, commit
-`7b9b11826b0488cac26cb9febfa7f2741f186c45`, conservando las fases 1 y 2.
+Aplicación Laravel/Blade. Base local de A01: v0.3.2, commit
+`4873cbf5c9a792cc3e3e986a05849e39433e1dae`, conservando las fases 1 y 2.
 Repositorio del equipo: [Josu1202/SmartAulaUES](https://github.com/Josu1202/SmartAulaUES).
 La marca, el icono propio y el diseño Tabler negro, rojo y blanco se conservan.
 
@@ -17,17 +17,29 @@ mantiene etiquetas en español, incluso con locale/fallback en inglés. CI prepa
 `.env.testing` desde el ejemplo para evitar advertencias de archivo ausente; no usa tus claves.
 No hay migraciones nuevas. Actualización y subida: [docs/update-v0.3.1.md](docs/update-v0.3.1.md).
 
-## Tres fases, un responsable por fase
+## Fase 3 repartida entre integrantes 2 y 3
 
-El usuario es el miembro 1. Los nombres de los miembros 2 y 3 siguen pendientes de asignar.
-Cada fase incluye reglas del servidor, interfaz, autorización, documentación y pruebas de sus módulos.
-Esta organización sustituye el antiguo reparto backend/frontend/integración de la guía.
+El reparto F3 r1 sustituye la asignación antigua de toda fase 3 al miembro 3.
+Integrante 2 (3A): A01 política/cálculo, A02 QR geográfico, A03 cierre/snapshot/reapertura,
+A04 estado de grupos y A05 CSV. Integrante 3 (3B): dashboards, PDF/CSV, historia/noticias,
+experiencia, demo, rendimiento y operación. Cada módulo incluye reglas, autorización y pruebas.
+
+**A01 implementado localmente, sin nueva release ni PR integrado:** reglamento vigente `project-2026-v1`,
+75 % de (presentes + justificadas aprobadas) / clases realizadas elegibles. No se atribuye aprobación
+formal de la universidad. En **Materias y grupos → detalle → Resultados de asistencia** se selecciona
+el cómputo y se consulta una tabla por perfil, con denominador, pendientes e incidencias propias.
+El cálculo sigue siendo actualizable; certificación, snapshots, ranking y PDF pertenecen a otros módulos.
+La pantalla independiente de política se retiró. Los 2 cómputos de desarrollo se normalizaron mediante
+operación explícita y auditada, conservando datos y fechas. Versiones desconocidas no son alias del reglamento.
+[Contrato y ejemplos ejecutables](docs/attendance-calculation-contract.md),
+[verificación actual](docs/a01-table-verification.md) y [notas de cambio](docs/change-notes-status.md).
 
 | Fase | Responsable humano | Alcance | Estado |
 | --- | --- | --- | --- |
 | 1. Organización académica | Usuario, miembro 1 | Cuentas/acceso, ciclos, materias, grupos/docentes/cupos, cómputos, inscripciones/retiros, CSV y auditoría | Implementada en v0.2.0; conservada y ampliada |
-| 2. Clases, asistencia y permisos | Miembro 2 | Directorios separados, años de estudiantes, formatos de ciclos, sesiones, credenciales y lector NFC, QR/enlace/manual, ausencias, permisos/evidencias, correcciones y avisos internos | Implementada en v0.3.0; aceptación con NFC físico y PostgreSQL/Compose nativo pendiente |
-| 3. Seguimiento, cierre y entrega | Miembro 3 | Política aprobada, porcentaje e historial, cierre/snapshot, PDF privado versionado, noticias e integración/HTTPS/respaldo/manuales | Pendiente; recibe conteos y avisos operativos de fase 2 |
+| 2. Clases, asistencia y permisos | Miembro 2 | Directorios separados, años de estudiantes, formatos de ciclos, sesiones, credenciales y lector NFC, QR/enlace/manual, ausencias, permisos/evidencias, correcciones y avisos internos | Implementada en v0.3.0; aceptación NFC física pendiente; evidencia Compose/PostgreSQL en docs/a01-verification.md |
+| 3A. Integridad y registro | Integrante 2 | A01–A05 | A01 implementado y validado localmente; sin PR integrado; demás módulos pendientes |
+| 3B. Seguimiento y entrega | Integrante 3 | B01–B07, consumiendo cálculo/snapshot de A | Pendiente |
 
 El alcance de v0.3.0 reúne funciones de fase 2 que antes se sugerían como varios incrementos.
 Las versiones 0.4/0.5 no se consideran entregadas por aquella propuesta. Consulta
@@ -148,8 +160,10 @@ por UUID. No saltar estas acciones desde controladores, importaciones o la futur
 | Secretos | No contraseñas/tokens/huellas ni rutas de evidencia en la bitácora; snapshots con campos permitidos |
 | Actualización | Nuevas migraciones, misma APP_KEY/BD/volumen; no reiniciar datos |
 
-El 75 %, denominador, tardanzas, plazos y efecto de justificadas siguen pendientes de validación
-institucional. `config/attendance.php` contiene una propuesta demo; fase 2 no calcula el porcentaje oficial.
+El proyecto confirma 75 % y justificadas aprobadas en el numerador para `project-2026-v1`.
+No consta aprobación institucional. Tardanzas, plazos y certificación no se implementan en A01.
+La política inmutable está en `AttendancePolicy`; `config/attendance.php` la selecciona para cómputos nuevos.
+La actualización de cómputos de desarrollo es una operación de mantenimiento explícita; no se ejecuta al abrir páginas.
 
 ## Tecnologías y actualización
 
@@ -351,9 +365,11 @@ Incluye fuentes y assets compilados; excluye `.git`, `.env`, dependencias descar
 [docs/test-results.md](docs/test-results.md) y [docs/verification.json](docs/verification.json) registran
 lo comprobado y conservan evidencia anterior. CI incluye la batería y un script de procesos concurrentes
 contra PostgreSQL nativo: `php tests/Concurrency/attendance-races.php --env=testing`, exclusivamente en BD
-con sufijo `_test` y esquema migrado. Las pruebas de este entorno usan PGlite/PDO; no prueban concurrencia nativa.
-Docker/pgAdmin, GitHub Actions, Android/etiquetas/HTTPS real y respaldo/restauración requieren aceptación
-en el equipo correspondiente. Los porcentajes, cierre y PDF oficial corresponden a fase 3.
+con sufijo `_test` y esquema migrado. La evidencia histórica usa PGlite/PDO; la ejecución local A01
+usa Compose/PostgreSQL nativo y se registra en [docs/a01-verification.md](docs/a01-verification.md),
+con conexión exclusiva a `siaa_test` y dos pruebas concurrentes nuevas de lectura consistente.
+pgAdmin, GitHub Actions, Android/etiquetas/HTTPS real y respaldo/restauración requieren aceptación
+en el equipo correspondiente. A01 calcula resultados provisionales; cierre y PDF oficial siguen pendientes.
 
 ## Referencias
 

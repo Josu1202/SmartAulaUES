@@ -1,5 +1,32 @@
 # Entorno de trabajo SmartAulaUES
 
+## Prioridad de continuidad: A01, fase 3A (trabajo local, sin release)
+
+Base 4873cbf, rama feature/p3a-a01-calculo-asistencia, versión 0.3.2 conservada.
+El reparto phase3-member2.md/F3 r1 sustituye el antiguo: integrante 2 A01–A05;
+integrante 3 B01–B07. A01 está implementado localmente para revisión; no implica cierre de fase 3.
+Leer docs/attendance-calculation-contract.md y docs/a01-verification.md.
+Reglamento project-2026-v1 vigente: 75 %, presentes + justificadas con permiso aprobado.
+El usuario autoriza normalizar explícitamente cómputos de desarrollo en local/siaa y testing/siaa_test,
+con preview, base efectiva, protección de cierres/reportes y auditoría de Sistema. No se hace al consultar.
+La decisión anterior de conservar políticas demo de desarrollo queda sustituida. No crear alias en el calculador.
+La pantalla independiente de política se retiró: resultados y explicación en /offerings/{offering},
+selector period_id y paginación results_page. No exponer versiones internas en la interfaz.
+AttendanceSummary::forOffering reutiliza el calculador único, carga por lote y lectura coherente por página;
+paginar estudiantes jamás pagina sesiones. Estudiante solo su fila y sus incidencias.
+Leer docs/a01-table-verification.md y docs/change-notes-status.md; a01-verification.md es histórico.
+Estado de A01: implementación terminada y validación local completada; no integrado mediante PR.
+Evidencia final: 134 pruebas/831 aserciones sin warnings, seis comprobaciones concurrentes y revisión visual
+en tres perfiles × 1440/390/320 px. No atribuir estos resultados a CI remoto o al resto de fase 3.
+Faltantes/inconsistencias: fracción observada e incidencias propias, porcentaje/conclusión nulos.
+Permisos pendientes con datos completos: resultado provisional. No afirmar aprobación institucional.
+AttendanceSummary usa locks compartidos ciclo → grupo → cómputo; conservar ese protocolo.
+El usuario autoriza RefreshDatabase exclusivamente en siaa_test desechable, previa comprobación
+de conexión efectiva con scripts/check-test-database.php. No modificar arnés/CI para evitarlo.
+No modificar .env, regenerar claves, incluir cachés PowerShell, publicar ni cambiar release.
+
+## Contexto histórico de fases 1–2 (subordinado a lo anterior)
+
 Este repositorio es SmartAulaUES, el sistema de asistencia académica de una materia universitaria.
 El usuario autorizó crear los cimientos y continuar por funciones. Leer README.md, CHANGELOG.md,
 docs/project-state.md y la guía en docs/reference antes de cambiar el alcance.

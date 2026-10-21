@@ -1,5 +1,36 @@
 # Historial de versiones SmartAulaUES
 
+## Revisión local A01 · tabla y reglamento vigente · sin release
+
+- Retira la pantalla de política y el enlace independiente; incorpora explicación y tabla por cómputo
+  en el detalle del grupo, selector validado, paginación independiente y privacidad por perfil.
+- Reutiliza el calculador único con lectura colectiva consistente bajo locks compartidos y cargas por lote;
+  paginar estudiantes no recorta sesiones ni publica totales de página como estadísticas de grupo.
+- Operación explícita de normalización local/testing, con base efectiva, revisión previa, protección de
+  cierres/reportes y auditoría de Sistema. Actualiza 2 cómputos de desarrollo; repetición con 0 candidatos.
+- Fixtures/factories vigentes, ejemplo ejecutable 9/10 = 90.00 % y flujo real de permiso con recarga de tabla.
+- Pruebas de historial, privacidad, paginación, no escrituras y concurrencia colectiva; evidencia actual
+  en docs/a01-table-verification.md. Notas externas clasificadas en docs/change-notes-status.md.
+- Sin dependencias/migraciones nuevas, cambios de release, commit, push ni merge.
+- Validación local final: 134 pruebas/831 aserciones sin warnings, seis comprobaciones concurrentes
+  nativas, 14 pruebas JavaScript y build correcto; revisión visual de tres perfiles en 1440/390/320 px.
+
+## Registro anterior A01 · decisiones sustituidas por la revisión de tabla
+
+- Política versionada project-2026-v1, confirmada para el proyecto: 75 % con presentes + justificadas
+  respaldadas por permisos aprobados. No se atribuye aprobación institucional.
+- Calculador puro y consulta autorizada con lectura consistente bajo locks compartidos parentales.
+- Resultados incompletos sin porcentaje/conclusión; pendientes visibles y conclusiones provisionales.
+- Cómputos nuevos reciben la política; existentes/demo/desconocidos no se reinterpretan ni reasignan.
+- Pantalla Blade de política, fixtures comunes, pruebas de reglas/privacidad y script concurrente nativo.
+- Auditoría de creación de cómputos incluye versión de política; preflight de conexión exacta siaa_test.
+- Sin migraciones/dependencias nuevas, sin cambios de versión, cierres, PDF, QR geográfico ni ranking.
+- Contrato y resultados de comprobación en docs/attendance-calculation-contract.md y docs/a01-verification.md.
+- Sonda de infraestructura HTTP: timeout de petición compatible con arranque Docker/Windows y
+  reintentos explícitos de conexión; mismas aserciones, sin cambiar RefreshDatabase ni CI.
+- Verificación final: 124 pruebas/728 aserciones sin warnings en PostgreSQL nativo siaa_test,
+  seis comprobaciones concurrentes, 14 pruebas JavaScript, Composer/Pint y build correctos.
+
 ## [0.3.2] — 2026-10-14 · HTTPS móvil de pruebas
 
 ### Implementado

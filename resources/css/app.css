@@ -9,6 +9,32 @@
     --tblr-primary-rgb: 201, 24, 36;
     --tblr-font-sans-serif: "Inter", "Segoe UI", Arial, sans-serif;
 }
+#attendance-results {
+    scroll-margin-top: 100px;
+}
+#attendance-results table {
+    min-width: 1100px;
+}
+#attendance-results th,
+#attendance-results td {
+    padding: 12px 14px;
+    vertical-align: top;
+}
+#attendance-results th[scope="row"],
+#attendance-results td:nth-child(8),
+#attendance-results td:last-child {
+    white-space: normal;
+}
+#attendance-results th[scope="row"] {
+    min-width: 120px;
+}
+#attendance-results td:nth-child(8) {
+    min-width: 150px;
+}
+#attendance-results td:last-child {
+    min-width: 240px;
+    max-width: 320px;
+}
 body {
     font-family: "Inter", "Segoe UI", Arial, sans-serif;
     background: #f7f7f8;

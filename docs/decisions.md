@@ -1,5 +1,31 @@
 # Decisiones técnicas · 0.3.2
 
+## Decisiones vigentes A01 (sin nueva versión de lanzamiento)
+
+- Reparto F3 r1: integrante 2 A01–A05; integrante 3 B01–B07.
+- Política project-2026-v1: 75 %, (presentes + justificadas aprobadas) / realizadas elegibles.
+  Decisión del proyecto; aprobación institucional no documentada. Sin tardanzas inferidas.
+- Comparación entera sin redondeo; mostrar dos decimales y las dos conclusiones confirmadas.
+- Reglamento vigente inmutable en código; configuración selecciona versión para nuevos cómputos.
+  La decisión posterior del usuario autoriza normalizar los registros actuales de desarrollo de forma
+  explícita, repetible y auditada, solo en local/siaa o testing/siaa_test. Se excluyen cierres/reportes.
+  Se actualizaron 2, sin pérdida de datos/fechas. Demo/desconocida aún produce policy_unavailable
+  si se consulta sin normalizar: no hay alias ni migración automática.
+- Tabla básica dentro del detalle del grupo, con selector de cómputo; sin pantalla o menú de política.
+  Versionado interno, sin mensajes de propuesta o aprobación pendiente. No se atribuye aprobación formal.
+- Consulta colectiva por página con locks compartidos, as_of común y tres cargas de sesiones/resultados/permisos,
+  sin consultas por estudiante. Todas las sesiones del cómputo se consideran para cada fila.
+  Paginadores independientes page/results_page; filtro period_id persistente; no hay resúmenes globales.
+- Datos incompletos/inconsistentes: conteos e incidencias propias, sin porcentaje/conclusión ni reparación.
+- Permisos pendientes: cálculo provisional si resultados completos; certificación se reserva para A03.
+- Lectura consistente con locks compartidos ciclo → grupo → cómputo; escrituras existentes toman
+  ciclo exclusivo. Las lecturas vivas de un período cerrado no sustituyen snapshots.
+- RefreshDatabase autorizado solo en siaa_test desechable, verificada mediante conexión efectiva.
+  Se conservan RefreshDatabase, tests/TestCase.php y CI. La sonda HTTP de infraestructura recibió
+  un timeout de petición mayor y reintentos explícitos para Docker/Windows. No modificar .env ni regenerar claves.
+
+Las decisiones históricas siguientes sobre política demo y reparto se sustituyen por las anteriores.
+
 | Decisión | Motivo y aplicación |
 | --- | --- |
 | Seguir guía v2.0 | Alcance académico de seis semanas y NFC móvil como prioridad |
