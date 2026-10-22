@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AttendancePortal extends Model
 {
-    protected $hidden = ['token_hash'];
+    protected $hidden = ['token_hash', 'geo_reference'];
 
-    protected $fillable = ['session_id', 'opens_at', 'expires_at', 'closed_at', 'enabled_methods', 'token_hash'];
+    protected $fillable = ['session_id', 'opens_at', 'expires_at', 'closed_at', 'enabled_methods', 'token_hash', 'access_modality', 'geo_reference'];
 
     protected function casts(): array
     {
-        return ['opens_at' => 'immutable_datetime', 'expires_at' => 'immutable_datetime', 'closed_at' => 'immutable_datetime', 'enabled_methods' => 'array'];
+        return ['opens_at' => 'immutable_datetime', 'expires_at' => 'immutable_datetime', 'closed_at' => 'immutable_datetime', 'enabled_methods' => 'array', 'geo_reference' => 'array'];
     }
 
     public function session(): BelongsTo

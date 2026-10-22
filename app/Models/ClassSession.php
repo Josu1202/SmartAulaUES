@@ -12,7 +12,12 @@ class ClassSession extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['period_id', 'offering_id', 'starts_at', 'ends_at', 'modality', 'state', 'change_reason'];
+    protected $fillable = ['period_id', 'offering_id', 'starts_at', 'ends_at', 'modality', 'event_attendance_mode', 'state', 'change_reason'];
+
+    public function effectiveAttendanceModality(): ?string
+    {
+        return $this->modality === 'event' ? $this->event_attendance_mode : $this->modality;
+    }
 
     protected function casts(): array
     {

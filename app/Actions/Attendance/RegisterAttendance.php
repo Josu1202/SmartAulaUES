@@ -14,12 +14,13 @@ use App\Models\ClassSession;
 use App\Models\NfcCredential;
 use App\Models\ReaderSession;
 use App\Models\User;
+use App\Services\Attendance\GeographicAccess;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class RegisterAttendance
 {
-    public function __construct(private AcademicSessionLock $locks, private AuditRecorder $audit) {}
+    public function __construct(private AcademicSessionLock $locks, private AuditRecorder $audit, private GeographicAccess $geography) {}
 
     public function record(User $actor, ClassSession $session, string $method, array $data): array
     {
@@ -33,10 +34,19 @@ class RegisterAttendance
         if (isset($data['reader_session_id'])) {
             $data['reader_session_id'] = strtolower($data['reader_session_id']);
         }
-        $hash = hash('sha256', json_encode(['actor' => $actor->id, 'session' => $session->id, 'method' => $method,
+        $payload = ['actor' => $actor->id, 'session' => $session->id, 'method' => $method,
             'student' => $data['student_id'] ?? null, 'portal' => $data['portal_id'] ?? null, 'reader' => $data['reader_session_id'] ?? null,
             'credential' => isset($data['credential_token']) ? hash('sha256', $data['credential_token']) : null,
-            'token' => isset($data['portal_token']) ? hash('sha256', $data['portal_token']) : null, 'reason' => $data['reason'] ?? null], JSON_THROW_ON_ERROR));
+            'token' => isset($data['portal_token']) ? hash('sha256', $data['portal_token']) : null, 'reason' => $data['reason'] ?? null];
+        if (array_key_exists('location', $data)) {
+            $location = $data['location'];
+            if (is_array($location)) {
+                ksort($location);
+            }
+            // Hash only; serialize also safely fingerprints malformed/nonfinite direct action inputs.
+            $payload['location'] = hash('sha256', serialize($location));
+        }
+        $hash = hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
 
         return DB::transaction(function () use ($actor, $session, $method, $data, $hash): array {
             // Global event lock precedes the parent locks, including calls targeting different cycles.
@@ -58,6 +68,7 @@ class RegisterAttendance
             $credential = null;
             $reader = null;
             $attendance = null;
+            $geoValidation = null;
             try {
                 if ($session->state !== SessionState::InProgress || $session->starts_at > now() || $session->ends_at <= now()) {
                     $this->reject('La sesión ya no admite registros.', 409);
@@ -101,6 +112,9 @@ class RegisterAttendance
                 if (! $enrollment) {
                     $this->reject('El estudiante no tiene inscripción vigente en este grupo.');
                 }
+                if (in_array($method, ['qr', 'link'])) {
+                    $geoValidation = $this->geography->validate($portal, $session, $data['location'] ?? null);
+                }
                 $attendance = Attendance::where('session_id', $session->id)->where('enrollment_id', $enrollment->id)->first();
                 if ($attendance && $attendance->status !== AttendanceStatus::Present) {
                     $this->reject('Ya existe otro resultado para esta sesión. Solicita revisión del docente.', 409);
@@ -113,10 +127,13 @@ class RegisterAttendance
                 $result = ['http' => $status === 'recorded' ? 201 : 200, 'body' => ['status' => $status, 'attendance_id' => $attendance->id, 'student_id' => $student->id, 'student_name' => $student->name, 'student_code' => $student->student_code]];
             } catch (RegistrationRejected $exception) {
                 $result = ['http' => $exception->httpStatus, 'body' => ['status' => 'rejected', 'message' => $exception->getMessage()]];
+                if ($exception->reasonCode) {
+                    $result['body']['code'] = $exception->reasonCode;
+                }
             }
             AttendanceEvent::create(['event_id' => $data['event_id'], 'actor_id' => $actor->id, 'session_id' => $session->id,
                 'reader_session_id' => $reader?->id, 'credential_id' => $credential?->id, 'request_hash' => $hash, 'outcome' => $result['body']['status'],
-                'received_at' => now(), 'attendance_id' => $attendance?->id, 'response' => $result['body'], 'http_status' => $result['http']]);
+                'received_at' => now(), 'attendance_id' => $attendance?->id, 'response' => $result['body'], 'http_status' => $result['http'], 'geo_validation' => $result['http'] < 300 ? $geoValidation : null]);
 
             return $result;
         });

@@ -1,5 +1,19 @@
 # SmartAulaUES · Asistencia académica universitaria
 
+**Revisión A02 del 22/10:** adquisición de hasta 15 s y diagnóstico con **Medir precisión sin registrar**
+para docente/estudiante, incluso sin portal abierto. Ensayo físico autorizado: radio **30 m**,
+incertidumbre **>0 y ≤10 m por dispositivo**, fórmula **distancia + ambas incertidumbres ≤30 m**.
+Valida proximidad aproximada al docente; no acredita presencia dentro del aula.
+[Pasos sencillos para medir en dispositivos reales](docs/a02-location-measurement.md).
+El usuario reportó precisión insuficiente en los equipos probados; A02 no se considera aceptado físicamente.
+
+**Incremento local A02 para revisión, sin release:** QR/enlace presenciales con referencia fija al abrir
+el portal y radio de 30 m considerando incertidumbre de ambos dispositivos. NFC/manual conservados;
+en línea no solicita ubicación. Evento requiere indicar Presencial o En línea, sin reclasificar datos antiguos.
+A01 integrado en main, base `18c7596`; rama actual `feature/p3a-a02-qr-geolocalizacion`, versión 0.3.2.
+Hay una migración nueva. [Uso, actualización y ensayo físico HTTPS](docs/a02-geographic-access.md),
+[resultados y pendientes](docs/a02-verification.md). Prueba física pendiente; no se certifica GPS.
+
 **v0.3.2 · Fase 2: estudiantes por año, calendarios reutilizables, clases, asistencia y permisos.**
 Aplicación Laravel/Blade. Base local de A01: v0.3.2, commit
 `4873cbf5c9a792cc3e3e986a05849e39433e1dae`, conservando las fases 1 y 2.
@@ -24,7 +38,7 @@ Integrante 2 (3A): A01 política/cálculo, A02 QR geográfico, A03 cierre/snapsh
 A04 estado de grupos y A05 CSV. Integrante 3 (3B): dashboards, PDF/CSV, historia/noticias,
 experiencia, demo, rendimiento y operación. Cada módulo incluye reglas, autorización y pruebas.
 
-**A01 implementado localmente, sin nueva release ni PR integrado:** reglamento vigente `project-2026-v1`,
+**A01 integrado en main, sin nueva release:** reglamento vigente `project-2026-v1`,
 75 % de (presentes + justificadas aprobadas) / clases realizadas elegibles. No se atribuye aprobación
 formal de la universidad. En **Materias y grupos → detalle → Resultados de asistencia** se selecciona
 el cómputo y se consulta una tabla por perfil, con denominador, pendientes e incidencias propias.
@@ -38,7 +52,7 @@ operación explícita y auditada, conservando datos y fechas. Versiones desconoc
 | --- | --- | --- | --- |
 | 1. Organización académica | Usuario, miembro 1 | Cuentas/acceso, ciclos, materias, grupos/docentes/cupos, cómputos, inscripciones/retiros, CSV y auditoría | Implementada en v0.2.0; conservada y ampliada |
 | 2. Clases, asistencia y permisos | Miembro 2 | Directorios separados, años de estudiantes, formatos de ciclos, sesiones, credenciales y lector NFC, QR/enlace/manual, ausencias, permisos/evidencias, correcciones y avisos internos | Implementada en v0.3.0; aceptación NFC física pendiente; evidencia Compose/PostgreSQL en docs/a01-verification.md |
-| 3A. Integridad y registro | Integrante 2 | A01–A05 | A01 implementado y validado localmente; sin PR integrado; demás módulos pendientes |
+| 3A. Integridad y registro | Integrante 2 | A01–A05 | A01 integrado; A02 local y aceptación física pendiente; A03–A05 pendientes |
 | 3B. Seguimiento y entrega | Integrante 3 | B01–B07, consumiendo cálculo/snapshot de A | Pendiente |
 
 El alcance de v0.3.0 reúne funciones de fase 2 que antes se sugerían como varios incrementos.

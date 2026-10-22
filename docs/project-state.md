@@ -1,5 +1,25 @@
 # Estado de continuidad · SmartAulaUES
 
+22/10/2026: ante el bloqueo físico por precisión insuficiente reportado por el usuario, se añade adquisición
+acotada a 15 s, mejor lectura reciente, cancelación/liberación y diagnóstico en las pantallas existentes.
+Docente y estudiante pueden medir sin registrar, incluso sin portal abierto. En una instrucción posterior,
+el usuario acuerda como configuración final radio 30 m e incertidumbre individual >0 y ≤10 m, conservando
+`distancia + ambas incertidumbres ≤30 m`. Servidor e interfaz comparten config/geolocation.php.
+Solo QR/enlace presenciales: proximidad aproximada al docente, no presencia dentro del aula. [Medición real y alcance](a02-location-measurement.md).
+Implementación A02 preparada para revisión/commit del usuario; aceptación física 30 m/10 m pendiente.
+Los portales no congelan límites: nueva solicitud usa configuración actual; referencia >10 m exige
+cerrar/reabrir. Respuestas/evidencias históricas se conservan. Sin commit/push/merge/release.
+
+## Estado vigente: A02 local para revisión sobre A01 integrado
+
+21/10/2026: historial local confirma 18c7596, merge de PR #3 de A01 en main.
+Rama feature/p3a-a02-qr-geolocalizacion, 0.3.2 conservada. A02 añade QR/enlace presenciales con
+referencia fija, incertidumbre combinada, reintentos e idempotencia en el registrador único existente.
+Evento requiere ubicación explícita, sin inferir valores previos. Migración incremental nullable.
+[Contrato y ensayo físico](a02-geographic-access.md), [evidencia nueva](a02-verification.md).
+GPS/HTTPS con dispositivos reales pendiente. Sin commit, push, merge, despliegue ni release.
+A03–A05/B01–B07 siguen pendientes. El estado «sin PR» de A01 que sigue es histórico.
+
 ## Estado actual: A01 local para revisión
 
 La revisión vigente añade tabla de Resultados de asistencia en el grupo, con period_id y results_page;

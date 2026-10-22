@@ -144,6 +144,7 @@ fieldset { min-width: 0; }
 .chart-row strong { text-align: right; }
 .portal-share { padding: 18px; background: #f7f7f8; border-radius: 9px; }
 .portal-share img { max-width: 100%; display: block; margin: 0 auto 12px; }
+.portal-share .btn { max-width: 100%; white-space: normal; }
 .session-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .live-status { padding: 18px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fafafa; min-height: 68px; overflow-wrap: anywhere; }
 .live-status[data-state="error"] { border-color: #c91824; color: #a5141e; background: #fff4f4; }

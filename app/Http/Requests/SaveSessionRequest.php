@@ -15,6 +15,6 @@ class SaveSessionRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['period_id' => ['required', 'integer', Rule::exists('assessment_periods', 'id')->where('offering_id', $this->route('offering')->id)], 'starts_at' => ['required', 'date_format:Y-m-d\TH:i'], 'ends_at' => ['required', 'date_format:Y-m-d\TH:i', 'after:starts_at'], 'modality' => ['required', 'in:in_person,online,event'], 'reason' => ['nullable', 'string', 'max:1000']];
+        return ['period_id' => ['required', 'integer', Rule::exists('assessment_periods', 'id')->where('offering_id', $this->route('offering')->id)], 'starts_at' => ['required', 'date_format:Y-m-d\TH:i'], 'ends_at' => ['required', 'date_format:Y-m-d\TH:i', 'after:starts_at'], 'modality' => ['required', 'in:in_person,online,event'], 'event_attendance_mode' => ['nullable', 'required_if:modality,event', 'in:in_person,online'], 'reason' => ['nullable', 'string', 'max:1000']];
     }
 }

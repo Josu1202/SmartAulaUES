@@ -1,5 +1,9 @@
 # SmartAulaUES desde el celular por HTTPS · v0.3.2
 
+Para la rama local A02, aplicar antes su migración incremental y recompilar recursos:
+[guía A02 y casos físicos](a02-geographic-access.md). Los pasos de HTTPS de este documento se
+reutilizan; las instrucciones históricas de commit/push de abajo no forman parte de la entrega A02.
+
 Para probar las etiquetas NFC se usa un Quick Tunnel de Cloudflare hacia la aplicación Laravel
 que ya corre en tu computadora. El celular usa las mismas cuentas, PostgreSQL y datos locales.
 No se crea otra aplicación ni otra base. El enlace temporal no requiere cuenta ni dominio.

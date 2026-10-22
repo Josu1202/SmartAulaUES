@@ -1,5 +1,11 @@
 # Contrato operativo NFC y asistencia · v0.3.0
 
+Extensión local A02 sobre 0.3.2: [QR/enlace geográficos](a02-geographic-access.md).
+POST de apertura y check-in presencial incluyen `location` (coordenadas/precisión/timestamp);
+check-in incluye además `location.portal_id`. La modalidad efectiva es del servidor.
+NFC/manual conservan este contrato. El fingerprint del evento incorpora ubicación cuando se envía;
+replay previo a caducidad conserva respuesta y una lectura nueva necesita nuevo UUID.
+
 Las rutas de este documento ya existen. /sessions/{session} es la consola operativa de clase.
 /teacher/terminal enlaza clases en curso y conserva un diagnóstico separado que no registra asistencia.
 Mismo dominio, sesión web, cuenta activa, auth.session y CSRF; NFC requiere HTTPS/Android compatible.
