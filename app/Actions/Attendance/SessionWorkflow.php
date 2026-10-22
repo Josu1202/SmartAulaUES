@@ -45,7 +45,10 @@ class SessionWorkflow
             if ($record->exists && blank($data['reason'] ?? null)) {
                 $this->fail('reason', 'Indica el motivo de la modificación.');
             }
-            $record->fill(['period_id' => $period->id, 'starts_at' => $start->utc(), 'ends_at' => $end->utc(), 'modality' => $data['modality'], 'change_reason' => $data['reason'] ?? null])->save();
+            if ($data['modality'] === 'event' && ! in_array($data['event_attendance_mode'] ?? null, ['in_person', 'online'], true)) {
+                $this->fail('event_attendance_mode', 'Indica si el evento es presencial o en línea.');
+            }
+            $record->fill(['period_id' => $period->id, 'starts_at' => $start->utc(), 'ends_at' => $end->utc(), 'modality' => $data['modality'], 'event_attendance_mode' => $data['modality'] === 'event' ? $data['event_attendance_mode'] : null, 'change_reason' => $data['reason'] ?? null])->save();
             $this->audit->record($actor, $record, $before ? 'session.updated' : 'session.created', $before, $data['reason'] ?? null);
             if ($before) {
                 $this->notifyGroup($record, 'Sesión reprogramada', $data['reason']);

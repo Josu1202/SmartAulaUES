@@ -26,6 +26,9 @@ class CheckInController extends Controller
     public function store(Request $request, AttendancePortal $portal, RegisterAttendance $register): JsonResponse
     {
         $data = $request->validate(['event_id' => ['required', 'uuid'], 'portal_token' => ['required', 'string', 'regex:/\A[A-Za-z0-9_-]{43}\z/'], 'method' => ['required', 'in:qr,link']]);
+        if ($request->exists('location')) {
+            $data['location'] = $request->input('location');
+        }
         $result = $register->record($request->user(), $portal->session, $data['method'], [...$data, 'portal_id' => $portal->id]);
 
         return response()->json($result['body'], $result['http']);

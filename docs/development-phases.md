@@ -1,5 +1,9 @@
 # Tres fases de desarrollo · SmartAulaUES
 
+A 21/10/2026: A01 integrado en main (18c7596). A02 implementado localmente para revisión:
+QR/enlace presenciales geográficos; [contrato](a02-geographic-access.md) y [evidencia](a02-verification.md).
+Aceptación física pendiente; A03–A05/B01–B07 no se declaran entregados.
+
 ## Reparto vigente F3 r1
 
 El integrante 2 desarrolla 3A: A01 política/cálculo, A02 QR geográfico, A03 cierre y reapertura,

@@ -5,10 +5,12 @@ namespace App\Actions\Attendance;
 use App\Actions\Academic\AuditRecorder;
 use App\Enums\Role;
 use App\Enums\SessionState;
+use App\Exceptions\RegistrationRejected;
 use App\Models\AttendancePortal;
 use App\Models\ClassSession;
 use App\Models\ReaderSession;
 use App\Models\User;
+use App\Services\Attendance\GeographicAccess;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -16,19 +18,27 @@ use Illuminate\Validation\ValidationException;
 
 class PortalManager
 {
-    public function __construct(private AcademicSessionLock $locks, private SessionWorkflow $sessions, private AuditRecorder $audit) {}
+    public function __construct(private AcademicSessionLock $locks, private SessionWorkflow $sessions, private AuditRecorder $audit, private GeographicAccess $geography) {}
 
-    public function open(User $actor, ClassSession $session, array $methods, int $minutes): array
+    public function open(User $actor, ClassSession $session, array $methods, int $minutes, mixed $location = null): array
     {
-        return DB::transaction(function () use ($actor, $session, $methods, $minutes): array {
+        return DB::transaction(function () use ($actor, $session, $methods, $minutes, $location): array {
             $record = $this->locks->get($session);
             Gate::forUser($actor)->authorize('update', $record);
             if ($record->state !== SessionState::InProgress || $record->ends_at <= now() || $record->starts_at > now()) {
                 $this->fail('session', 'La sesión debe estar en curso y dentro de su horario.');
             }
+            $reference = null;
+            try {
+                if (array_intersect(['qr', 'link'], $methods) && $this->geography->requiresLocation($record)) {
+                    $reference = $this->geography->reading($location);
+                }
+            } catch (RegistrationRejected $exception) {
+                $this->fail('location', $exception->getMessage());
+            }
             $this->sessions->closePortals($record);
             $token = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
-            $portal = $record->portals()->create(['opens_at' => now(), 'expires_at' => min(now()->addMinutes($minutes), $record->ends_at), 'enabled_methods' => array_values(array_unique($methods)), 'token_hash' => hash('sha256', $token)]);
+            $portal = $record->portals()->create(['opens_at' => now(), 'expires_at' => min(now()->addMinutes($minutes), $record->ends_at), 'enabled_methods' => array_values(array_unique($methods)), 'token_hash' => hash('sha256', $token), 'access_modality' => $record->effectiveAttendanceModality(), 'geo_reference' => $reference]);
             $this->audit->record($actor, $portal, 'portal.opened');
 
             return ['portal' => $portal, 'token' => $token];

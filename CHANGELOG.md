@@ -1,5 +1,53 @@
 # Historial de versiones SmartAulaUES
 
+## A02 · parámetros finales para revisión · 22/10/2026 · sin release
+
+- Configuración del servidor: radio 30 m e incertidumbre >0 y ≤10 m por docente y estudiante;
+  aceptación distancia + ambas incertidumbres ≤30 m, sin redondear antes de decidir.
+- Solo QR/enlace presenciales. Conserva referencia fija, adquisición ≤15 s, selección de mejor lectura
+  reciente, liberación, reintentos y NFC/manual tras tres fallos. Mensajes sin promesa de presencia en aula.
+- Portales abiertos leen los límites actuales; una referencia previa >10 m requiere cerrar/reabrir.
+  No se reescriben evidencias ni respuestas de operaciones ya resueltas.
+- Pruebas de límites inclusivos, rechazo y transición entre configuraciones; documentación vigente
+  actualizada. Evidencia 5 m/2,5 m y 50 m/15 m conservada como historial, no valida estos parámetros.
+- Implementación lista para revisión local; proximidad aproximada al docente. Validación física de
+  30 m/10 m pendiente. Sin dependencias, migración adicional, cambios env, commit/push/merge.
+
+## Registro anterior A02 · configuración de ensayo físico · 22/10/2026 · sin release
+
+- Por instrucción posterior del usuario, radio 50 m e incertidumbre máxima 15 m por docente/estudiante;
+  conserva distancia + ambas incertidumbres ≤50 m. Sustituye los límites iniciales descritos abajo.
+- Radio y precisión centralizados en config/geolocation.php, mensajes y pruebas actualizados.
+  Solo QR/enlace presenciales; adquisición ≤15 s, reintentos y NFC/manual tras tres fallos conservados.
+- Valida proximidad aproximada al docente, no presencia dentro del aula. Sin nueva migración ni env.
+  A02 sigue abierto: prueba en dispositivos reales con esta configuración pendiente. Sin commit/push.
+
+## Registro anterior A02 · adquisición y diagnóstico acotados · 22/10/2026 · sin release
+
+- Sustituye la lectura única por una ventana de hasta 15 s que conserva la candidata reciente de mejor
+  precisión, sin promedios, coordenadas en diagnóstico ni historial de movimientos.
+- Libera watch/temporizador/listeners al terminar, cancelar, ocultar o abandonar la página; callbacks
+  tardíos no registran. Cancelar no suma fallos. Reintentos e idempotencia conservados.
+- Muestra precisión obtenida, requisito individual y errores; permite medir sin registrar en las pantallas
+  existentes de docente/estudiante, también sin portal abierto. Recomendación NFC/manual tras tres fallos.
+- Mantiene 5 m, precisión >0 y <=2.5 m, fórmula d+aD+aE<=5 m y actualidad del servidor.
+- Sin migración/dependencia/env/release nuevos. [Guía de medición](docs/a02-location-measurement.md).
+  El bloqueo físico reportado requiere nuevas mediciones; A02 sigue abierto.
+
+## Registro inicial A02 local · QR y enlace geográficos · sin release
+
+- Base 18c7596 con A01 integrado; rama feature/p3a-a02-qr-geolocalizacion, 0.3.2 conservada.
+- Referencia fija por portal presencial, validación conservadora de 5 m con incertidumbre de ambos
+  dispositivos y rechazo en servidor de ubicación inválida/caducada. NFC/manual conservados.
+- Modalidad efectiva protegida; Evento exige ubicación explícita nullable sin clasificar filas previas.
+  Portales presenciales antiguos exigen cierre/reapertura. Una migración incremental, sin dependencias nuevas.
+- Registro único con locks/idempotencia existentes, lectura nueva con UUID nuevo y reenvío exacto tras
+  fallo de red. Mensajes específicos, botón protegido y recomendación tras tres fallos geográficos.
+- Geolocation mismo origen solo en consola/check-in, sin coordenadas del estudiante persistidas,
+  sin ubicación en auditoría/old_input y limpieza geográfica a los 30 días conservando idempotencia.
+- [Contrato y pasos de actualización](docs/a02-geographic-access.md), [evidencia](docs/a02-verification.md).
+  Aceptación física GPS/HTTPS pendiente; no cierra A02 completo ni el resto de fase 3.
+
 ## Revisión local A01 · tabla y reglamento vigente · sin release
 
 - Retira la pantalla de política y el enlace independiente; incorpora explicación y tabla por cómputo

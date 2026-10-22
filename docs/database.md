@@ -1,5 +1,12 @@
 # Modelo de datos · v0.3.0
 
+A02 sobre 0.3.2 añade la migración `2026_10_21_000100_add_portal_geographic_access`:
+`class_sessions.event_attendance_mode` nullable con restricción in_person/online para eventos;
+`attendance_portals.access_modality` y `geo_reference` nullable; `attendance_events.geo_validation`
+nullable sin coordenadas del estudiante. No se reclasifican registros ni se escriben resultados A01.
+Referencia privada y evidencia mínima se retiran a los 30 días mediante `attendance:prune-location`;
+UUID/hash/respuesta permanecen para idempotencia. [Contrato y actualización](a02-geographic-access.md).
+
 A01 sobre v0.3.2 conserva este esquema, sin migraciones nuevas. `assessment_periods.policy_version`
 recibe project-2026-v1 en cómputos nuevos. Se normalizaron explícitamente 2 cómputos de desarrollo;
 la operación excluye cierres y cualquier ReportVersion, audita con actor_id null y conserva fechas/datos.

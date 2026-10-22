@@ -15,12 +15,17 @@ use Tests\TestCase;
 
 class AttendanceRegistrationTest extends TestCase
 {
+    private function location(): array
+    {
+        return ['latitude' => 13.7, 'longitude' => -89.2, 'accuracy' => 1, 'timestamp' => now()->getTimestampMs()];
+    }
+
     private function scenario(): array
     {
         $this->travelTo(now()->setDateTime(2026, 10, 13, 14, 10, 0));
         $session = ClassSession::factory()->create(['starts_at' => '2026-10-13T14:00:00Z', 'ends_at' => '2026-10-13T15:00:00Z', 'state' => 'in_progress']);
         $enrollment = Enrollment::factory()->create(['offering_id' => $session->offering_id, 'student_id' => User::factory()->create(['student_code' => 'NFC001'])->id]);
-        $portal = app(PortalManager::class)->open($session->offering->teacher, $session, ['nfc', 'qr', 'link', 'manual'], 15);
+        $portal = app(PortalManager::class)->open($session->offering->teacher, $session, ['nfc', 'qr', 'link', 'manual'], 15, $this->location());
 
         return [$session, $enrollment, $portal];
     }
@@ -93,7 +98,7 @@ class AttendanceRegistrationTest extends TestCase
     {
         [$session,$enrollment,$portal] = $this->scenario();
         $other = Enrollment::factory()->create(['offering_id' => $session->offering_id]);
-        $this->actingAs($enrollment->student)->postJson('/check-in/'.$portal['portal']->id, ['event_id' => (string) Str::uuid(), 'portal_token' => $portal['token'], 'method' => 'qr', 'student_id' => $other->student_id])->assertCreated();
+        $this->actingAs($enrollment->student)->postJson('/check-in/'.$portal['portal']->id, ['event_id' => (string) Str::uuid(), 'portal_token' => $portal['token'], 'method' => 'qr', 'location' => [...$this->location(), 'portal_id' => $portal['portal']->id], 'student_id' => $other->student_id])->assertCreated();
         $this->assertDatabaseHas('attendances', ['enrollment_id' => $enrollment->id, 'method' => 'qr']);
         $this->assertDatabaseMissing('attendances', ['enrollment_id' => $other->id]);
     }
@@ -144,7 +149,7 @@ class AttendanceRegistrationTest extends TestCase
     public function test_portal_open_generates_qr_without_storing_plain_token(): void
     {
         [$session,$enrollment,$portal] = $this->scenario();
-        $response = $this->actingAs($session->offering->teacher)->postJson('/sessions/'.$session->id.'/portals', ['minutes' => 15, 'methods' => ['qr', 'link']])->assertCreated();
+        $response = $this->actingAs($session->offering->teacher)->postJson('/sessions/'.$session->id.'/portals', ['minutes' => 15, 'methods' => ['qr', 'link'], 'location' => $this->location()])->assertCreated();
         $this->assertStringStartsWith('data:image/png;base64,', $response->json('qr'));
         $this->assertStringContainsString('#t=', $response->json('url'));
         $this->assertNotNull($portal['portal']->fresh()->closed_at);

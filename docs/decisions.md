@@ -1,5 +1,38 @@
 # Decisiones técnicas · 0.3.2
 
+## A02 · adquisición y configuración para ensayo físico del 22/10
+
+- Tras mejorar adquisición/diagnóstico, el usuario acuerda radio de 30 m e incertidumbre máxima
+  de 10 m para docente y estudiante, sin cambiar la fórmula. Sustituye los ensayos 5 m/2,5 m y 50 m/15 m.
+  Valida proximidad aproximada al docente, no presencia dentro del aula; requiere validación física.
+- watchPosition durante <=15 s desde el gesto, con deadline propio incluso si el permiso queda pendiente;
+  clearWatch y retiro de timer/listeners al concluir/cancelar/ocultar/salir. Sin reanudación automática.
+- Una sola candidata en memoria, mejor precisión reciente y empate por instante; no promediar ni guardar
+  trayectoria. Diagnóstico sin coordenadas ni nuevas escrituras, en pantallas autorizadas existentes.
+- Medición independiente del estudiante sin portal, para no depender de que el equipo docente alcance
+  primero el límite. No genera asistencia ni constituye validación de proximidad.
+- [Guía y límites](a02-location-measurement.md); aceptación física completa aún pendiente.
+
+## Decisiones vigentes A02 (sin release)
+
+- [Contrato y fundamento](a02-geographic-access.md); A01 integrado en base 18c7596.
+- Reutilizar modality; Evento según lugar (guía p15) añade event_attendance_mode nullable explícito.
+  Sin clasificación automática: falta de modalidad efectiva rechaza QR/enlace, permite NFC/manual.
+- Referencia fija y modalidad efectiva guardadas por portal; los límites se leen de la configuración vigente.
+  No se añade edición en curso;
+  cerrar/reabrir para cambiar referencia. El snapshot de modalidad se comprueba al registrar.
+  No hay snapshot de radio/incertidumbre: intentos nuevos usan 30 m/10 m incluso en portales existentes.
+  Una referencia previa >10 m requiere reapertura. Evidencias y respuestas históricas no se reescriben;
+  replay recupera la respuesta ya resuelta antes de aplicar la validación nueva.
+- Haversine, d+aD+aE <=30 m, precisiones >0 y <=10 m, evidencia <=30 s, futuro <=5 s;
+  alta precisión solicitada, caché cero y timeout API 15 s. Parámetros técnicos centralizados.
+- RegisterAttendance valida después del replay bajo locks existentes. Ubicación en fingerprint,
+  sin cuerpo persistido. Nueva lectura requiere UUID nuevo; fallo de red conserva el paquete.
+- Evidencia de éxito sin coordenadas estudiantiles ni historial geográfico adicional de fallos.
+  Prune a 30 días conserva UUID/hash/respuesta. Scheduler requiere operación real verificada.
+- Blade existente; geolocation=(self) solo en las dos pantallas necesarias; sin servicios/dependencias.
+- Ensayo simulado no demuestra precisión física ni protección absoluta frente a ubicación falsificada.
+
 ## Decisiones vigentes A01 (sin nueva versión de lanzamiento)
 
 - Reparto F3 r1: integrante 2 A01–A05; integrante 3 B01–B07.

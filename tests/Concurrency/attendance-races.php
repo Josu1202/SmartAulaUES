@@ -31,6 +31,9 @@ if (! $app->environment('testing') || config('database.default') !== 'pgsql' || 
 
 if (in_array('--worker', $argv, true)) {
     $job = json_decode(stream_get_contents(STDIN), true, flags: JSON_THROW_ON_ERROR);
+    if (isset($job['application_name'])) {
+        DB::select('select set_config(?, ?, false)', ['application_name', $job['application_name']]);
+    }
     fwrite(STDOUT, "READY\n");
     $deadline = microtime(true) + 20;
     while (! is_file($job['barrier'])) {
@@ -43,9 +46,14 @@ if (in_array('--worker', $argv, true)) {
     try {
         $actor = User::findOrFail($job['actor']);
         $session = ClassSession::findOrFail($job['session']);
-        $result = $job['operation'] === 'finish'
-            ? ['http' => 200, 'body' => ['state' => app(SessionWorkflow::class)->transition($actor, $session, 'finish', 'Finalización concurrente de prueba.')->state->value]]
-            : app(RegisterAttendance::class)->record($actor, $session, $job['method'], $job['data']);
+        if ($job['operation'] === 'finish') {
+            $result = ['http' => 200, 'body' => ['state' => app(SessionWorkflow::class)->transition($actor, $session, 'finish', 'Finalización concurrente de prueba.')->state->value]];
+        } elseif ($job['operation'] === 'close') {
+            app(PortalManager::class)->close($actor, AttendancePortal::findOrFail($job['portal']));
+            $result = ['http' => 200];
+        } else {
+            $result = app(RegisterAttendance::class)->record($actor, $session, $job['method'], $job['data']);
+        }
     } catch (HttpExceptionInterface $exception) {
         $result = ['http' => $exception->getStatusCode()];
     } catch (Throwable $exception) {
@@ -128,7 +136,8 @@ try {
     foreach ($students as $student) {
         Enrollment::factory()->create(['offering_id' => $offering->id, 'student_id' => $student->id, 'active_from' => $day]);
     }
-    $portal = app(PortalManager::class)->open($teacher, $session, ['nfc', 'link', 'manual'], 15);
+    $location = ['latitude' => 13.7, 'longitude' => -89.2, 'accuracy' => 1, 'timestamp' => now()->getTimestampMs()];
+    $portal = app(PortalManager::class)->open($teacher, $session, ['nfc', 'link', 'manual'], 15, $location);
     $reader = app(PortalManager::class)->reader($teacher, $portal['portal'], 'Lector de prueba concurrente');
     $token = 'SIAA:C1:'.rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
     NfcCredential::create(['user_id' => $students[1]->id, 'token_hash' => hash('sha256', $token), 'state' => 'active', 'activated_at' => now()]);
@@ -144,7 +153,7 @@ try {
     $results = race([
         $manual($students[1], (string) Str::uuid()),
         ['operation' => 'record', 'actor' => $teacher->id, 'session' => $session->id, 'method' => 'nfc', 'data' => ['event_id' => (string) Str::uuid(), 'reader_session_id' => $reader->id, 'credential_token' => $token]],
-        ['operation' => 'record', 'actor' => $students[1]->id, 'session' => $session->id, 'method' => 'link', 'data' => ['event_id' => (string) Str::uuid(), 'portal_id' => $portal['portal']->id, 'portal_token' => $portal['token']]],
+        ['operation' => 'record', 'actor' => $students[1]->id, 'session' => $session->id, 'method' => 'link', 'data' => ['event_id' => (string) Str::uuid(), 'portal_id' => $portal['portal']->id, 'portal_token' => $portal['token'], 'location' => [...$location, 'timestamp' => now()->getTimestampMs(), 'portal_id' => $portal['portal']->id]]],
     ], $directory);
     $codes = array_column($results, 'http');
     sort($codes);
@@ -162,6 +171,59 @@ try {
     verify(in_array($results[0]['http'], [201, 409], true) && $results[1]['http'] === 200 && $session->fresh()->state->value === 'completed' && Attendance::where('session_id', $session->id)->count() === 5, 'Finalización concurrente dejó resultados incompletos.');
     verify(AttendancePortal::where('session_id', $session->id)->whereNull('closed_at')->count() === 0 && ReaderSession::where('portal_id', $portal['portal']->id)->where('state', 'active')->count() === 0, 'La clase finalizada dejó un lector/portal abierto.');
     fwrite(STDOUT, "PASS registro/finalización simultáneos: cinco resultados y portales cerrados\n");
+
+    // A separate in-progress fixture reuses the existing academic scope, after the original races.
+    $session->refresh()->update(['state' => 'in_progress']);
+    Attendance::where('session_id', $session->id)->where('enrollment_id', Enrollment::where('offering_id', $offering->id)->where('student_id', $students[4]->id)->value('id'))->delete();
+    $location['timestamp'] = now()->getTimestampMs();
+    $portal = app(PortalManager::class)->open($teacher, $session, ['qr', 'link'], 15, $location);
+    $geographicJob = ['operation' => 'record', 'actor' => $students[4]->id, 'session' => $session->id, 'method' => 'qr', 'data' => ['event_id' => (string) Str::uuid(), 'portal_id' => $portal['portal']->id, 'portal_token' => $portal['token'], 'location' => [...$location, 'portal_id' => $portal['portal']->id]]];
+    $results = race([$geographicJob, ['operation' => 'close', 'actor' => $teacher->id, 'session' => $session->id, 'portal' => $portal['portal']->id]], $directory);
+    verify(in_array($results[0]['http'], [201, 409], true) && $results[1]['http'] === 200 && $portal['portal']->fresh()->closed_at !== null, 'Cierre/registro geográfico no se serializaron.');
+    $geographicJob['data']['event_id'] = (string) Str::uuid();
+    $afterClose = app(RegisterAttendance::class)->record($students[4], $session->fresh(), 'qr', $geographicJob['data']);
+    verify($afterClose['http'] === 409 && Attendance::where('session_id', $session->id)->count() === ($results[0]['http'] === 201 ? 5 : 4), 'Un registro nuevo cruzó el cierre del portal.');
+    fwrite(STDOUT, "PASS QR geográfico/cierre de portal simultáneos: resultado serializable y rechazo posterior\n");
+
+    $location['timestamp'] = now()->getTimestampMs();
+    $portal = app(PortalManager::class)->open($teacher, $session->fresh(), ['qr', 'link'], 15, $location);
+    $geographicJob['portal'] = $portal['portal']->id;
+    $geographicJob['application_name'] = 'a02-close-'.Str::uuid();
+    $geographicJob['data'] = ['event_id' => (string) Str::uuid(), 'portal_id' => $portal['portal']->id, 'portal_token' => $portal['token'], 'location' => [...$location, 'portal_id' => $portal['portal']->id]];
+    $barrier = $directory.'/'.Str::uuid();
+    file_put_contents($barrier, 'go');
+    $worker = null;
+    try {
+        DB::transaction(function () use ($teacher, $portal, $geographicJob, $barrier, &$worker): void {
+            app(PortalManager::class)->close($teacher, $portal['portal']);
+            $worker = new Process([PHP_BINARY, __FILE__, '--worker', '--env=testing'], base_path(), timeout: 45);
+            $worker->setInput(json_encode([...$geographicJob, 'barrier' => $barrier], JSON_THROW_ON_ERROR));
+            $worker->start();
+            $deadline = microtime(true) + 30;
+            do {
+                if (str_contains($worker->getOutput(), "READY\n")) {
+                    // PostgreSQL caches statistics snapshots inside a transaction; refresh the observation.
+                    DB::select('select pg_stat_clear_snapshot()');
+                    $waiting = DB::selectOne("select count(*) as n from pg_stat_activity where application_name = ? and wait_event_type = 'Lock'", [$geographicJob['application_name']])->n;
+                    if ($waiting > 0) {
+                        return; // Commit the close only when PostgreSQL proves registration is blocked.
+                    }
+                }
+                verify($worker->isRunning() && microtime(true) < $deadline, 'El registro no esperó el cierre real. '.$worker->getOutput().$worker->getErrorOutput());
+                usleep(10000);
+            } while (true);
+        });
+        $worker->wait();
+        verify($worker->isSuccessful(), 'Falló el registro bloqueado por cierre.');
+        $result = json_decode(trim(substr($worker->getOutput(), strlen("READY\n"))), true, flags: JSON_THROW_ON_ERROR);
+        verify($result['http'] === 409, 'El registro aceptó una referencia tras confirmar el cierre.');
+        fwrite(STDOUT, "PASS QR geográfico bloqueado por cierre: espera Lock observada y rechazo tras commit\n");
+    } finally {
+        if ($worker?->isRunning()) {
+            $worker->stop(1);
+        }
+        unlink($barrier);
+    }
 } finally {
     // Delete only fixture IDs created by this process; preserve all other test database rows.
     DB::transaction(function () use ($users, $cycle, $subject, $offering, $session): void {

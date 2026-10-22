@@ -1,5 +1,29 @@
 # Entorno de trabajo SmartAulaUES
 
+## Continuidad vigente: A02 local, sin release
+
+Revisión 22/10: adquisición <=15 s con watchPosition y deadline propio; clearWatch al terminar,
+cancelar, ocultar o salir. Una sola mejor candidata reciente en memoria. Diagnóstico sin coordenadas,
+medición sin registrar para docente y estudiante (también en sesión sin portal). Para el ensayo físico
+posterior autorizado: radio 30 m e incertidumbre máxima 10 m por dispositivo; fórmula intacta.
+Valida proximidad aproximada al docente, no presencia dentro del aula. Leer docs/a02-location-measurement.md. Usuario reportó bloqueo físico por precisión;
+la mejora busca medirlo, no declara aceptación ni cierre de A02.
+
+Base 18c7596: A01 integrado en main por PR #3, confirmado en el historial local.
+Rama feature/p3a-a02-qr-geolocalizacion, versión 0.3.2. Leer docs/a02-geographic-access.md
+y docs/a02-verification.md. QR/enlace presenciales: referencia fija del abridor autorizado;
+d + precisión docente + precisión estudiante <=30 m; cada precisión >0 y <=10 m;
+evidencia nueva <=30 s y futuro <=5 s; parámetros en config/geolocation.php.
+Evento requiere event_attendance_mode explícito: guía p15 no define que todos sean no presenciales.
+Existentes quedan NULL sin reclasificar; error claro en QR/enlace, NFC/manual siguen autorizados.
+Migración incremental nullable; nunca migrate:fresh en desarrollo. Sin coordenadas del estudiante
+persistidas ni ubicación en auditoría/HTML/URLs/old_input. Retención geográfica 30 días mediante
+attendance:prune-location y scheduler diario; verificar operación real del scheduler en el hosting.
+Conservar registro único, locks e idempotencia de RegisterAttendance; replay antes de caducidad.
+No commit/push/merge/despliegue; no modificar .env, APP_KEY ni cambio previo de .env.example;
+Microsoft/ y artefactos privados quedan fuera. GPS/HTTPS físico pendiente; no cerrar fase 3.
+El estado histórico de A01 «sin PR» de abajo queda sustituido por la integración confirmada arriba.
+
 ## Prioridad de continuidad: A01, fase 3A (trabajo local, sin release)
 
 Base 4873cbf, rama feature/p3a-a01-calculo-asistencia, versión 0.3.2 conservada.

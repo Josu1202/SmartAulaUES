@@ -21,7 +21,7 @@ class AttendanceController extends Controller
     public function open(Request $request, ClassSession $session, PortalManager $manager): JsonResponse
     {
         $data = $request->validate(['methods' => ['required', 'array', 'min:1', 'max:4'], 'methods.*' => ['required', 'in:nfc,qr,link,manual', 'distinct'], 'minutes' => ['required', 'integer', 'between:1,60']]);
-        $result = $manager->open($request->user(), $session, $data['methods'], $data['minutes']);
+        $result = $manager->open($request->user(), $session, $data['methods'], $data['minutes'], $request->input('location'));
         $url = route('checkin.show', $result['portal']).'?method=link#t='.$result['token'];
         $qrUrl = route('checkin.show', $result['portal']).'?method=qr#t='.$result['token'];
         $png = in_array('qr', $data['methods']) ? (new Builder(writer: new PngWriter, data: $qrUrl, size: 280, margin: 12))->build()->getDataUri() : null;

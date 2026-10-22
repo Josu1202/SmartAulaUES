@@ -1,7 +1,12 @@
 # Notas de cambio · estado y asignación
 
+Actualización A02, 21/10/2026: QR/enlace geográficos implementados localmente en su rama, sin release
+ni integración de A02. Ensayo físico pendiente. [Contrato](a02-geographic-access.md) y
+[evidencia](a02-verification.md). NFC secuencial/teléfono sin tarjeta y finalización automática
+continúan fuera de este incremento. A01 integrado en main, base comprobada 18c7596.
+
 Se leyó el original `notasDeCambio_SmartAulaUES.txt` proporcionado en Downloads y se contrastó con código.
-Esta lista no declara entregados A02–A05 ni B01–B07; separa su trabajo de la definición de terminado de A01.
+Esta lista no declara aceptación completa de A02 ni entrega de A03–A05/B01–B07.
 
 | Solicitud | Estado | Evidencia / trabajo restante | Módulo o asignación sugerida |
 | --- | --- | --- | --- |

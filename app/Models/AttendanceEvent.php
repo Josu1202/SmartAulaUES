@@ -15,11 +15,13 @@ class AttendanceEvent extends Model
 
     protected $keyType = 'string';
 
-    protected $fillable = ['event_id', 'actor_id', 'reader_session_id', 'credential_id', 'request_hash', 'outcome', 'received_at', 'attendance_id', 'session_id', 'response', 'http_status'];
+    protected $hidden = ['geo_validation', 'request_hash'];
+
+    protected $fillable = ['event_id', 'actor_id', 'reader_session_id', 'credential_id', 'request_hash', 'outcome', 'received_at', 'attendance_id', 'session_id', 'response', 'http_status', 'geo_validation'];
 
     protected function casts(): array
     {
-        return ['received_at' => 'immutable_datetime', 'response' => 'array'];
+        return ['received_at' => 'immutable_datetime', 'response' => 'array', 'geo_validation' => 'array'];
     }
 
     public function actor(): BelongsTo

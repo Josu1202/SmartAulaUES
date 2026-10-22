@@ -1,5 +1,8 @@
 # Evidencia de verificación · SmartAulaUES v0.3.2
 
+A02 en su rama local, sobre A01 integrado: resultados nuevos y pendientes físicos en
+[a02-verification.md](a02-verification.md). El procedimiento está en [a02-geographic-access.md](a02-geographic-access.md).
+
 La implementación final de A01 con tabla, normalización y lectura colectiva se verifica en
 [a01-table-verification.md](a01-table-verification.md). No reutilizar cifras anteriores como evidencia nueva.
 

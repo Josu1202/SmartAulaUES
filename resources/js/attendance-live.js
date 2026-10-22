@@ -1,4 +1,5 @@
 import { inspectNdef } from './nfc-reader.js';
+import { createLocationAcquisition, CheckInFlow, locationCompatible } from './geographic-access.js';
 
 export function credentialFromMessage(message) {
     if (inspectNdef(message) !== 'smartaulaues') return null;
@@ -28,13 +29,20 @@ async function jsonRequest(url, body, method = 'POST') {
     const response = await fetch(url, { method, credentials: 'same-origin', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify(body) });
     let result;
     try { result = await response.json(); } catch { throw new Error('Sin confirmación del servidor. Reintenta o actualiza tu sesión.'); }
-    if (!response.ok) { const message = result.errors ? Object.values(result.errors).flat().join(' ') : (result.message || 'No se pudo completar la operación.'); const error = new Error(message); error.status = response.status; throw error; }
+    if (!response.ok) { const message = result.errors ? Object.values(result.errors).flat().join(' ') : (result.message || 'No se pudo completar la operación.'); const error = new Error(message); error.status = response.status; error.code = result.code; error.geographic = Boolean(result.errors?.location); throw error; }
     return result;
 }
 
 function status(element, message, state = '') { element.textContent = message; element.dataset.state = state; }
 
 export function initializeAcademicForms() {
+    document.querySelectorAll('[data-location-measurement]').forEach(root => createLocationAcquisition(root, JSON.parse(root.dataset.geoOptions)));
+    document.querySelectorAll('[data-event-location]').forEach(container => {
+        const modality = container.closest('form').querySelector('[name="modality"]');
+        const mode = container.querySelector('select');
+        const update = () => { container.hidden = modality.value !== 'event'; mode.required = !container.hidden; };
+        modality.addEventListener('change', update); update();
+    });
     document.querySelectorAll('[data-repeater]').forEach(root => {
         const rows = root.querySelector('[data-rows]');
         let index = Math.max(-1, ...Array.from(rows.querySelectorAll('[name]')).map(el => Number(el.name.match(/\[(\d+)\]/)?.[1] ?? -1))) + 1;
@@ -59,17 +67,30 @@ export function initializeAcademicForms() {
 export function initializeAttendanceConsole(root) {
     if (!root) return;
     const panel = root.querySelector('[data-live-status]'); const start = root.querySelector('[data-live-start]'); const stop = root.querySelector('[data-live-stop]'); const retry = root.querySelector('[data-live-retry]');
-    let portalId = root.dataset.portal || null, readerId = null, controller = null, pending = null, busy = false;
+    let portalId = root.dataset.portal || null, readerId = null, controller = null, pending = null, busy = false, opening = false;
+    let portalMethods = JSON.parse(root.dataset.portalMethods || '[]');
     const memory = new EventMemory();
     const closePortal = root.querySelector('[data-live-close-portal]');
     const compatible = window.isSecureContext && 'NDEFReader' in window;
+    const location = createLocationAcquisition(root, JSON.parse(root.dataset.geoOptions));
+    let geographicFailures = 0;
+    start.disabled = !compatible || !portalMethods.includes('nfc');
     if (!compatible) { start.disabled = true; status(panel, 'NFC requiere HTTPS y un Android compatible. Puedes usar los otros métodos habilitados.'); }
     root.querySelector('[data-open-portal]').addEventListener('submit', async event => {
-        event.preventDefault(); if (busy) return; const form = event.currentTarget; const button = form.querySelector('button'); button.disabled = true;
+        event.preventDefault(); if (busy || opening || location.busy) return; opening = true; const form = event.currentTarget; const button = form.querySelector('[data-open-portal-submit]'); button.disabled = true; if (location.measureButton) location.measureButton.disabled = true; closePortal.disabled = true; start.disabled = true;
         try {
-            await stopReading();
-            const result = await jsonRequest(form.action, { minutes: Number(new FormData(form).get('minutes')), methods: new FormData(form).getAll('methods[]') });
-            portalId = result.portal_id; root.dataset.portal = String(portalId); closePortal.disabled = false; document.querySelector('[data-session-portal-status]').textContent = 'Abierto';
+            await stopReading(); start.disabled = true;
+            const values = new FormData(form);
+            const body = { minutes: Number(values.get('minutes')), methods: values.getAll('methods[]') };
+            if (root.dataset.geoRequired === 'true' && body.methods.some(method => ['qr', 'link'].includes(method))) {
+                status(panel, 'Obteniendo la ubicación que se usará como referencia fija del registro…');
+                body.location = await location.acquire();
+            }
+            const result = await jsonRequest(form.action, body);
+            geographicFailures = 0;
+            const alternative = root.querySelector('[data-geo-alternative]'); if (alternative) alternative.hidden = true;
+            button.textContent = 'Abrir otra ventana';
+            portalId = result.portal_id; portalMethods = result.methods; root.dataset.portal = String(portalId); closePortal.disabled = false; document.querySelector('[data-session-portal-status]').textContent = 'Abierto';
             document.querySelectorAll('[data-manual-portal]').forEach(input => input.value = String(portalId));
             const share = root.querySelector('[data-portal-share]'); share.hidden = false;
             root.querySelector('[data-portal-expiry]').textContent = 'Registro abierto hasta ' + new Date(result.expires_at).toLocaleTimeString('es-SV', { hour: '2-digit', minute: '2-digit', timeZone: 'America/El_Salvador' });
@@ -77,12 +98,17 @@ export function initializeAttendanceConsole(root) {
             const copy = root.querySelector('[data-copy-link]'); copy.hidden = !result.url;
             copy.onclick = async () => { try { await navigator.clipboard.writeText(result.url); status(panel, 'Enlace copiado. Compártelo con los estudiantes de esta clase.'); } catch { status(panel, 'El navegador bloqueó copiar el enlace. Revisa los permisos del portapapeles.', 'error'); } };
             status(panel, 'Registro abierto. Ya puedes usar los métodos seleccionados.'); start.disabled = !compatible || !result.methods.includes('nfc');
-        } catch (error) { status(panel, error.message, 'error'); } finally { button.disabled = false; }
+        } catch (error) {
+            if (error.geographic || error.code?.startsWith('geo_')) geographicFailures++;
+            const alternative = root.querySelector('[data-geo-alternative]');
+            if (alternative && (error.incompatible || geographicFailures >= 3)) alternative.hidden = false;
+            status(panel, error.message + (error.cancelled ? '' : ' Puedes reintentar o abrir solo NFC y manual.'), error.cancelled ? '' : 'error');
+        } finally { opening = false; button.disabled = false; if (location.measureButton) location.measureButton.disabled = false; closePortal.disabled = !portalId; start.disabled = !compatible || !portalMethods.includes('nfc'); }
     });
     closePortal.addEventListener('click', async () => {
-        if (!portalId || busy) return;
+        if (!portalId || busy || opening) return;
         closePortal.disabled = true;
-        try { await stopReading(); await jsonRequest(root.dataset.portalCloseBase + '/' + portalId + '/close', {}); portalId = null; root.dataset.portal = ''; root.querySelector('[data-portal-share]').hidden = true; document.querySelectorAll('[data-manual-portal]').forEach(input => input.value = ''); document.querySelector('[data-session-portal-status]').textContent = 'Cerrado'; status(panel, 'Registro cerrado.'); }
+        try { await stopReading(); await jsonRequest(root.dataset.portalCloseBase + '/' + portalId + '/close', {}); portalId = null; portalMethods = []; start.disabled = true; root.dataset.portal = ''; root.querySelector('[data-portal-share]').hidden = true; document.querySelectorAll('[data-manual-portal]').forEach(input => input.value = ''); document.querySelector('[data-session-portal-status]').textContent = 'Cerrado'; status(panel, 'Registro cerrado.'); }
         catch(error) { status(panel, error.message, 'error'); closePortal.disabled = false; }
     });
     async function sendReading(packet) {
@@ -92,7 +118,7 @@ export function initializeAttendanceConsole(root) {
         finally { busy = false; }
     }
     start.addEventListener('click', async () => {
-        if (controller || busy) return; if (!portalId) { status(panel, 'Abre primero una ventana con NFC habilitado.', 'error'); return; }
+        if (controller || busy || opening) return; if (!portalId) { status(panel, 'Abre primero una ventana con NFC habilitado.', 'error'); return; }
         start.disabled = true; busy = true;
         try {
             const result = await jsonRequest(root.dataset.readerUrl, { portal_id: Number(portalId), label: 'Terminal móvil de clase' }); readerId = result.id;
@@ -103,7 +129,7 @@ export function initializeAttendanceConsole(root) {
         } catch (error) { status(panel, error.name === 'NotAllowedError' ? 'Permiso NFC denegado.' : error.message, 'error'); await stopReading(false); } finally { busy = false; }
     });
     async function stopReading(show = true) {
-        controller?.abort(); controller = null; pending = null; memory.clear(); retry.hidden = true; const closing = readerId; readerId = null; stop.disabled = true; start.disabled = !compatible;
+        controller?.abort(); controller = null; pending = null; memory.clear(); retry.hidden = true; const closing = readerId; readerId = null; stop.disabled = true; start.disabled = !compatible || !portalMethods.includes('nfc');
         if (closing) { try { await jsonRequest(root.dataset.readerCloseBase + '/' + closing, {}, 'DELETE'); } catch {} }
         if (show) status(panel, 'Lector detenido.');
     }
@@ -148,6 +174,28 @@ export function initializeCheckIn(root) {
     if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) { status(panel, 'Falta el enlace completo de la clase. Ábrelo nuevamente desde el QR o enlace compartido.', 'error'); root.querySelectorAll('button').forEach(button => button.disabled = true); return; }
     const login = root.querySelector('[data-checkin-login]');
     login?.addEventListener('submit', async event => { event.preventDefault(); const values = new FormData(login); const button = login.querySelector('button'); button.disabled = true; try { await jsonRequest(root.dataset.loginUrl, { email: values.get('email'), password: values.get('password') }); history.replaceState(null, '', window.location.pathname + window.location.search + '#t=' + encodeURIComponent(token)); window.location.reload(); } catch(error) { status(panel, error.message, 'error'); button.disabled = false; } });
-    const confirm = root.querySelector('[data-confirm-checkin]'); const memory = new EventMemory(); let busy = false;
-    confirm?.addEventListener('click', async () => { if (busy) return; busy = true; confirm.disabled = true; status(panel, 'Confirmando con el servidor…'); const packet = memory.packet({ portal_token: token, method: root.dataset.method }); try { const result = await jsonRequest(root.dataset.submitUrl, packet); if (!['recorded', 'already_recorded'].includes(result.status)) throw new Error('No se confirmó la presencia.'); status(panel, result.status === 'already_recorded' || result.replayed ? 'Tu presencia ya estaba registrada.' : 'Tu presencia quedó confirmada.', 'success'); memory.clear(); } catch(error) { status(panel, 'Sin confirmar. ' + error.message, 'error'); confirm.disabled = false; if (error.status && error.status < 500 && error.status !== 429) memory.clear(); } finally { busy = false; } });
+    const confirm = root.querySelector('[data-confirm-checkin]');
+    if (!confirm) return;
+    const fallback = root.querySelector('[data-geo-alternative]');
+    const required = root.dataset.geoRequired === 'true';
+    const location = createLocationAcquisition(root, JSON.parse(root.dataset.geoOptions));
+    const flow = new CheckInFlow({ memory: new EventMemory(), acquire: () => location.acquire(), send: packet => jsonRequest(root.dataset.submitUrl, packet), values: { portal_token: token, method: root.dataset.method }, portalId: Number(root.dataset.portal), required });
+    if (required && !locationCompatible()) fallback.hidden = false;
+    confirm.addEventListener('click', async () => {
+        if (flow.busy || location.busy) return;
+        confirm.disabled = true;
+        if (location.measureButton) location.measureButton.disabled = true;
+        try {
+            const result = await flow.run(message => status(panel, message));
+            if (!['recorded', 'already_recorded'].includes(result.status)) throw new Error('No se confirmó la presencia.');
+            status(panel, result.status === 'already_recorded' || result.replayed ? 'Tu asistencia ya estaba registrada.' : (required ? 'Proximidad aproximada validada. Tu asistencia quedó confirmada.' : 'Tu asistencia quedó confirmada.'), 'success');
+            confirm.textContent = 'Asistencia registrada';
+            fallback.hidden = true;
+        } catch (error) {
+            status(panel, error.cancelled ? error.message : 'Sin confirmar. ' + error.message, error.cancelled ? '' : 'error');
+            confirm.disabled = false;
+            confirm.textContent = flow.pending ? 'Reintentar envío' : 'Reintentar registro';
+            fallback.hidden = !(flow.recommend || (required && !locationCompatible()));
+        } finally { if (location.measureButton) location.measureButton.disabled = false; }
+    });
 }
