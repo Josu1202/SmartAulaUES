@@ -23,7 +23,7 @@
                 @endif
                 @if($kind === 'cycle')
                     <div class="row"><div class="col-md-6"><x-form-field name="starts_on" label="Fecha inicial" type="date" :value="$record->starts_on?->toDateString()" required /></div><div class="col-md-6"><x-form-field name="ends_on" label="Fecha final" type="date" :value="$record->ends_on?->toDateString()" required /></div></div>
-                    <x-form-field name="status" label="Estado" :value="$record->status" :options="['planned' => 'Planificado', 'active' => 'Activo', 'closed' => 'Cerrado']" required help="El cierre exige resolver las sesiones y cerrar los cómputos. Un ciclo cerrado es de solo lectura." />
+                    <x-form-field name="status" label="Estado" :value="$record->status" :options="$record->status === 'closed' ? ['closed' => 'Cerrado'] : ($record->reopened_at ? ['active' => 'Activo · en revisión'] : ['planned' => 'Planificado', 'active' => 'Activo'])" required help="Cierra o reabre el ciclo mediante las acciones específicas en la lista de ciclos." />
                 @elseif($kind === 'subject')
                     <x-form-field name="name" label="Nombre de la materia" :value="$record->name" required maxlength="255" />
                     <x-form-field name="active" label="Estado del catálogo" :value="(int) $record->active" :options="[1 => 'Activa', 0 => 'Inactiva']" required help="Una materia inactiva conserva sus grupos existentes." />
@@ -39,7 +39,7 @@
                 @elseif($kind === 'period')
                     <x-form-field name="number" label="Número de cómputo" type="number" :value="$record->number" required min="1" max="99" />
                     <div class="row"><div class="col-md-6"><x-form-field name="starts_on" label="Fecha inicial" type="date" :value="$record->starts_on?->toDateString()" required :min="$offering->cycle->starts_on->toDateString()" :max="$offering->cycle->ends_on->toDateString()" /></div><div class="col-md-6"><x-form-field name="ends_on" label="Fecha final" type="date" :value="$record->ends_on?->toDateString()" required :min="$offering->cycle->starts_on->toDateString()" :max="$offering->cycle->ends_on->toDateString()" /></div></div>
-                    <p class="form-hint mb-3">Los cómputos del mismo grupo no pueden superponerse. El cierre oficial estará disponible en la fase 3.</p>
+                    <p class="form-hint mb-3">Los cómputos del mismo grupo no pueden superponerse. Consulta los cierres y sus versiones en los resultados del grupo.</p>
                 @elseif($kind === 'enrollment')
                     @if($record->exists)<div class="mb-3"><span class="form-label d-block">Estudiante</span><strong>{{ $record->student->name }}</strong><div class="text-secondary">{{ $record->student->student_code }}</div></div>
                     @else<x-form-field name="student_id" label="Estudiante" :options="['' => 'Selecciona un estudiante activo'] + $students->all()" required />@endif

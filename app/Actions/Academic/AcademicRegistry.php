@@ -24,6 +24,9 @@ class AcademicRegistry
 
         return DB::transaction(function () use ($actor, $data, $cycle): AcademicCycle {
             $record = $cycle ? AcademicCycle::lockForUpdate()->findOrFail($cycle->id) : new AcademicCycle;
+            if ($data['status'] === 'closed' || ($record->exists && $record->reopened_at !== null && $data['status'] !== $record->status)) {
+                $this->fail('status', 'Usa las acciones específicas de cierre y reapertura del ciclo.');
+            }
             $before = $record->exists ? $this->audit->snapshot($record) : null;
             if ($record->exists) {
                 $this->openCycle($record);
@@ -41,9 +44,6 @@ class AcademicRegistry
                     }
                     foreach ($offering->sessions as $session) {
                         $this->withinDates($data['starts_on'], $data['ends_on'], $this->sessionDate($session), $this->sessionDate($session, 'ends_at'), 'starts_on');
-                    }
-                    if ($data['status'] === 'closed' && ($offering->periods->contains(fn ($p) => $p->state !== 'closed') || $offering->sessions->contains(fn ($s) => ! in_array($s->state->value, ['completed', 'cancelled'])))) {
-                        $this->fail('status', 'Resuelve las sesiones y cierra los cómputos antes de cerrar el ciclo. El cierre oficial se implementa en fase 3.');
                     }
                 }
                 $this->reasonForChanges($record, $data, ['starts_on', 'ends_on', 'status']);
@@ -164,7 +164,21 @@ class AcademicRegistry
 
         return DB::transaction(function () use ($actor, $offering, $data, $enrollment): Enrollment {
             $offering = $this->lockOffering($offering);
+            $closedPeriods = $offering->periods()->whereIn('state', ['closing', 'closed'])->orderBy('id')->lockForUpdate()->get();
             $record = $enrollment ? $offering->enrollments()->lockForUpdate()->findOrFail($enrollment->id) : new Enrollment(['offering_id' => $offering->id, 'student_id' => $data['student_id']]);
+            // Protect the eligible date set of every closed period, including a new enrollment.
+            $newEnd = $data['active_to'] ?? '9999-12-31';
+            foreach ($closedPeriods as $closed) {
+                $start = $closed->starts_on->toDateString();
+                $end = $closed->ends_on->toDateString();
+                $newRange = [max($start, $data['active_from']), min($end, $newEnd)];
+                $oldRange = $record->exists ? [max($start, $record->active_from->toDateString()), min($end, $record->active_to?->toDateString() ?? '9999-12-31')] : null;
+                $newRange = $newRange[0] <= $newRange[1] ? $newRange : null;
+                $oldRange = $oldRange !== null && $oldRange[0] <= $oldRange[1] ? $oldRange : null;
+                if ($newRange !== $oldRange) {
+                    $this->fail('active_from', 'La vigencia afecta al cómputo cerrado '.$closed->number.'. Coordinación debe reabrirlo antes de modificar su elegibilidad.');
+                }
+            }
             $student = User::lockForUpdate()->findOrFail($record->student_id);
             if (! $record->exists && (! $student->active || $student->role !== Role::Student)) {
                 $this->fail('student_id', 'Selecciona un estudiante activo.');

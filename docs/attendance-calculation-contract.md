@@ -1,5 +1,11 @@
 # A01 · Reglamento y cálculo · contrato 1
 
+Extensión A03 del 22/10, sobre A01/A02 integrados: [cierres y snapshots](a03-closures.md).
+Fórmula intacta. `unstarted` (Sin inicio registrado) se excluye del denominador y se cuenta por separado.
+AttendanceSummary consulta snapshot al cerrar y cálculo vivo En revisión al reabrir; añade selección
+reportVersion para históricos autorizados. Los apartados inferiores describen el contrato vivo original.
+`session_facts` añade hechos del titular sin motivos/evidencias; los cierres no admiten filtros de fechas.
+
 Base 4873cbf, rama feature/p3a-a01-calculo-asistencia, release 0.3.2 conservada.
 La revisión actual sustituye la pantalla independiente y la conservación de políticas demo de los
 cómputos de desarrollo. Estado de implementación, pruebas y revisión visual en a01-table-verification.md.

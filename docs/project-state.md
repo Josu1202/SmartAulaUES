@@ -1,5 +1,20 @@
 # Estado de continuidad · SmartAulaUES
 
+## Estado vigente: A03 local sobre A01 y A02 integrados
+
+22/10/2026: historial local confirma bf07b01 (PR #4, A02) y 18c7596 (PR #3, A01) en main.
+Rama feature/p3a-a03-cierres-reapertura, release 0.3.2 conservada. A03 implementa respaldo diario de
+sesiones, clasificación Sin inicio registrado al cierre, cierres atómicos/snapshots de todo el cómputo,
+consulta vigente/histórica autorizada y reapertura administrativa con recierre manual. Ciclos protegidos.
+[Contrato y operación](a03-closures.md), [verificación final por escenario](a03-verificacion-final.md).
+Verificación del 23/10: 192 pruebas/1433 aserciones sin warnings, 39 JS, 16 comprobaciones concurrentes
+nativas y scheduler real repetido sin duplicaciones. Corregidos controles de registro fuera de horario;
+finalización/revisión y diagnóstico A02 se conservan. Evidencia anterior del 22/10 en a03-verification.md:
+184 pruebas/1247 aserciones sin warnings, 39 JS, 14 comprobaciones concurrentes
+nativas, scheduler ejecutado dos veces en testing y 16 medidas/capturas de interfaz. No es evidencia de CI remoto.
+No commit/push/merge/despliegue. GPS/HTTPS físico de A02 y hosting del scheduler siguen pendientes;
+A04–A05/B01–B07 no se declaran entregados. Las secciones inferiores conservan continuidad histórica.
+
 22/10/2026: ante el bloqueo físico por precisión insuficiente reportado por el usuario, se añade adquisición
 acotada a 15 s, mejor lectura reciente, cancelación/liberación y diagnóstico en las pantallas existentes.
 Docente y estudiante pueden medir sin registrar, incluso sin portal abierto. En una instrucción posterior,

@@ -29,6 +29,9 @@ class SessionWorkflow
                 $this->fail('period_id', 'El cómputo está cerrado o en cierre.');
             }
             $record = $session ? $offering->sessions()->lockForUpdate()->findOrFail($session->id) : new ClassSession(['offering_id' => $offering->id, 'state' => SessionState::Scheduled]);
+            if ($record->exists && $record->period_id !== $period->id && $offering->periods()->whereKey($record->period_id)->where('state', '!=', 'open')->exists()) {
+                $this->fail('period_id', 'El cómputo original está cerrado o en cierre.');
+            }
             if ($record->state !== SessionState::Scheduled || ($record->exists && ($record->attendances()->exists() || $record->absenceRequests()->exists()))) {
                 $this->fail('starts_at', 'Solo se reprograman sesiones programadas sin asistencias ni permisos.');
             }
@@ -38,7 +41,7 @@ class SessionWorkflow
                 $this->fail('ends_at', 'El horario debe terminar después del inicio y quedar dentro de las fechas del cómputo.');
             }
             User::lockForUpdate()->findOrFail($offering->teacher_id);
-            if (ClassSession::whereHas('offering', fn ($q) => $q->where('teacher_id', $offering->teacher_id))->where('state', '!=', 'cancelled')->where('starts_at', '<', $end->utc())->where('ends_at', '>', $start->utc())->when($record->exists, fn ($q) => $q->whereKeyNot($record->id))->exists()) {
+            if (ClassSession::whereHas('offering', fn ($q) => $q->where('teacher_id', $offering->teacher_id))->whereNotIn('state', ['cancelled', 'unstarted'])->where('starts_at', '<', $end->utc())->where('ends_at', '>', $start->utc())->when($record->exists, fn ($q) => $q->whereKeyNot($record->id))->exists()) {
                 $this->fail('starts_at', 'El docente ya tiene otra sesión en este horario.');
             }
             $before = $record->exists ? $this->audit->snapshot($record) : null;
@@ -69,6 +72,7 @@ class SessionWorkflow
                     $this->fail('session', 'La sesión debe estar programada, dentro de su horario y en un ciclo activo.');
                 }
                 $record->state = SessionState::InProgress;
+                $record->started_at = now();
             } elseif ($operation === 'cancel') {
                 if (! in_array($record->state, [SessionState::Scheduled, SessionState::InProgress]) || $record->attendances()->exists() || $record->absenceRequests()->exists()) {
                     $this->fail('session', 'No se cancela una sesión finalizada o que ya tiene asistencias/permisos. Conserva su historial.');
@@ -84,15 +88,7 @@ class SessionWorkflow
                 if ($record->ends_at > now() && blank($reason)) {
                     $this->fail('reason', 'Indica el motivo para finalizar antes de la hora programada.');
                 }
-                $date = $record->starts_at->timezone(config('smartaulaues.display_timezone'))->toDateString();
-                $approved = $record->absenceRequests()->where('status', 'approved')->pluck('enrollment_id')->all();
-                foreach ($record->offering->enrollments()->where('active_from', '<=', $date)->where(fn ($q) => $q->whereNull('active_to')->orWhere('active_to', '>=', $date))->get() as $enrollment) {
-                    $attendance = Attendance::firstOrCreate(['session_id' => $record->id, 'enrollment_id' => $enrollment->id], ['offering_id' => $record->offering_id, 'status' => in_array($enrollment->id, $approved) ? 'justified' : 'absent', 'method' => null, 'recorded_by' => $actor->id, 'recorded_at' => now()]);
-                    if ($attendance->wasRecentlyCreated) {
-                        $this->audit->record($actor, $attendance, 'attendance.finalized', reason: 'Resultado generado al finalizar la sesión.');
-                    }
-                }
-                $record->state = SessionState::Completed;
+                $this->finalize($actor, $record);
             } else {
                 abort(404);
             }
@@ -110,10 +106,50 @@ class SessionWorkflow
         });
     }
 
+    /** System entry: same finalization, with independent eligibility checks under academic locks. */
+    public function finishOverdue(ClassSession $session): bool
+    {
+        return DB::transaction(function () use ($session): bool {
+            $record = $this->locks->get($session);
+            if ($record->state !== SessionState::InProgress || $record->started_at === null
+                || $record->started_at->timezone('America/El_Salvador')->toDateString() >= now('America/El_Salvador')->toDateString()
+                || $record->ends_at > now()) {
+                return false;
+            }
+            $before = $this->audit->snapshot($record);
+            $this->finalize(null, $record);
+            $record->save();
+            $this->closePortals($record);
+            $this->audit->record(null, $record, 'session.auto_finished', $before, 'Respaldo diario tras terminar el día local del inicio real.');
+
+            return true;
+        });
+    }
+
+    /** Internal finalizer: caller must hold cycle → offering → period → session locks. */
+    public function finalize(?User $actor, ClassSession $record): void
+    {
+        if (DB::transactionLevel() === 0 || ! in_array($record->state, [SessionState::InProgress, SessionState::Completed], true)) {
+            throw new \LogicException('La finalización requiere una transacción y una sesión iniciada.');
+        }
+        $date = $record->starts_at->timezone('America/El_Salvador')->toDateString();
+        $approved = $record->absenceRequests()->where('status', 'approved')->pluck('enrollment_id')->all();
+        foreach ($record->offering->enrollments()->where('active_from', '<=', $date)->where(fn ($q) => $q->whereNull('active_to')->orWhere('active_to', '>=', $date))->get() as $enrollment) {
+            $attendance = Attendance::firstOrCreate(['session_id' => $record->id, 'enrollment_id' => $enrollment->id], ['offering_id' => $record->offering_id, 'status' => in_array($enrollment->id, $approved) ? 'justified' : 'absent', 'method' => null, 'recorded_by' => $actor?->id, 'recorded_at' => now()]);
+            if ($attendance->wasRecentlyCreated) {
+                $this->audit->record($actor, $attendance, 'attendance.finalized', reason: 'Resultado generado al finalizar la sesión.');
+            }
+        }
+        $record->state = SessionState::Completed;
+        $record->finalized_at ??= now();
+    }
+
     public function closePortals(ClassSession $session): void
     {
-        foreach ($session->portals()->whereNull('closed_at')->get() as $portal) {
-            $portal->update(['closed_at' => now()]);
+        foreach ($session->portals()->get() as $portal) {
+            if ($portal->closed_at === null) {
+                $portal->update(['closed_at' => now()]);
+            }
             $portal->readerSessions()->where('state', 'active')->update(['state' => 'closed']);
         }
     }

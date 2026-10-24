@@ -24,13 +24,13 @@ class AuditRecorder
     {
         return $model->only(match ($model::class) {
             User::class => ['name', 'email', 'role', 'student_code', 'active', 'entry_year', 'study_year'],
-            AcademicCycle::class => ['code', 'starts_on', 'ends_on', 'status'],
+            AcademicCycle::class => ['code', 'starts_on', 'ends_on', 'status', 'closed_at', 'reopened_at', 'closure_issues'],
             Subject::class => ['code', 'name', 'active'],
             Offering::class => ['cycle_id', 'subject_id', 'teacher_id', 'group_code', 'capacity', 'cycle_format_id'],
             CycleFormat::class => ['cycle_id', 'name', 'version', 'active', 'periods'],
-            AssessmentPeriod::class => ['offering_id', 'number', 'starts_on', 'ends_on', 'state', 'policy_version'],
+            AssessmentPeriod::class => ['offering_id', 'number', 'starts_on', 'ends_on', 'state', 'policy_version', 'closed_at', 'current_report_id', 'reopened_at', 'closure_issues'],
             Enrollment::class => ['offering_id', 'student_id', 'active_from', 'active_to'],
-            ClassSession::class => ['offering_id', 'period_id', 'starts_at', 'ends_at', 'modality', 'event_attendance_mode', 'state', 'change_reason'],
+            ClassSession::class => ['offering_id', 'period_id', 'starts_at', 'ends_at', 'started_at', 'finalized_at', 'modality', 'event_attendance_mode', 'state', 'change_reason'],
             AttendancePortal::class => ['session_id', 'opens_at', 'expires_at', 'closed_at', 'enabled_methods', 'access_modality'],
             ReaderSession::class => ['portal_id', 'teacher_id', 'label', 'expires_at', 'state'],
             NfcCredential::class => ['user_id', 'state', 'pending_expires_at', 'activated_at', 'revoked_at'],
@@ -40,11 +40,11 @@ class AuditRecorder
         });
     }
 
-    public function record(User $actor, Model $model, string $action, ?array $before = null, ?string $reason = null): void
+    public function record(?User $actor, Model $model, string $action, ?array $before = null, ?string $reason = null): void
     {
         AuditLog::create([
-            'actor_id' => $actor->id, 'entity_type' => class_basename($model), 'entity_id' => (string) $model->getKey(),
-            'action' => $action, 'before' => $before, 'after' => $this->snapshot($model), 'reason' => $reason,
+            'actor_id' => $actor?->id, 'entity_type' => class_basename($model), 'entity_id' => (string) $model->getKey(),
+            'action' => $action, 'before' => $before, 'after' => $this->snapshot($model), 'reason' => $reason, 'created_at' => now(),
         ]);
     }
 
@@ -52,7 +52,7 @@ class AuditRecorder
     {
         AuditLog::create([
             'actor_id' => null, 'entity_type' => class_basename($model), 'entity_id' => (string) $model->getKey(),
-            'action' => $action, 'before' => $before, 'after' => $this->snapshot($model), 'reason' => $reason,
+            'action' => $action, 'before' => $before, 'after' => $this->snapshot($model), 'reason' => $reason, 'created_at' => now(),
         ]);
     }
 }

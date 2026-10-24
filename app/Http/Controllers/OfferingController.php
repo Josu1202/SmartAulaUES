@@ -21,8 +21,8 @@ class OfferingController extends Controller
     public function show(Request $request, Offering $offering, AcademicRegistry $registry, AttendanceSummary $summary): View
     {
         Gate::authorize('view', $offering);
-        $data = $request->validate(['period_id' => ['nullable', 'integer', 'min:1'], 'results_page' => ['nullable', 'integer', 'min:1']]);
-        $attendanceResults = $summary->forOffering($request->user(), $offering, isset($data['period_id']) ? (int) $data['period_id'] : null, (int) ($data['results_page'] ?? 1));
+        $data = $request->validate(['period_id' => ['nullable', 'integer', 'min:1'], 'results_page' => ['nullable', 'integer', 'min:1'], 'report_version' => ['nullable', 'integer', 'min:1']]);
+        $attendanceResults = $summary->forOffering($request->user(), $offering, isset($data['period_id']) ? (int) $data['period_id'] : null, (int) ($data['results_page'] ?? 1), reportVersion: isset($data['report_version']) ? (int) $data['report_version'] : null);
         $attendanceResults['rows']->withQueryString();
         $offering->load(['subject', 'cycle', 'teacher', 'periods', 'sessions']);
         $enrollments = $offering->enrollments()->visibleTo($request->user())->with('student')->orderBy('id')->paginate(20)->withQueryString();

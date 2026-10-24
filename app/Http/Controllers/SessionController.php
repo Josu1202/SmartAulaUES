@@ -15,7 +15,7 @@ class SessionController extends Controller
 {
     public function index(Request $request): View
     {
-        $data = $request->validate(['offering_id' => ['nullable', 'integer'], 'state' => ['nullable', 'in:scheduled,in_progress,completed,cancelled']]);
+        $data = $request->validate(['offering_id' => ['nullable', 'integer'], 'state' => ['nullable', 'in:scheduled,in_progress,completed,cancelled,unstarted']]);
         $sessions = ClassSession::whereHas('offering', fn ($q) => $q->visibleTo($request->user()))->with('offering.subject', 'offering.cycle', 'period')->when($data['offering_id'] ?? null, fn ($q, $id) => $q->where('offering_id', $id))->when($data['state'] ?? null, fn ($q, $state) => $q->where('state', $state))->orderByDesc('starts_at')->paginate(15)->withQueryString();
 
         return view('academic.sessions.index', ['sessions' => $sessions, 'offerings' => Offering::visibleTo($request->user())->with('subject')->get()]);

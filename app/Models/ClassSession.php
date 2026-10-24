@@ -12,7 +12,7 @@ class ClassSession extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['period_id', 'offering_id', 'starts_at', 'ends_at', 'modality', 'event_attendance_mode', 'state', 'change_reason'];
+    protected $fillable = ['period_id', 'offering_id', 'starts_at', 'ends_at', 'started_at', 'finalized_at', 'modality', 'event_attendance_mode', 'state', 'change_reason'];
 
     public function effectiveAttendanceModality(): ?string
     {
@@ -21,7 +21,7 @@ class ClassSession extends Model
 
     protected function casts(): array
     {
-        return ['starts_at' => 'immutable_datetime', 'ends_at' => 'immutable_datetime', 'state' => SessionState::class];
+        return ['starts_at' => 'immutable_datetime', 'ends_at' => 'immutable_datetime', 'started_at' => 'immutable_datetime', 'finalized_at' => 'immutable_datetime', 'state' => SessionState::class];
     }
 
     public function period(): BelongsTo

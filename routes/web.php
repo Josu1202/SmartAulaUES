@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AbsenceRequestController;
+use App\Http\Controllers\AcademicClosureController;
 use App\Http\Controllers\Admin\AcademicCycleController;
 use App\Http\Controllers\Admin\AssessmentPeriodController;
 use App\Http\Controllers\Admin\AuditController;
@@ -59,6 +60,12 @@ Route::middleware(['auth', 'active', 'auth.session'])->group(function (): void {
     Route::redirect('/modules/credentials', '/admin/nfc-credentials')->middleware('role:coordinator');
     Route::get('/modules/{module}', ModuleController::class)->name('modules.show');
     Route::prefix('admin')->name('admin.')->middleware('role:coordinator')->group(function (): void {
+        Route::post('/periods/{period}/close', [AcademicClosureController::class, 'closePeriod'])->name('periods.close');
+        Route::post('/periods/{period}/reopen', [AcademicClosureController::class, 'reopenPeriod'])->name('periods.reopen');
+        Route::post('/cycles/{cycle}/close', [AcademicClosureController::class, 'closeCycle'])->name('cycles.close');
+        Route::post('/cycles/{cycle}/reopen', [AcademicClosureController::class, 'reopenCycle'])->name('cycles.reopen');
+        Route::post('/sessions/{session}/review/{operation}', [AcademicClosureController::class, 'reviewSession'])->whereIn('operation', ['recover-start', 'reconcile'])->name('sessions.review');
+        Route::post('/requests/{absenceRequest}/reopen', [AcademicClosureController::class, 'reopenDecision'])->name('requests.reopen');
         Route::get('/students/batch', [ImportController::class, 'manualForm'])->name('students.batch');
         Route::post('/students/batch', [ImportController::class, 'manualPreview'])->block(60, 10)->middleware('throttle:12,1')->name('students.batch.preview');
         foreach (['students' => 'student', 'teachers' => 'teacher'] as $directory => $role) {

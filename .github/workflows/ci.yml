@@ -48,5 +48,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
+      - run: php scripts/check-test-database.php
       - run: php artisan test --compact --display-warnings --fail-on-warning
       - run: php tests/Concurrency/attendance-races.php --env=testing
+      - run: php tests/Concurrency/attendance-summary.php --env=testing
+      - run: php tests/Concurrency/academic-closures.php --env=testing

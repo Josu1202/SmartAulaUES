@@ -1,5 +1,23 @@
 # Decisiones técnicas · 0.3.2
 
+## A03 · cierres y reapertura del 22/10 (sin release)
+
+- A01/A02 integrados, base bf07b01; A03 local. Reutilizar AssessmentPeriod/ReportVersion y calculador A01.
+- Inicio real independiente del horario; respaldo por día local, no ends_at ni 24 horas. No inventar inicio
+  antiguo: la auditoría previa usa fecha de transacción, no instante real; recuperar solo after.started_at
+  explícito o finalizar manualmente. Calendario admite medianoche: preservar horario válido y esperar su fin.
+- Programadas sin contradicción: Sin inicio registrado solo al procesar cierre; sin ausencia/denominador.
+- Cerrar exige fecha final terminada, integridad y permisos resueltos. Sin sesiones: porcentaje/conclusión nulos.
+- Snapshot completo y cierre atómicos; hash canónico independiente del orden JSONB. Sin PDF/CSV ni datos privados.
+- Reapertura solo Coordinación con motivo. Marcador reopened_at conserva revisión y exige recierre manual;
+  ciclo primero, cómputo después. No reactivar portales ni reabrir automáticamente todos los cómputos.
+- Consulta cerrada congelada, histórica autorizada por AttendanceSummary; nunca recalcular un cierre inválido.
+- Revisiones administrativas explícitas de finalización y resolución, con motivos e historia en bitácora;
+  no crear presencias retrospectivas ni sustituir la corrección ordinaria.
+- Proteger vigencia de inscripciones también en CSV/lote, conservar cambios independientes y locks existentes.
+- Scheduler cada cinco minutos recupera ejecuciones perdidas, sin transacción global; DB protege duplicados.
+  Conservar limpieza A02; no atribuir ejecución de hosting a pruebas locales. [Contrato](a03-closures.md).
+
 ## A02 · adquisición y configuración para ensayo físico del 22/10
 
 - Tras mejorar adquisición/diagnóstico, el usuario acuerda radio de 30 m e incertidumbre máxima
