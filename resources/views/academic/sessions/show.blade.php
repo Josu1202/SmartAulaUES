@@ -1,10 +1,11 @@
 @extends('layouts.app')
 @section('title', 'Detalle de sesión')
 @php($manage = auth()->user()->can('update', $session))
-@php($writable = $session->offering->cycle->status !== 'closed' && $session->period->state === 'open' && $session->state !== \App\Enums\SessionState::Unstarted)
+@php($writable = $session->offering->active && $session->offering->cycle->status !== 'closed' && $session->period->state === 'open' && $session->state !== \App\Enums\SessionState::Unstarted)
 @php($registrationOpen = $writable && $session->state === \App\Enums\SessionState::InProgress && $session->starts_at <= now() && $session->ends_at > now())
 @section('content')
 <a class="back-link" href="{{ route('offerings.show', $session->offering) }}">← Grupo</a><x-page-heading :title="$session->offering->subject->name" :subtitle="'Grupo '.$session->offering->group_code.' · Cómputo '.$session->period->number.' · '.$session->starts_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i')"><span class="badge-soft">{{ $session->state->label() }}</span></x-page-heading>
+@if(!$session->offering->active)<div class="alert alert-warning" role="status">Grupo desactivado. Consulta disponible; operación académica suspendida hasta su reactivación administrativa.</div>@endif
 @include('academic.sessions.review')
 <div class="card mb-4"><div class="card-body"><div class="detail-grid"><div><span>Inicio</span><strong>{{ $session->starts_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i') }}</strong></div><div><span>Fin</span><strong>{{ $session->ends_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i') }}</strong></div><div><span>Modalidad</span><strong>{{ ['in_person'=>'Presencial','online'=>'En línea','event'=>'Evento'][$session->modality] ?? 'Sin configurar' }}</strong></div><div><span>Registro vigente</span><strong data-session-portal-status>{{ $portal ? 'Hasta '.$portal->expires_at->timezone(config('smartaulaues.display_timezone'))->format('H:i') : 'Cerrado' }}</strong></div></div>
 @if($session->modality === 'event')<p class="form-hint mt-3">Ubicación del evento: {{ ['in_person'=>'Presencial','online'=>'En línea'][$session->event_attendance_mode] ?? 'Sin configurar: QR y enlace no disponibles. Usa NFC o registro manual; configura la ubicación antes de iniciar nuevas sesiones.' }}</p>@endif

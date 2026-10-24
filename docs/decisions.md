@@ -1,5 +1,27 @@
 # Decisiones técnicas · 0.3.2
 
+## A04 · grupos actuales, historial y suspensión administrativa · 23/10
+
+- Historial deriva de ciclo cerrado. Sin bandera de archivo, copia de tablas ni cierre adicional.
+  Actual no depende del vencimiento; Offering.catalog/current centraliza clasificación para listados/inicio/métricas.
+- Offering.active independiente del ciclo. Coordinación usa transiciones con motivo y auditoría, sin nuevo rol.
+  Reactivar no reabre; reapertura de ciclo conserva desactivados y cómputos cerrados.
+- Guard transaccional en AcademicRegistry/AcademicSessionLock; replay de asistencia previo al guard.
+  Excepción explícita del respaldo del sistema, sin omitir reglas A03. Normalización protege grupos suspendidos.
+- Integridad de desactivación reutiliza las comprobaciones A03 y el calculador A01. Cómputos abiertos y
+  planificación futura (incluso permiso preventivo aprobado) no son errores; pendientes sí bloquean.
+- Recursos vencidos no se ignoran: acción separada, con motivo/auditoría, cierra únicamente recursos vencidos
+  o lectores de portales ya cerrados. No repara silenciosamente sesiones ni resultados para desactivar.
+- Eliminación conserva RESTRICT en todas las relaciones. Solo un calendario copiado inicialmente,
+  idéntico a su única auditoría de creación y sin dependencias/cierre/reapertura, se considera prescindible.
+  Los cómputos manuales o legados cuya vaciedad inicial no se puede acreditar bloquean el borrado.
+- Auditoría polimórfica sin FK al grupo: al borrar conserva ID, materia, ciclo, código y motivo con after=null.
+  Repeticiones de estado no auditan; DELETE repetido da 404 sin duplicar auditoría.
+- Historial por ciclo reutiliza gráficos existentes, etiquetados como agregados operativos. Los resultados
+  de personas siguen entrando por AttendanceSummary; no se cambia su contrato ni la política.
+- Migración solo agrega active=true e índice. Aplicada en pruebas; desarrollo conserva esquema/datos.
+  [Contrato detallado y coordinación con persona 3](a04-group-management.md).
+
 ## A03 · cierres y reapertura del 22/10 (sin release)
 
 - A01/A02 integrados, base bf07b01; A03 local. Reutilizar AssessmentPeriod/ReportVersion y calculador A01.

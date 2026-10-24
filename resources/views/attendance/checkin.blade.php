@@ -15,12 +15,17 @@
         @auth
             <p class="text-secondary">{{ $portal->session->offering->subject->name }} · {{ $portal->session->starts_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i') }}</p>
             <p>Cuenta: <strong>{{ auth()->user()->name }}</strong></p>
+            @if(!$portal->session->offering->active)
+                <p class="alert alert-warning" role="status">Grupo desactivado. Se conserva la consulta, pero no se admite nueva actividad académica.</p>
+                <a class="btn btn-outline-dark" href="{{ route('offerings.show', $portal->session->offering) }}">Consultar grupo</a>
+            @else
             @if($portal->session->effectiveAttendanceModality() === 'in_person')
                 <p>Esta clase es presencial. Al pulsar Registrar asistencia se solicitará tu ubicación. La distancia a la referencia del docente más ambas incertidumbres debe ser ≤ {{ config('geolocation.radius_m') }} m. Valida proximidad aproximada al docente; no acredita presencia dentro del aula. Solo se usa para este intento; no se realiza seguimiento.</p>
                 @include('attendance.location-acquisition')
             @endif
             <button class="btn btn-primary w-100" type="button" data-confirm-checkin>Registrar asistencia</button>
             <p class="mt-3" role="status" data-geo-alternative hidden>No hemos podido validar tu ubicación. Intenta acercarte al docente o solicita registrar tu asistencia por NFC o de forma manual.</p>
+            @endif
         @else
             <p class="text-secondary">Inicia sesión con tu cuenta de estudiante para continuar con el enlace de esta clase.</p>
             <form method="POST" action="{{ route('login') }}" data-checkin-login>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Academic\AcademicRegistry;
+use App\Actions\Academic\OfferingLifecycle;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SaveOfferingRequest;
@@ -12,11 +13,38 @@ use App\Models\Offering;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class OfferingController extends Controller
 {
+    public function state(Request $request, Offering $offering, string $operation, OfferingLifecycle $lifecycle): RedirectResponse
+    {
+        Gate::authorize('administer', $offering);
+        $data = $request->validate(['reason' => ['required', 'string', 'min:5', 'max:1000']]);
+        if ($operation === 'expire-resources') {
+            $lifecycle->closeExpiredResources($request->user(), $offering, $data['reason']);
+        } else {
+            $lifecycle->setActive($request->user(), $offering, $operation === 'reactivate', $data['reason']);
+        }
+
+        return to_route('offerings.show', $offering)->with('status', match ($operation) {
+            'deactivate' => 'Grupo desactivado. Su información y sesiones futuras se conservan.',
+            'reactivate' => 'Grupo habilitado. Los ciclos, cómputos y recursos conservan su estado.',
+            default => 'Recursos vencidos cerrados. Las sesiones y los resultados se conservan.',
+        });
+    }
+
+    public function destroy(Request $request, Offering $offering, OfferingLifecycle $lifecycle): RedirectResponse
+    {
+        Gate::authorize('delete', $offering);
+        $data = $request->validate(['reason' => ['required', 'string', 'min:5', 'max:1000'], 'confirmation' => ['required', 'string', 'max:20']]);
+        $lifecycle->delete($request->user(), $offering, $data['confirmation'], $data['reason']);
+
+        return to_route('offerings.index')->with('status', 'Grupo vacío eliminado. La identificación y el motivo se conservan en la bitácora.');
+    }
+
     public function create(): View
     {
         Gate::authorize('create', Offering::class);

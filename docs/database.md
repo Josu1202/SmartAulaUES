@@ -1,5 +1,15 @@
 # Modelo de datos · v0.3.0
 
+A04 sobre 0.3.2/A03 integrado: `2026_10_23_000100_add_offering_administrative_state` agrega
+`offerings.active BOOLEAN NOT NULL DEFAULT TRUE` e índice `(cycle_id, active)`. No cambia fechas,
+estados de ciclo/cómputos ni relaciones; ningún dato se copia para Historial. Rollback bloqueado si
+hay grupos suspendidos o auditoría de transiciones A04. Desarrollo no migrado en esta revisión.
+Todas las FKs académicas siguen RESTRICT. news también bloquea eliminar grupos. Auditoría guarda
+referencias polimórficas y no se elimina junto al grupo. Cómputos iniciales heredados únicamente se
+retiran dentro del borrado transaccional tras demostrar su vaciedad e igualdad con la auditoría original;
+sesiones, inscripciones, asistencia, permisos/evidencias, portales/lectores/eventos y ReportVersion
+nunca se eliminan por este flujo. [Contrato y operación](a04-group-management.md).
+
 A03 sobre 0.3.2: migración incremental `2026_10_22_000100_add_academic_closures`.
 Añade inicio real/finalización nullable a sesiones y CHECK unstarted; current_report_id/reopened_at/causas
 de cierre a cómputos; closed_at/reopened_at/causas a ciclos. ReportVersion agrega generación/origen/hash;

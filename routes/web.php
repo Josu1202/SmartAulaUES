@@ -60,6 +60,8 @@ Route::middleware(['auth', 'active', 'auth.session'])->group(function (): void {
     Route::redirect('/modules/credentials', '/admin/nfc-credentials')->middleware('role:coordinator');
     Route::get('/modules/{module}', ModuleController::class)->name('modules.show');
     Route::prefix('admin')->name('admin.')->middleware('role:coordinator')->group(function (): void {
+        Route::post('/offerings/{offering}/state/{operation}', [AdminOfferingController::class, 'state'])->whereIn('operation', ['deactivate', 'reactivate', 'expire-resources'])->name('offerings.state');
+        Route::delete('/offerings/{offering}', [AdminOfferingController::class, 'destroy'])->name('offerings.destroy');
         Route::post('/periods/{period}/close', [AcademicClosureController::class, 'closePeriod'])->name('periods.close');
         Route::post('/periods/{period}/reopen', [AcademicClosureController::class, 'reopenPeriod'])->name('periods.reopen');
         Route::post('/cycles/{cycle}/close', [AcademicClosureController::class, 'closeCycle'])->name('cycles.close');

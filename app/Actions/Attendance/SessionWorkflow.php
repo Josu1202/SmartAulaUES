@@ -110,7 +110,7 @@ class SessionWorkflow
     public function finishOverdue(ClassSession $session): bool
     {
         return DB::transaction(function () use ($session): bool {
-            $record = $this->locks->get($session);
+            $record = $this->locks->get($session, allowInactive: true);
             if ($record->state !== SessionState::InProgress || $record->started_at === null
                 || $record->started_at->timezone('America/El_Salvador')->toDateString() >= now('America/El_Salvador')->toDateString()
                 || $record->ends_at > now()) {

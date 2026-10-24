@@ -10,6 +10,7 @@
         @if($attendanceResults['snapshotError'])<div class="alert alert-danger" role="alert">{{ $attendanceResults['snapshotError'] }}</div>@endif
         @if($attendanceResults['versions']->isNotEmpty())
             <form method="GET" action="{{ route('offerings.show', $offering) }}#attendance-results" class="d-flex align-items-end gap-2 flex-wrap mb-3">
+                @include('academic.offerings.catalog-context')
                 <input type="hidden" name="period_id" value="{{ $selectedPeriod->id }}">
                 <div><label class="form-label" for="report-version">Historial de cierres</label><select class="form-select" name="report_version" id="report-version">
                     <option value="">{{ $selectedPeriod->state === 'closed' ? 'Cierre vigente' : 'Resultados vivos' }}</option>
@@ -23,13 +24,15 @@
             @endif
         @endcan
         @if(auth()->user()->role === \App\Enums\Role::Coordinator && $offering->cycle->status !== 'closed')
-            @if($selectedPeriod->state === 'closed')
+            @if($selectedPeriod->state === 'closed' && $offering->active)
                 <details><summary>Reabrir cómputo</summary><form class="mt-2" method="POST" action="{{ route('admin.periods.reopen', $selectedPeriod) }}">@csrf
                     <x-form-field name="reason" id="period-reopen-reason" label="Motivo de reapertura" required minlength="5" maxlength="1000" />
                     <button class="btn btn-outline-dark">Reabrir para revisión</button>
                 </form></details>
-            @elseif($selectedPeriod->ends_on->toDateString() < now('America/El_Salvador')->toDateString())
+            @elseif($selectedPeriod->state !== 'closed' && $selectedPeriod->ends_on->toDateString() < now('America/El_Salvador')->toDateString())
                 <form method="POST" action="{{ route('admin.periods.close', $selectedPeriod) }}">@csrf<button class="btn btn-primary">Validar y cerrar cómputo</button></form>
+            @elseif($selectedPeriod->state === 'closed' && !$offering->active)
+                <p class="form-hint">Reactiva el grupo antes de reabrir este cómputo para revisión.</p>
             @else
                 <p class="form-hint">El cierre estará disponible al terminar la fecha final local del cómputo.</p>
             @endif

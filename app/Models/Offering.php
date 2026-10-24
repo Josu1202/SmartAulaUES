@@ -13,6 +13,22 @@ class Offering extends Model
 {
     use HasFactory;
 
+    protected $attributes = ['active' => true];
+
+    /** Classification is derived only from the cycle, never its calendar end date. */
+    public function scopeCatalog(Builder $query, string $view = 'current', string $availability = 'active', ?int $cycleId = null): Builder
+    {
+        return $query->whereHas('cycle', fn (Builder $cycle) => $view === 'history'
+            ? $cycle->where('status', 'closed') : $cycle->where('status', '!=', 'closed'))
+            ->when($availability !== 'all', fn (Builder $q) => $q->where('active', $availability === 'active'))
+            ->when($cycleId !== null, fn (Builder $q) => $q->where('cycle_id', $cycleId));
+    }
+
+    public function scopeCurrent(Builder $query): Builder
+    {
+        return $query->catalog();
+    }
+
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         if (! $user->active) {
@@ -35,7 +51,7 @@ class Offering extends Model
 
     protected function casts(): array
     {
-        return ['cycle_id' => 'integer', 'subject_id' => 'integer', 'teacher_id' => 'integer', 'capacity' => 'integer', 'cycle_format_id' => 'integer'];
+        return ['cycle_id' => 'integer', 'subject_id' => 'integer', 'teacher_id' => 'integer', 'capacity' => 'integer', 'cycle_format_id' => 'integer', 'active' => 'boolean'];
     }
 
     public function cycle(): BelongsTo
