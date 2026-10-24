@@ -1,9 +1,9 @@
 # Tres fases de desarrollo · SmartAulaUES
 
-A 22/10/2026: A01 y A02 integrados en main por PR #3/18c7596 y PR #4/bf07b01.
-A03 local para revisión en feature/p3a-a03-cierres-reapertura: [contrato](a03-closures.md) y
-[evidencia](a03-verification.md). No release nueva. Aceptación física A02 y operación en hosting pendientes;
-A04–A05/B01–B07 no se declaran entregados. El reparto histórico inferior queda subordinado a F3 r1.
+A 23/10/2026: A01/A02/A03 integrados por PR #3/18c7596, #4/bf07b01 y #5/5172b91.
+A04 local en feature/p3a-a04-gestion-grupos: [contrato](a04-group-management.md) y
+[evidencia](a04-verification.md). No release nueva ni integración de A04. Aceptación física A02 y
+hosting pendientes; A05/B01–B07 no se declaran entregados. El reparto inferior queda subordinado a F3 r1.
 
 ## Reparto vigente F3 r1
 

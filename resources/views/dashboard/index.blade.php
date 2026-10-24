@@ -36,7 +36,7 @@
         <div class="card stat-card stat-policy"><span class="stat-icon"><x-icon name="file" /></span><span
                 class="stat-label">Permisos pendientes</span><strong data-pending-count>{{ $statistics['pending_requests'] }}</strong><small>{{ $user->role === \App\Enums\Role::Student ? 'Mis solicitudes por resolver' : 'Solicitudes por revisar' }}</small></div>
     </div>
-    <div class="row g-4 mb-4"><div class="col-lg-6"><x-statistical-chart title="Sesiones por estado" :data="$statistics['sessions']" subtitle="Clases de los grupos autorizados para tu cuenta."/></div><div class="col-lg-6"><x-statistical-chart title="Resultados registrados" :data="$statistics['results']" subtitle="Resultados de las clases en curso y realizadas."/></div><div class="col-lg-6"><x-statistical-chart title="Presencias por método" :data="$statistics['methods']" subtitle="Cada resultado se cuenta una sola vez; los reintentos no aumentan esta gráfica."/></div>@if($user->role === \App\Enums\Role::Coordinator)<div class="col-lg-6"><x-statistical-chart title="Estudiantes por año de carrera" :data="$statistics['years']" subtitle="Cuentas activas; los registros antiguos sin año aparecen como Sin asignar."/></div>@endif</div>
+    @include('dashboard.operational-charts', ['showYears' => $user->role === \App\Enums\Role::Coordinator])
     <div class="dashboard-grid">
         <section class="card">
             <div class="card-header">
@@ -48,7 +48,7 @@
                     <a class="offering-row" href="{{ route('offerings.show', $offering) }}"><span
                             class="subject-icon"><x-icon name="book" /></span><span
                             class="offering-row-name">{{ $offering->subject->name }}<small>{{ $offering->subject->code }}
-                                · Grupo {{ $offering->group_code }}</small></span><span
+                                · Grupo {{ $offering->group_code }} · {{ $offering->cycle->code }}{{ $offering->cycle->reopened_at ? ' · En revisión' : '' }}</small></span><span
                             class="offering-row-count">{{ $offering->enrollments_count }}<small>inscritos</small></span><x-icon
                         name="arrow" /></a>@empty<div class="empty-small">Aún no tienes grupos asignados.</div>
                 @endforelse

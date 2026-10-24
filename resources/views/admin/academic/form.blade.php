@@ -8,13 +8,13 @@
     $action = route($prefix.($record->exists ? '.update' : '.store'), $parameters);
     $back = $nested ? route('offerings.show', $offering) : ($kind === 'offering' ? route('offerings.index') : route($prefix.'.index'));
     $title = ($record->exists ? 'Editar ' : 'Crear ').$labels[$kind];
-    $readOnly = ($record->exists && $kind === 'cycle' && $record->status === 'closed') || ($kind === 'period' && isset($offering) && $offering->cycle_format_id !== null) || ($record->exists && $kind === 'period' && $record->state !== 'open') || ($nested && $offering->cycle->status === 'closed') || ($record->exists && $kind === 'offering' && $record->cycle->status === 'closed');
+    $readOnly = ($nested && !$offering->active) || ($kind === 'offering' && $record->exists && !$record->active) || ($record->exists && $kind === 'cycle' && $record->status === 'closed') || ($kind === 'period' && isset($offering) && $offering->cycle_format_id !== null) || ($record->exists && $kind === 'period' && $record->state !== 'open') || ($nested && $offering->cycle->status === 'closed') || ($record->exists && $kind === 'offering' && $record->cycle->status === 'closed');
 @endphp
 @section('title', $title)
 @section('content')
     <a class="back-link" href="{{ $back }}">← Volver</a>
     <x-page-heading :title="$title" :subtitle="$nested ? $offering->subject->name.' · '.$offering->cycle->code.' · Grupo '.$offering->group_code : 'Organiza la oferta académica y conserva su historial.'" eyebrow="ORGANIZACIÓN ACADÉMICA" />
-    @if($readOnly)<div class="alert alert-info">Este calendario es de solo lectura porque fue heredado de un formato o su ciclo/cómputo está cerrado.</div>@endif
+    @if($readOnly)<div class="alert alert-info">Consulta de solo lectura: grupo desactivado, calendario heredado o ciclo/cómputo cerrado. Para cambios académicos, reactiva y reabre lo que corresponda.</div>@endif
     <div class="row g-4"><div class="col-lg-8"><div class="card"><div class="card-body">
         <form method="POST" action="{{ $action }}">@csrf @if($record->exists) @method('PUT') @endif
             <fieldset @disabled($readOnly)>

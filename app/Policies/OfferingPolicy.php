@@ -23,6 +23,16 @@ class OfferingPolicy
         return $this->create($user);
     }
 
+    public function administer(User $user, Offering $offering): bool
+    {
+        return $this->create($user);
+    }
+
+    public function delete(User $user, Offering $offering): bool
+    {
+        return $this->create($user);
+    }
+
     public function viewAny(User $user): bool
     {
         return $user->active;

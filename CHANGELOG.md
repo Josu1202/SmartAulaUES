@@ -1,5 +1,23 @@
 # Historial de versiones SmartAulaUES
 
+## A04 · organización y suspensión de grupos · 23/10/2026 · local, sin release
+
+- Base real `5172b91`, A03 integrado por PR #5. Rama `feature/p3a-a04-gestion-grupos`; versión 0.3.2.
+- Consulta centralizada Actuales/Historial según ciclo; filtros de ciclo/estado, paginación y contexto
+  de navegación. Ciclos vencidos abiertos permanecen actuales; desactivados con acceso explícito.
+- Inicio y métricas académicas limitados a grupos actuales. Historial por ciclo reutiliza los gráficos
+  operativos existentes y distingue sus agregados de los resultados congelados de A03.
+- Coordinación suspende/reactiva con motivo, bloqueos concretos y auditoría atómica. Los recursos
+  vencidos se cierran expresamente; no se finalizan clases ni se resuelven permisos al suspender.
+- Bloqueo transaccional común para sesiones, portales, lectores, asistencia, permisos, inscripciones,
+  CSV/lotes y correcciones. Replay previo y cierres automáticos conservados; contacto de cuentas independiente.
+- Eliminación restringida, confirmación por código y auditoría superviviente. Conserva FKs RESTRICT;
+  solo retira cómputos iniciales heredados cuya vaciedad e historia se pueden demostrar.
+- Migración `2026_10_23_000100_add_offering_administrative_state`; sin cambios de datos de desarrollo,
+  dependencias, release, configuración privada, A01/A02 ni contratos de persona 3.
+- [Contrato y operación](docs/a04-group-management.md), [verificación por escenario](docs/a04-verification.md).
+  Sin commit/push/PR/merge/despliegue; hosting y validación física siguen pendientes.
+
 ## A03 · cierres y reapertura · 22/10/2026 · sin release
 
 - Base integrada bf07b01 (A02 PR #4; A01 PR #3). Rama feature/p3a-a03-cierres-reapertura,

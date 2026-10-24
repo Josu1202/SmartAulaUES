@@ -10,6 +10,6 @@ class TerminalController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        return view('terminal.index', ['sessions' => ClassSession::where('state', 'in_progress')->whereHas('offering', fn ($q) => $q->visibleTo($request->user()))->with('offering.subject')->orderBy('starts_at')->get()]);
+        return view('terminal.index', ['sessions' => ClassSession::where('state', 'in_progress')->whereHas('offering', fn ($q) => $q->visibleTo($request->user())->current())->with('offering.subject')->orderBy('starts_at')->get()]);
     }
 }

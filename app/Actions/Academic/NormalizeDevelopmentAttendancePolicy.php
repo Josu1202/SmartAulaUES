@@ -29,7 +29,7 @@ final class NormalizeDevelopmentAttendancePolicy
             $offerings = Offering::whereIn('cycle_id', $cycles->modelKeys())->orderBy('id')->lockForUpdate()->get();
             $periods = AssessmentPeriod::whereIn('offering_id', $offerings->modelKeys())->orderBy('id')->lockForUpdate()->get();
             $closedCycles = $cycles->where('status', 'closed')->modelKeys();
-            $protectedGroups = $offerings->whereIn('cycle_id', $closedCycles)->modelKeys();
+            $protectedGroups = $offerings->filter(fn ($offering) => ! $offering->active || in_array($offering->cycle_id, $closedCycles, true))->modelKeys();
             $protected = $periods->filter(fn ($period) => $period->state !== 'open' || $period->closed_at !== null || in_array($period->offering_id, $protectedGroups, true) || $period->reports()->exists());
             $candidates = $periods->whereNotIn('id', $protected->modelKeys())->where('policy_version', '!=', AttendancePolicy::VERSION);
             if ($apply) {

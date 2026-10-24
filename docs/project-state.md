@@ -1,6 +1,22 @@
 # Estado de continuidad · SmartAulaUES
 
-## Estado vigente: A03 local sobre A01 y A02 integrados
+## Estado vigente: A04 local sobre A01, A02 y A03 integrados
+
+23/10/2026: historial local confirma `5172b91` (merge PR #5 de A03), `bf07b01` (PR #4)
+y `18c7596` (PR #3). Rama `feature/p3a-a04-gestion-grupos`, versión 0.3.2 conservada.
+A04 organiza grupos por estado real del ciclo, suspende/reactiva administrativamente y elimina solo
+grupos demostrablemente vacíos, con confirmación, motivo, auditoría y locks existentes.
+Actuales incluye ciclos vencidos abiertos; Historial conserva acceso y snapshots de A03. Desactivados
+siguen consultables; reabrir ciclos conserva su suspensión. Métricas académicas del inicio filtradas;
+resúmenes históricos operativos por ciclo, separados de las versiones de resultados.
+[Contrato y comandos](a04-group-management.md), [verificación y límites](a04-verification.md).
+Verificación del 24/10: A04 53/308, 39 JS, 31 comprobaciones concurrentes nativas y 23 capturas/medidas.
+Regresión completa: 242 funcionales aprobadas; sonda HTTP transitoria aprobada al repetir sin cambios.
+Scheduler real de testing dos veces, sin duplicar cierres ni resultados. No equivale a CI remoto o hosting.
+No commit/push/PR/merge/despliegue. No se migró ni cambió desarrollo. GPS/HTTPS/NFC físico y hosting
+siguen pendientes; A05/B01–B07 no se declaran entregados. Lo siguiente conserva evidencia histórica.
+
+## Estado histórico de implementación A03, anterior al merge PR #5
 
 22/10/2026: historial local confirma bf07b01 (PR #4, A02) y 18c7596 (PR #3, A01) en main.
 Rama feature/p3a-a03-cierres-reapertura, release 0.3.2 conservada. A03 implementa respaldo diario de

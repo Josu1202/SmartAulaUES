@@ -12,9 +12,9 @@ class AcademicSessionLock
     public function __construct(private AcademicRegistry $registry) {}
 
     /** Call inside a transaction. All academic writers lock cycle → offering → period → session. */
-    public function get(ClassSession $session): ClassSession
+    public function get(ClassSession $session, bool $allowInactive = false): ClassSession
     {
-        $offering = $this->registry->lockOffering($session->offering);
+        $offering = $this->registry->lockOffering($session->offering, $allowInactive);
         $period = AssessmentPeriod::lockForUpdate()->findOrFail($session->period_id);
         $record = ClassSession::lockForUpdate()->findOrFail($session->id);
         if ($record->offering_id !== $offering->id || $record->period_id !== $period->id || $period->offering_id !== $offering->id) {

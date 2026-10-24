@@ -6,6 +6,7 @@
         <p class="small text-secondary">Desplaza la tabla horizontalmente para consultar todas las columnas.</p>
         @if($attendanceResults['periods']->isNotEmpty())
             <form method="GET" action="{{ route('offerings.show', $offering) }}#attendance-results" class="d-flex align-items-end gap-2 flex-wrap">
+                @include('academic.offerings.catalog-context')
                 <div><label class="form-label" for="attendance-period">Cómputo</label><select class="form-select" id="attendance-period" name="period_id">
                     @foreach($attendanceResults['periods'] as $resultPeriod)<option value="{{ $resultPeriod->id }}" @selected($attendanceResults['period']?->id === $resultPeriod->id)>Cómputo {{ $resultPeriod->number }} ({{ $resultPeriod->starts_on->format('d/m/Y') }} – {{ $resultPeriod->ends_on->format('d/m/Y') }})</option>@endforeach
                 </select></div>

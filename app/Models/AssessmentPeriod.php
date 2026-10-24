@@ -23,6 +23,11 @@ class AssessmentPeriod extends Model
         return $this->belongsTo(Offering::class);
     }
 
+    public function formatPeriod(): BelongsTo
+    {
+        return $this->belongsTo(CycleFormatPeriod::class, 'format_period_id');
+    }
+
     public function sessions(): HasMany
     {
         return $this->hasMany(ClassSession::class, 'period_id');

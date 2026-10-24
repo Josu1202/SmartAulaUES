@@ -2,6 +2,7 @@
 
 namespace App\Actions\Attendance;
 
+use App\Actions\Academic\AcademicRegistry;
 use App\Actions\Academic\AuditRecorder;
 use App\Enums\Role;
 use App\Enums\SessionState;
@@ -115,7 +116,8 @@ final class ClosureWorkflow
             || AuditLog::where('entity_type', 'ClassSession')->where('entity_id', (string) $session->id)->whereIn('action', ['session.start', 'session.finish', 'session.auto_finished', 'session.start_recovered', 'session.reconciled'])->exists();
     }
 
-    private function periodIssues(AssessmentPeriod $period, array $rows): array
+    /** Shared integrity checks. A04 does not require closing clean scheduled sessions. */
+    public function periodIssues(AssessmentPeriod $period, array $rows, bool $forDeactivation = false): array
     {
         $issues = [];
         if (AttendancePolicy::find($period->policy_version) === null) {
@@ -127,7 +129,8 @@ final class ClosureWorkflow
             if ($date < $period->starts_on->toDateString() || $end > $period->ends_on->toDateString()) {
                 $issues[] = 'Sesión #'.$session->id.': horario fuera del cómputo.';
             }
-            if ($session->state === SessionState::Scheduled) {
+            if ($session->state === SessionState::Scheduled && (! $forDeactivation || $this->hasStartEvidence($session)
+                || ($session->ends_at <= now() && $session->absenceRequests->contains('status', 'approved')))) {
                 $issues[] = 'Sesión #'.$session->id.': programada con datos contradictorios; requiere revisión administrativa.';
             }
             if ($session->state === SessionState::InProgress) {
@@ -168,6 +171,7 @@ final class ClosureWorkflow
 
         return DB::transaction(function () use ($actor, $period, $reason): AssessmentPeriod {
             $period = $this->lockPeriod($period);
+            app(AcademicRegistry::class)->requireActiveOffering($period->offering);
             if ($period->offering->cycle->status === 'closed') {
                 $this->fail('Reabre primero el ciclo.');
             }

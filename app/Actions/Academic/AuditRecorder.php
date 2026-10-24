@@ -26,7 +26,7 @@ class AuditRecorder
             User::class => ['name', 'email', 'role', 'student_code', 'active', 'entry_year', 'study_year'],
             AcademicCycle::class => ['code', 'starts_on', 'ends_on', 'status', 'closed_at', 'reopened_at', 'closure_issues'],
             Subject::class => ['code', 'name', 'active'],
-            Offering::class => ['cycle_id', 'subject_id', 'teacher_id', 'group_code', 'capacity', 'cycle_format_id'],
+            Offering::class => ['cycle_id', 'subject_id', 'teacher_id', 'group_code', 'capacity', 'cycle_format_id', 'active'],
             CycleFormat::class => ['cycle_id', 'name', 'version', 'active', 'periods'],
             AssessmentPeriod::class => ['offering_id', 'number', 'starts_on', 'ends_on', 'state', 'policy_version', 'closed_at', 'current_report_id', 'reopened_at', 'closure_issues'],
             Enrollment::class => ['offering_id', 'student_id', 'active_from', 'active_to'],

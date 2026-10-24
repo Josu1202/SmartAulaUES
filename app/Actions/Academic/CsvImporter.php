@@ -3,7 +3,6 @@
 namespace App\Actions\Academic;
 
 use App\Enums\Role;
-use App\Models\AcademicCycle;
 use App\Models\AuditLog;
 use App\Models\Offering;
 use App\Models\User;
@@ -138,6 +137,9 @@ class CsvImporter
         }
         $batchErrors = [];
         if ($kind === 'enrollments') {
+            if ($offering && ! $offering->active) {
+                $batchErrors[] = 'El grupo está desactivado. Reactívalo antes de cargar inscripciones.';
+            }
             if (! $offering || $offering->cycle->status === 'closed') {
                 $batchErrors[] = 'Selecciona un grupo de un ciclo abierto.';
             } else {
@@ -158,9 +160,7 @@ class CsvImporter
         return DB::transaction(function () use ($actor, $preview): int {
             $offering = null;
             if ($preview['kind'] === 'enrollments') {
-                $offering = Offering::findOrFail($preview['offering_id']);
-                $offering->setRelation('cycle', AcademicCycle::lockForUpdate()->findOrFail($offering->cycle_id));
-                $offering = Offering::lockForUpdate()->findOrFail($offering->id);
+                $offering = $this->registry->lockOffering(Offering::findOrFail($preview['offering_id']));
             }
             $review = $this->review($preview['kind'], $preview['rows'], $offering);
             if (! $review['valid']) {

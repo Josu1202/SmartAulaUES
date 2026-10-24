@@ -1,6 +1,34 @@
 # Entorno de trabajo SmartAulaUES
 
-## Continuidad vigente: A03 local, sin release
+## Continuidad vigente: A04 local sobre A01–A03 integrados, sin release
+
+23/10: rama feature/p3a-a04-gestion-grupos sobre 5172b91, merge A03 por PR #5 confirmado
+en el historial local; A01/A02 por PR #3/#4. Las notas inferiores de A03 local son históricas.
+Leer docs/a04-group-management.md y docs/a04-verification.md. Versión 0.3.2 conservada.
+Sin commit/push/PR/merge/despliegue. Preservar .env/APP_KEY, cambio previo .env.example y Microsoft/.
+Offering.active es suspensión administrativa, no cierre/archivo. Clasificación mediante catalog/current:
+Actuales habilitados de ciclos no cerrados (aunque vencidos); Historial deriva de status=closed.
+Desactivados accesibles por filtro, sin perder inscripción histórica ni privacidad del estudiante.
+Solo Coordinación desactiva/reactiva/elimina con motivo; transición bajo locks y auditoría atómica.
+Bloquear sesión en curso, recursos sin cerrar, permisos pendientes e integridad A03; no bloquear
+meramente cómputos abiertos/sesiones futuras/permisos preventivos ya aprobados de sesiones futuras.
+Recursos vencidos se cierran mediante acción explícita auditada, sin alterar clases/resultados.
+Todas las escrituras humanas requieren grupo activo bajo lock ciclo → grupo → cómputo/sesión → recurso.
+Replay de RegisterAttendance permanece antes del bloqueo; respaldo/scheduler A03 admite desactivados.
+Reactivar no reabre períodos ni recursos; ciclo reabierto devuelve habilitados a Actuales En revisión.
+Eliminar solo vacío y ciclo abierto; FKs RESTRICT y auditoría conservada. Cómputos solo retirables
+si son copias iniciales de formato, vacías e idénticas a su única auditoría de creación, sin cierres/reaperturas.
+Migración incremental 2026_10_23_000100; desarrollo sin migrar ni modificar en este incremento.
+Pruebas exclusivamente siaa_test tras check-test-database.php; carreras nativas adicionales en
+tests/Concurrency/offering-management.php. Mantener A01/A02/A03 y cron geográfico/cierres.
+Sin ranking, exportaciones, archivo manual ni cambios a contratos de persona 3. Los resúmenes de
+Historial son operativos filtrados, no snapshots colectivos; resultados mediante AttendanceSummary.
+24/10: A04 final 53 pruebas/308 aserciones; regresión completa 242 funcionales aprobadas y sonda
+HTTP transitoria repetida sin cambios: 1/1 aprobada. 39 JS, 31 comprobaciones concurrentes nativas,
+23 capturas/medidas Edge y scheduler real de testing repetido sin duplicar. Evidencia en a04-verification.md.
+No atribuir esta validación local a CI, hosting o hardware. Aplicación de desarrollo sin migrar.
+
+## Continuidad anterior: implementación A03 (integrada posteriormente por PR #5)
 
 22/10: rama feature/p3a-a03-cierres-reapertura sobre bf07b01, merge de A02 por PR #4;
 A01 integrado por PR #3/18c7596. Las referencias inferiores a A01/A02 sin integración son históricas.

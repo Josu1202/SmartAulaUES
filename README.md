@@ -1,6 +1,16 @@
 # SmartAulaUES · Asistencia académica universitaria
 
-**A03 local para revisión, sin release:** rama `feature/p3a-a03-cierres-reapertura` sobre `bf07b01`,
+**A04 local para revisión, sin release:** rama `feature/p3a-a04-gestion-grupos`, base `5172b91`
+(A03 integrado mediante PR #5; A01/A02 por PR #3/#4). Materias y grupos distingue Actuales e Historial
+por estado del ciclo, conserva ciclos vencidos abiertos y permite consultar desactivados con filtro.
+Coordinación desactiva/reactiva con motivo y auditoría; solo elimina grupos demostrablemente vacíos.
+Los grupos suspendidos conservan consultas y sesiones futuras; las escrituras humanas quedan bloqueadas,
+el replay y el scheduler A03 se conservan. Una migración incremental, versión **0.3.2** intacta.
+[Contrato, operación y comandos PowerShell](docs/a04-group-management.md),
+[escenarios y evidencia real](docs/a04-verification.md), [propuesta de PR](docs/a04-pr.md).
+Sin commit, push, PR, merge ni despliegue. La migración de desarrollo queda para el usuario.
+
+**A03 integrado por PR #5 (`5172b91`), sin release:** implementación sobre `bf07b01`,
 merge de A02 (PR #4); A01 integrado por PR #3. Finalización diaria de respaldo, cierre de cómputos/ciclos,
 snapshots versionados y reapertura de Coordinación con motivo. Los resultados cerrados se consultan desde
 su snapshot; los reabiertos aparecen En revisión y requieren cierre manual. Una migración incremental,

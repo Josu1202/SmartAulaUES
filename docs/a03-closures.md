@@ -1,5 +1,10 @@
 # A03 · finalización diaria, cierres y revisión administrativa
 
+Continuidad del 24/10: A03 está integrado por PR #5 (`5172b91`). [A04](a04-group-management.md)
+clasifica Historial por ciclo cerrado y añade suspensión administrativa independiente. El scheduler
+conserva grupos suspendidos; las correcciones humanas y reaperturas de cómputo requieren reactivarlos.
+La descripción de implementación local inferior conserva el contexto anterior al merge.
+
 Incremento local sobre `bf07b01` (merge de A02, PR #4). A01 está integrado por PR #3,
 `18c7596`. Rama `feature/p3a-a03-cierres-reapertura`, release **0.3.2** conservada.
 La integración de A02 no demuestra aceptación física de GPS/HTTPS; continúa pendiente.
@@ -105,7 +110,8 @@ conserva N, actualiza la vigente y vuelve a proteger escrituras. Una repetición
 Si el ciclo está cerrado: reabrir ciclo → reabrir cómputo afectado → corregir → cerrar cómputo
 manualmente → cerrar ciclo manualmente. Reabrir ciclo no reabre sus cómputos. Un ciclo reabierto
 tampoco se recierra automáticamente. La edición general no permite cerrar ni eludir estas transiciones.
-Cerrar un ciclo no archiva ni elimina grupos; eso corresponde a A04.
+Cerrar un ciclo no elimina grupos. A04 los muestra en Historial por ese mismo estado del ciclo,
+sin acción adicional de archivo ni copia de sus datos.
 
 Los locks compartidos/exclusivos de A01 continúan en orden ciclo → grupo → cómputo/sesión → recurso.
 RegisterAttendance conserva primero el advisory lock global por UUID y su replay antes de comprobar

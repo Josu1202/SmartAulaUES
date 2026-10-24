@@ -84,6 +84,9 @@ class AcademicRegistry
                 $this->openCycle($cycle);
             }
             $record = $offering ? Offering::lockForUpdate()->findOrFail($offering->id) : new Offering;
+            if ($record->exists) {
+                $this->requireActiveOffering($record);
+            }
             if ($record->exists && ! $cycles->has($record->cycle_id)) {
                 $this->fail('cycle_id', 'El grupo cambió de ciclo. Actualiza la página e inténtalo nuevamente.');
             }
@@ -222,7 +225,7 @@ class AcademicRegistry
         return max(now(config('smartaulaues.display_timezone'))->toDateString(), $offering->cycle->starts_on->toDateString());
     }
 
-    public function lockOffering(Offering $offering): Offering
+    public function lockOffering(Offering $offering, bool $allowInactive = false): Offering
     {
         $cycle = AcademicCycle::lockForUpdate()->findOrFail($offering->cycle_id);
         $this->openCycle($cycle);
@@ -232,8 +235,18 @@ class AcademicRegistry
             $this->fail('offering_id', 'El grupo cambió de ciclo. Actualiza la página e inténtalo nuevamente.');
         }
         $offering->setRelation('cycle', $cycle);
+        if (! $allowInactive) {
+            $this->requireActiveOffering($offering);
+        }
 
         return $offering;
+    }
+
+    public function requireActiveOffering(Offering $offering): void
+    {
+        if (! $offering->active) {
+            $this->fail('offering_id', 'El grupo está desactivado. Coordinación debe reactivarlo antes de realizar cambios académicos.');
+        }
     }
 
     private function openCycle(AcademicCycle $cycle): void
