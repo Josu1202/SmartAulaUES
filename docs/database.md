@@ -1,5 +1,14 @@
 # Modelo de datos · v0.3.0
 
+A03 sobre 0.3.2: migración incremental `2026_10_22_000100_add_academic_closures`.
+Añade inicio real/finalización nullable a sesiones y CHECK unstarted; current_report_id/reopened_at/causas
+de cierre a cómputos; closed_at/reopened_at/causas a ciclos. ReportVersion agrega generación/origen/hash;
+actores de reportes y resultados pueden ser null para Sistema. PDF ya era nullable y sigue pendiente.
+No rellena historia ni reconstruye desarrollo. Snapshot completo, inmutable y versionado; vigente por FK.
+Registros cerrados sin snapshot válido se muestran inconsistentes; no se reconstruye su historia.
+Rollback protegido cuando ya existen datos A03. [Contrato, privacidad y operación](a03-closures.md).
+Las referencias inferiores a ReportVersion reservado o cierre pendiente describen el esquema anterior.
+
 A02 sobre 0.3.2 añade la migración `2026_10_21_000100_add_portal_geographic_access`:
 `class_sessions.event_attendance_mode` nullable con restricción in_person/online para eventos;
 `attendance_portals.access_modality` y `geo_reference` nullable; `attendance_events.geo_validation`
@@ -35,7 +44,8 @@ Migraciones incrementales; se conservan las originales y la de v0.2.0. Fase 2 ag
 | attendance_events | UUID global, actor/hash canónico, session_id, response JSONB, http_status y referencias |
 | notifications | Avisos internos estándar Laravel por propietario |
 | audit_logs | Actor/acción/antes/después/motivo, whitelist sin secretos/rutas privadas |
-| report_versions / news | Preparación para cierre/PDF/versiones y noticias de fase 3, sin flujo operativo todavía |
+| report_versions | Cierres A03 con snapshots inmutables, origen/actor/generación/hash y versión única por cómputo; PDF pendiente |
+| news | Preparación para noticias de fase 3; sin flujo operativo todavía |
 | sessions, password_reset_tokens, cache, cache_locks, jobs, job_batches, failed_jobs | Infraestructura Laravel |
 
 ```mermaid
@@ -64,6 +74,6 @@ por UUID normalizado. Los eventos guardan resultados seguros, nunca el token; í
 pruebas de procesos independientes con PostgreSQL nativo.
 
 Las gráficas existentes agrupan consultas autorizadas, sin generar datos. A01 incorpora cálculo
-provisional mediante AttendanceSummary; cierre/snapshot/PDF y reapertura siguen pendientes.
+vivo mediante AttendanceSummary; A03 añade consulta cerrada/histórica desde snapshot y reapertura. PDF pendiente de B02.
 AssessmentPeriod.policy_version solo se cambia en desarrollo mediante la operación explícita autorizada,
 no desde una consulta ni como un alias de versiones desconocidas.

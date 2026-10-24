@@ -8,7 +8,7 @@ final class AttendanceCalculator
     public function calculate(string $version, array $sessions, string $from, ?string $to, string $asOf): array
     {
         $policy = AttendancePolicy::find($version);
-        $counts = array_fill_keys(['eligible', 'present', 'justified', 'absent', 'missing', 'inconsistent', 'cancelled', 'future', 'in_progress', 'awaiting_start', 'overdue_unfinished', 'pending_requests'], 0);
+        $counts = array_fill_keys(['eligible', 'present', 'justified', 'absent', 'missing', 'inconsistent', 'cancelled', 'unstarted', 'future', 'in_progress', 'awaiting_start', 'overdue_unfinished', 'pending_requests'], 0);
         $incidents = [];
         $pending = [];
         foreach ($sessions as $session) {
@@ -16,8 +16,8 @@ final class AttendanceCalculator
                 continue;
             }
             $id = $session['id'];
-            if ($session['state'] === 'cancelled') {
-                $counts['cancelled']++;
+            if (in_array($session['state'], ['cancelled', 'unstarted'], true)) {
+                $counts[$session['state']]++;
 
                 continue;
             }

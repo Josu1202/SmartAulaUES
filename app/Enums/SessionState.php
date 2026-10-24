@@ -8,11 +8,12 @@ enum SessionState: string
     case InProgress = 'in_progress';
     case Completed = 'completed';
     case Cancelled = 'cancelled';
+    case Unstarted = 'unstarted';
 
     public function label(): string
     {
         return match ($this) {
-            self::Scheduled => 'Programada', self::InProgress => 'En curso', self::Completed => 'Realizada', self::Cancelled => 'Cancelada'
+            self::Scheduled => 'Programada', self::InProgress => 'En curso', self::Completed => 'Finalizada', self::Cancelled => 'Cancelada', self::Unstarted => 'Sin inicio registrado'
         };
     }
 }

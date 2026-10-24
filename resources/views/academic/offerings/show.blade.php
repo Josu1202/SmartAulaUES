@@ -4,6 +4,7 @@
     <a href="{{ route('offerings.index') }}" class="back-link">
         ← Materias y grupos</a><x-page-heading :title="$offering->subject->name" :subtitle="$offering->cycle->code . ' · Grupo ' . $offering->group_code">@can('update', $offering)<a class="btn btn-outline-dark" href="{{ route('admin.offerings.edit', $offering) }}">{{ $offering->cycle->status === 'closed' ? 'Consultar grupo' : 'Editar grupo' }}</a>@endcan</x-page-heading>
     @if($offering->cycle->status === 'closed')<div class="alert alert-info">Este ciclo está cerrado. Los datos académicos son de solo lectura.</div>@endif
+    @if($offering->cycle->status !== 'closed' && $offering->cycle->reopened_at)<div class="alert alert-info">Ciclo en revisión. Los cómputos cerrados conservan sus bloqueos hasta que Coordinación los reabra individualmente.</div>@endif
     <div class="card mb-4">
         <div class="card-body">
             <div class="detail-grid">

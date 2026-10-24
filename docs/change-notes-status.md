@@ -1,5 +1,12 @@
 # Notas de cambio · estado y asignación
 
+22/10/2026: A01/A02 integrados por PR #3/#4, base bf07b01. A03 local para revisión:
+la solicitud de finalizar automáticamente se concreta como respaldo al terminar el día local del inicio
+real, sin ampliar ventanas ni finalizar solo por ends_at. Cierres, snapshots y reapertura en
+[a03-closures.md](a03-closures.md); [verificación](a03-verification.md).
+La fila histórica «Finalizar clase al vencer horario» de abajo queda sustituida por este contrato.
+Sin release nueva; GPS/HTTPS físico y hosting pendientes. El resto conserva su asignación F3 r1.
+
 Actualización A02, 21/10/2026: QR/enlace geográficos implementados localmente en su rama, sin release
 ni integración de A02. Ensayo físico pendiente. [Contrato](a02-geographic-access.md) y
 [evidencia](a02-verification.md). NFC secuencial/teléfono sin tarjeta y finalización automática

@@ -1,6 +1,36 @@
 # Entorno de trabajo SmartAulaUES
 
-## Continuidad vigente: A02 local, sin release
+## Continuidad vigente: A03 local, sin release
+
+22/10: rama feature/p3a-a03-cierres-reapertura sobre bf07b01, merge de A02 por PR #4;
+A01 integrado por PR #3/18c7596. Las referencias inferiores a A01/A02 sin integración son históricas.
+Leer docs/a03-closures.md y docs/a03-verificacion-final.md; evidencia anterior en docs/a03-verification.md.
+Versión 0.3.2 conservada. Sin commit/push/merge/despliegue.
+A03 añade inicio real UTC, respaldo tras terminar el día local America/El_Salvador, Sin inicio registrado
+al procesar el cierre del cómputo, snapshot completo/inmutable en ReportVersion y reapertura con motivo.
+Calendario permite cruzar medianoche: no truncar horario válido; respaldo espera ends_at cuando siga vigente.
+No inventar inicio antiguo: recuperación explícita solo de after.started_at en una única transición auditada;
+created_at antiguo usa inicio de transacción y no acredita inicio real. Si falta, finalización manual.
+Cierre solo después de toda la fecha final local, sin permisos pendientes ni inconsistencias; no forzar cierre.
+Coordinación (Role::Coordinator) es Administración. Ciclo cerrado: reabrir ciclo antes del cómputo.
+reopened_at exige recierre manual; no borrar el marcador ni recerrar automáticamente. Conservar versiones.
+Abierto usa cálculo vivo, cerrado snapshot vigente, reabierto En revisión; histórico mediante AttendanceSummary
+con reportVersion. Estudiante solo su fila; no entregar el ReportVersion colectivo sin filtrar.
+Sin sesiones evaluables: porcentaje/conclusión nulos. Resultados faltantes solo los genera el finalizador.
+Conservar locks ciclo → grupo → cómputo/sesión → recurso y advisory lock global/replay del registrador.
+No ampliar ventanas QR/enlace/NFC/manual ni cambiar A01/A02. Scheduler attendance:process-closures cada 5 min;
+mantener prune geográfico diario. Hosting real, GPS/HTTPS físico y resto de fase 3 siguen pendientes.
+Migración incremental 2026_10_22_000100; no migrate:fresh en desarrollo. Pruebas solo siaa_test tras verificar
+lectura/escritura con scripts/check-test-database.php. Preservar .env/APP_KEY/.env.example y Microsoft/.
+PDF/CSV/ranking/archivo de grupos fuera del incremento. Evidencia real y pendientes en a03-verification.md.
+Validación local del 22/10: 184 pruebas/1247 aserciones sin warnings, 39 pruebas JS, 14 comprobaciones
+concurrentes nativas, scheduler real en testing dos veces y 16 capturas/medidas; no atribuirlo a CI remoto.
+23/10: verificación final por escenarios en docs/a03-verificacion-final.md; 192 pruebas/1433 aserciones,
+39 JS, 16 comprobaciones concurrentes nativas, scheduler real repetido sin duplicar y 20 capturas/medidas. Se corrigieron
+controles de registro visibles fuera de horario: ocultar apertura/lector/manual; conservar finalización,
+revisión y diagnóstico A02 sin registrar. Sin alterar ventanas del servidor ni datos de desarrollo.
+
+## Continuidad anterior: A02 integrado, sin release
 
 Revisión 22/10: adquisición <=15 s con watchPosition y deadline propio; clearWatch al terminar,
 cancelar, ocultar o salir. Una sola mejor candidata reciente en memoria. Diagnóstico sin coordenadas,

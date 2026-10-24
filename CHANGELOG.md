@@ -1,5 +1,24 @@
 # Historial de versiones SmartAulaUES
 
+## A03 · cierres y reapertura · 22/10/2026 · sin release
+
+- Base integrada bf07b01 (A02 PR #4; A01 PR #3). Rama feature/p3a-a03-cierres-reapertura,
+  versión 0.3.2 conservada; sin commit, push, merge ni despliegue.
+- Inicio real UTC al iniciar sesión. Respaldo diario después de terminar su día local, preservando
+  horarios válidos que cruzan medianoche, resultados previos y ventanas actuales de registro.
+- Sin inicio registrado al procesar el cierre de cómputo: conserva historial y excluye denominador,
+  sin generar ausencias. Contradicciones y permisos pendientes requieren resolución explícita.
+- Cierre de cómputos vencidos con validaciones A01, snapshot completo, versión vigente y atomicidad.
+  Sin sesiones evaluables mantiene porcentaje/conclusión nulos. Sin PDF/CSV.
+- Consulta viva/En revisión/snapshot según estado e historial autorizado con privacidad por estudiante.
+  Cierre sin snapshot válido muestra inconsistencia y no recalcula silenciosamente.
+- Cierres/reaperturas específicos de Coordinación, motivo, auditoría y recierre manual de períodos
+  y ciclos reabiertos. Bloqueos de escrituras y elegibilidad histórica, incluidos CSV/lotes.
+- Migración incremental sin inferir historia; actor Sistema nullable, versiones inmutables y recuperación
+  explícita de inicio desde auditoría inequívoca. Scheduler cada cinco minutos conserva limpieza A02.
+- [Contrato, migración y operación](docs/a03-closures.md); [evidencia real y pendientes](docs/a03-verification.md).
+  Hosting del scheduler y GPS/HTTPS físico siguen sin acreditarse por pruebas locales.
+
 ## A02 · parámetros finales para revisión · 22/10/2026 · sin release
 
 - Configuración del servidor: radio 30 m e incertidumbre >0 y ≤10 m por docente y estudiante;

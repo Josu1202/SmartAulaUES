@@ -1,7 +1,13 @@
 # Evidencia de verificación · SmartAulaUES v0.3.2
 
-A02 en su rama local, sobre A01 integrado: resultados nuevos y pendientes físicos en
-[a02-verification.md](a02-verification.md). El procedimiento está en [a02-geographic-access.md](a02-geographic-access.md).
+A03 local sobre A01/A02 integrados: [verificación final por escenario](a03-verificacion-final.md),
+[reglas y comandos](a03-closures.md). Incluye PostgreSQL nativo, pruebas de acciones, carreras,
+scheduler realmente ejecutado en testing y revisión visual; no acredita hosting.
+Evidencia del 22/10 conservada en [a03-verification.md](a03-verification.md).
+Base local bf07b01 (PR #4 de A02), A01 integrado por PR #3/18c7596. Release 0.3.2 conservada.
+
+La evidencia histórica de A02 y sus pendientes físicos están en [a02-verification.md](a02-verification.md).
+El procedimiento está en [a02-geographic-access.md](a02-geographic-access.md).
 
 La implementación final de A01 con tabla, normalización y lectura colectiva se verifica en
 [a01-table-verification.md](a01-table-verification.md). No reutilizar cifras anteriores como evidencia nueva.

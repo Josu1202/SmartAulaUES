@@ -1,5 +1,12 @@
 # SmartAulaUES · Asistencia académica universitaria
 
+**A03 local para revisión, sin release:** rama `feature/p3a-a03-cierres-reapertura` sobre `bf07b01`,
+merge de A02 (PR #4); A01 integrado por PR #3. Finalización diaria de respaldo, cierre de cómputos/ciclos,
+snapshots versionados y reapertura de Coordinación con motivo. Los resultados cerrados se consultan desde
+su snapshot; los reabiertos aparecen En revisión y requieren cierre manual. Una migración incremental,
+sin reiniciar datos ni cambiar la versión 0.3.2. [Reglas, actualización, comandos y contrato para persona 3](docs/a03-closures.md),
+[verificación final por escenario y límites](docs/a03-verificacion-final.md). Sin commit, push, merge ni despliegue.
+
 **Revisión A02 del 22/10:** adquisición de hasta 15 s y diagnóstico con **Medir precisión sin registrar**
 para docente/estudiante, incluso sin portal abierto. Ensayo físico autorizado: radio **30 m**,
 incertidumbre **>0 y ≤10 m por dispositivo**, fórmula **distancia + ambas incertidumbres ≤30 m**.
@@ -7,10 +14,10 @@ Valida proximidad aproximada al docente; no acredita presencia dentro del aula.
 [Pasos sencillos para medir en dispositivos reales](docs/a02-location-measurement.md).
 El usuario reportó precisión insuficiente en los equipos probados; A02 no se considera aceptado físicamente.
 
-**Incremento local A02 para revisión, sin release:** QR/enlace presenciales con referencia fija al abrir
+**A02 integrado en main por PR #4, sin release nueva:** QR/enlace presenciales con referencia fija al abrir
 el portal y radio de 30 m considerando incertidumbre de ambos dispositivos. NFC/manual conservados;
 en línea no solicita ubicación. Evento requiere indicar Presencial o En línea, sin reclasificar datos antiguos.
-A01 integrado en main, base `18c7596`; rama actual `feature/p3a-a02-qr-geolocalizacion`, versión 0.3.2.
+A01 integrado en main, base `18c7596`; la rama de A02 fue `feature/p3a-a02-qr-geolocalizacion`, versión 0.3.2.
 Hay una migración nueva. [Uso, actualización y ensayo físico HTTPS](docs/a02-geographic-access.md),
 [resultados y pendientes](docs/a02-verification.md). Prueba física pendiente; no se certifica GPS.
 
@@ -42,7 +49,7 @@ experiencia, demo, rendimiento y operación. Cada módulo incluye reglas, autori
 75 % de (presentes + justificadas aprobadas) / clases realizadas elegibles. No se atribuye aprobación
 formal de la universidad. En **Materias y grupos → detalle → Resultados de asistencia** se selecciona
 el cómputo y se consulta una tabla por perfil, con denominador, pendientes e incidencias propias.
-El cálculo sigue siendo actualizable; certificación, snapshots, ranking y PDF pertenecen a otros módulos.
+En períodos abiertos el cálculo sigue siendo actualizable; A03 conserva snapshots al cerrar. Ranking y PDF pertenecen a B01/B02.
 La pantalla independiente de política se retiró. Los 2 cómputos de desarrollo se normalizaron mediante
 operación explícita y auditada, conservando datos y fechas. Versiones desconocidas no son alias del reglamento.
 [Contrato y ejemplos ejecutables](docs/attendance-calculation-contract.md),
@@ -330,7 +337,7 @@ Adapta `siaa` al usuario real de tu base. No publiques tu `.env` ni pegues sus c
 6. Otro estudiante solicita permiso con evidencia. Finaliza la clase, verifica ausentes y resuelve el
    permiso. Revisa descarga privada, aviso al titular, bitácora y gráficas actualizadas.
 7. Entra como otro docente/estudiante y comprueba que no accede a esos permisos/evidencias/resultados.
-   Una sesión finalizada o ventana vencida rechaza registros nuevos. Los reportes/cierre siguen pendientes.
+   Una sesión finalizada o ventana vencida rechaza registros nuevos. Cierres según A03; exportaciones PDF/CSV pendientes de B02.
 
 El seed conserva su escenario ficticio inicial: no añade años, portales, credenciales ni presencias
 artificiales. Sus clases tienen fechas fijas; crea tu propio ciclo/grupo/sesión para una prueba de hoy.
@@ -383,7 +390,7 @@ con sufijo `_test` y esquema migrado. La evidencia histórica usa PGlite/PDO; la
 usa Compose/PostgreSQL nativo y se registra en [docs/a01-verification.md](docs/a01-verification.md),
 con conexión exclusiva a `siaa_test` y dos pruebas concurrentes nuevas de lectura consistente.
 pgAdmin, GitHub Actions, Android/etiquetas/HTTPS real y respaldo/restauración requieren aceptación
-en el equipo correspondiente. A01 calcula resultados provisionales; cierre y PDF oficial siguen pendientes.
+en el equipo correspondiente. A01 calcula resultados vivos de períodos abiertos; A03 conserva el cierre y sus versiones. PDF oficial pendiente de B02.
 
 ## Referencias
 

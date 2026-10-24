@@ -27,8 +27,8 @@ class AbsenceWorkflow
         try {
             return DB::transaction(function () use ($actor, $session, $reason, $evidence, &$path): AbsenceRequest {
                 $session = $this->locks->get($session);
-                if ($session->state === SessionState::Cancelled) {
-                    $this->fail('reason', 'La sesión está cancelada.');
+                if (in_array($session->state, [SessionState::Cancelled, SessionState::Unstarted], true)) {
+                    $this->fail('reason', 'La sesión está cancelada o sin inicio registrado.');
                 }
                 $date = $session->starts_at->timezone(config('smartaulaues.display_timezone'))->toDateString();
                 $enrollment = $session->offering->enrollments()->where('student_id', $actor->id)->where('active_from', '<=', $date)->where(fn ($q) => $q->whereNull('active_to')->orWhere('active_to', '>=', $date))->first();
