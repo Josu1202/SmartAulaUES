@@ -112,7 +112,6 @@ class SessionWorkflow
         return DB::transaction(function () use ($session): bool {
             $record = $this->locks->get($session, allowInactive: true);
             if ($record->state !== SessionState::InProgress || $record->started_at === null
-                || $record->started_at->timezone('America/El_Salvador')->toDateString() >= now('America/El_Salvador')->toDateString()
                 || $record->ends_at > now()) {
                 return false;
             }
@@ -120,7 +119,7 @@ class SessionWorkflow
             $this->finalize(null, $record);
             $record->save();
             $this->closePortals($record);
-            $this->audit->record(null, $record, 'session.auto_finished', $before, 'Respaldo diario tras terminar el día local del inicio real.');
+            $this->audit->record(null, $record, 'session.auto_finished', $before, 'Finalización automática al alcanzar el fin programado (UTC).');
 
             return true;
         });
@@ -156,7 +155,10 @@ class SessionWorkflow
 
     private function notifyGroup(ClassSession $session, string $title, string $reason): void
     {
-        foreach ($session->offering->enrollments()->with('student')->get() as $enrollment) {
+        $date = $session->starts_at->timezone(config('smartaulaues.display_timezone'))->toDateString();
+        foreach ($session->offering->enrollments()->with('student')->where('active_from', '<=', $date)
+            ->where(fn ($q) => $q->whereNull('active_to')->orWhere('active_to', '>=', $date))
+            ->whereHas('student', fn ($q) => $q->where('active', true))->get() as $enrollment) {
             $enrollment->student->notify(new AcademicNotice($title, $session->offering->subject->name.': '.$reason, route('sessions.show', $session, absolute: false)));
         }
     }

@@ -19,13 +19,16 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TerminalController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
+Route::get('/health/ready', ReadinessController::class)->name('health.ready');
 Route::get('/check-in/{portal}', [CheckInController::class, 'show'])->name('checkin.show');
-Route::middleware(['auth', 'active', 'auth.session'])->group(function (): void {
+Route::middleware(['auth', 'active', 'auth.session', 'password.changed'])->group(function (): void {
+    Route::view('/student/shared-tag', 'attendance.shared-tag')->middleware('role:student')->name('student.shared-tag');
     Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
     Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
     Route::get('/offerings/{offering}/sessions/create', [SessionController::class, 'create'])->name('offerings.sessions.create');
@@ -80,8 +83,8 @@ Route::middleware(['auth', 'active', 'auth.session'])->group(function (): void {
         Route::resource('formats', CycleFormatController::class)->except(['show', 'destroy']);
         Route::get('/nfc-credentials', [NfcCredentialController::class, 'index'])->name('credentials.index');
         Route::post('/nfc-credentials', [NfcCredentialController::class, 'store'])->middleware('throttle:20,1')->name('credentials.store');
-        Route::post('/nfc-credentials/{credential}/confirm', [NfcCredentialController::class, 'confirm'])->name('credentials.confirm');
-        Route::post('/nfc-credentials/{credential}/revoke', [NfcCredentialController::class, 'revoke'])->name('credentials.revoke');
+        Route::post('/nfc-credentials/{credential}/confirm', [NfcCredentialController::class, 'confirm'])->middleware('throttle:60,1')->name('credentials.confirm');
+        Route::post('/nfc-credentials/{credential}/revoke', [NfcCredentialController::class, 'revoke'])->middleware('throttle:20,1')->name('credentials.revoke');
         Route::get('/offerings/{offering}/students', [EnrollmentController::class, 'batch'])->name('offerings.students');
         Route::post('/offerings/{offering}/students', [EnrollmentController::class, 'storeBatch'])->name('offerings.students.store');
         Route::resource('users', UserController::class)->except(['show', 'destroy']);

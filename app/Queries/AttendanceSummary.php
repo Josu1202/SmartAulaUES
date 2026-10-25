@@ -129,7 +129,7 @@ final class AttendanceSummary
         }
         $report = $version === null ? $period->reports()->find($period->current_report_id) : $period->reports()->where('version', $version)->firstOrFail();
         if (! app(ClosureSnapshot::class)->valid($report, $period)) {
-            throw ValidationException::withMessages(['snapshot' => 'Cierre inconsistente: falta un snapshot válido. Solicita revisión a Coordinación.']);
+            throw ValidationException::withMessages(['snapshot' => 'Cierre inconsistente: no se pueden consultar sus resultados conservados. Solicita revisión a Coordinación.']);
         }
 
         return $report;

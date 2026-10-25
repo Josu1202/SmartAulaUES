@@ -209,7 +209,7 @@ class OfferingManagementTest extends TestCase
         $expected = match ($case) {
             'running' => 'en curso', 'portal' => 'Portal #', 'reader' => 'Lector', 'pending' => 'permisos pendientes',
             'missing' => 'falta el resultado', 'justified' => 'justificación sin permiso aprobado', 'scheduled_evidence' => 'datos contradictorios',
-            'invalid_snapshot' => 'snapshot válido', default => 'fuera del cómputo',
+            'invalid_snapshot' => 'resultados del cierre', default => 'fuera del cómputo',
         };
         if (in_array($case, ['portal', 'reader', 'scheduled_evidence'])) {
             $portal = $session->portals()->create(['opens_at' => now()->subMinutes(5), 'expires_at' => now()->addMinutes(10), 'enabled_methods' => ['nfc'], 'token_hash' => hash('sha256', $case)]);
@@ -260,7 +260,7 @@ class OfferingManagementTest extends TestCase
 
     public static function writes(): array
     {
-        return array_map(fn ($case) => [$case], ['schedule', 'start', 'cancel', 'finish', 'portal', 'reader', 'enroll', 'change_enrollment', 'period', 'offering', 'permission', 'resolve', 'review', 'reopen_decision', 'correct', 'csv']);
+        return array_map(fn ($case) => [$case], ['schedule', 'start', 'cancel', 'finish', 'portal', 'reader', 'enroll', 'change_enrollment', 'period', 'offering', 'permission', 'resolve', 'review', 'reopen_decision', 'correct', 'csv', 'close_period']);
     }
 
     #[DataProvider('writes')]
@@ -288,6 +288,7 @@ class OfferingManagementTest extends TestCase
             'reopen_decision' => app(ReviewSession::class)->reopenDecision($admin, $request, 'No reabrir grupo suspendido'),
             'correct' => app(CorrectAttendance::class)->execute($admin, $attendance, 'present', 'No corregir grupo suspendido'),
             'csv' => app(CsvImporter::class)->confirm($admin, ['kind' => 'enrollments', 'offering_id' => $group->id, 'rows' => []]),
+            'close_period' => app(ClosureWorkflow::class)->closePeriod($admin, $period),
         });
         $this->assertSame('pending', $request->fresh()->status);
         $this->assertSame('absent', $attendance->fresh()->status->value);

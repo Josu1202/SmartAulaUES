@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Attendance\AbsenceWorkflow;
 use App\Models\AbsenceRequest;
 use App\Models\ClassSession;
+use App\Queries\OfferingCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,12 +15,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AbsenceRequestController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, OfferingCatalog $catalog): View
     {
         $data = $request->validate(['status' => ['nullable', 'in:pending,approved,rejected']]);
-        $requests = AbsenceRequest::whereHas('enrollment', fn ($q) => $q->visibleTo($request->user()))->with('session', 'offering.subject', 'enrollment.student')->when($data['status'] ?? null, fn ($q, $status) => $q->where('status', $status))->latest('id')->paginate(15)->withQueryString();
+        $filters = $catalog->filters($request);
+        // Default current/all keeps pending work in suspended groups discoverable.
+        if (! $request->filled('availability')) {
+            $filters['availability'] = 'all';
+        }
+        $requests = AbsenceRequest::whereIn('offering_id', $catalog->query($request->user(), $filters)->select('offerings.id'))->whereHas('enrollment', fn ($q) => $q->visibleTo($request->user()))->with('session', 'offering.subject', 'enrollment.student')->when($data['status'] ?? null, fn ($q, $status) => $q->where('status', $status))->latest('id')->paginate(15)->withQueryString();
 
-        return view('attendance.requests.index', compact('requests'));
+        return view('attendance.requests.index', ['requests' => $requests, 'filters' => $filters, 'cycles' => $catalog->cycles($request->user())]);
     }
 
     public function create(ClassSession $session): View

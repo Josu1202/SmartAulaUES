@@ -22,17 +22,17 @@
         </section>
         <section class="login-form-area">
             <div class="login-form-wrap"><span
-                    class="demo-pill">{{ config('smartaulaues.demo_enabled') ? 'Entorno de demostración' : 'Portal universitario' }}</span>
+                    class="demo-pill">Portal universitario</span>
                 <h2>Bienvenido a {{ config('smartaulaues.name') }}</h2>
                 <p class="text-secondary mb-4">Inicia sesión con tu cuenta asignada.</p>
                 @if ($errors->any())
                     <div class="alert alert-danger" role="alert">{{ $errors->first() }}</div>
                 @endif
                 @if(session('status'))<div class="alert alert-success" role="status">{{ session('status') }}</div>@endif
-                <form method="POST" action="{{ route('login') }}">@csrf
+                <form method="POST" action="{{ route('login') }}"><input type="hidden" name="_form" value="{{ hash('sha256', 'auth/login.blade.php:1'.'|'.(route('login'))) }}">@csrf
                     <div class="mb-3"><label class="form-label" for="email">Correo electrónico</label><input
                             class="form-control form-control-lg @error('email') is-invalid @enderror" id="email"
-                            type="email" name="email" value="{{ old('email') }}"
+                            type="email" name="email" value="{{ \App\Support\FormState::old(hash('sha256', 'auth/login.blade.php:1'.'|'.(route('login'))), 'email') }}"
                             placeholder="tu.correo@universidad.edu.sv" autocomplete="username" required autofocus></div>
                     <div class="mb-3"><label class="form-label" for="password">Contraseña</label>
                         <div class="password-field"><input class="form-control form-control-lg" id="password"

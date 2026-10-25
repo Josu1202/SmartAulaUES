@@ -43,7 +43,7 @@
         </div>@empty<div class="col-12">
                 <div class="card empty-panel"><x-icon name="book" />
                     <h2>No hay grupos en esta vista</h2>
-                    <p>Prueba otro ciclo o estado. Los grupos desactivados se consultan con el filtro Desactivados; los ciclos cerrados, en Historial.</p>
+                    <p>Selecciona otro ciclo o estado. Los grupos desactivados se consultan con el filtro Desactivados; los ciclos cerrados, en Historial.</p>
                 </div>
             </div>
         @endforelse

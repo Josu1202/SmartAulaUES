@@ -15,7 +15,7 @@
                 <div><span>Plazas reservadas / cupo</span><strong>{{ $reservedSeats }} / {{ $offering->capacity }} estudiantes</strong></div>
                 <div><span>Cómputos</span><strong>{{ $offering->periods->count() }}</strong></div>
                 <div><span>Sesiones
-                        programadas</span><strong>{{ $offering->sessions->where('state', \App\Enums\SessionState::Scheduled)->count() }}</strong>
+                        programadas</span><strong>{{ $offering->scheduled_sessions_count }}</strong>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($offering->sessions->sortBy('starts_at') as $session)
+                    @forelse($sessions as $session)
                         <tr>
                             <td>{{ $session->starts_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i') }}
                             </td>
@@ -60,6 +60,7 @@
             </table>
         </div>
     </div>
+    {{ $sessions->links() }}
     @include('academic.offerings.attendance-results')
     <div class="card">
         <div class="card-header d-flex justify-content-between flex-wrap">

@@ -7,6 +7,7 @@
 </head>
 <body>
 <main class="checkin-shell" data-checkin data-portal="{{ $portal->id }}"
+      data-checkin-expires="{{ ($portal->closed_at || $portal->session->state !== \App\Enums\SessionState::InProgress ? now() : min($portal->expires_at, $portal->session->ends_at))->toIso8601String() }}"
       data-geo-required="{{ auth()->check() && $portal->session->effectiveAttendanceModality() === 'in_person' ? 'true' : 'false' }}"
       @include('attendance.geolocation-options') data-method="{{ $method }}"
       data-login-url="{{ route('login') }}" data-submit-url="{{ route('checkin.store', $portal) }}">
@@ -15,10 +16,14 @@
         @auth
             <p class="text-secondary">{{ $portal->session->offering->subject->name }} · {{ $portal->session->starts_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i') }}</p>
             <p>Cuenta: <strong>{{ auth()->user()->name }}</strong></p>
-            @if(!$portal->session->offering->active)
+            @if(auth()->user()->must_change_password)
+                <p class="alert alert-warning">Cambia tu contraseña provisional antes de registrar asistencia. Después vuelve a abrir la etiqueta, el QR o el enlace vigente.</p>
+                <a class="btn btn-primary" href="{{ route('profile') }}">Cambiar contraseña</a>
+            @elseif(!$portal->session->offering->active)
                 <p class="alert alert-warning" role="status">Grupo desactivado. Se conserva la consulta, pero no se admite nueva actividad académica.</p>
                 <a class="btn btn-outline-dark" href="{{ route('offerings.show', $portal->session->offering) }}">Consultar grupo</a>
             @else
+            @if($method === 'nfc_tag')<p class="alert alert-info">Acceso mediante etiqueta compartida. El servidor verifica tu cuenta, inscripción, ventana y ubicación; una URL copiada no demuestra una lectura NFC física.</p>@endif
             @if($portal->session->effectiveAttendanceModality() === 'in_person')
                 <p>Esta clase es presencial. Al pulsar Registrar asistencia se solicitará tu ubicación. La distancia a la referencia del docente más ambas incertidumbres debe ser ≤ {{ config('geolocation.radius_m') }} m. Valida proximidad aproximada al docente; no acredita presencia dentro del aula. Solo se usa para este intento; no se realiza seguimiento.</p>
                 @include('attendance.location-acquisition')
@@ -28,10 +33,10 @@
             @endif
         @else
             <p class="text-secondary">Inicia sesión con tu cuenta de estudiante para continuar con el enlace de esta clase.</p>
-            <form method="POST" action="{{ route('login') }}" data-checkin-login>
+            <form method="POST" action="{{ route('login') }}" data-checkin-login><input type="hidden" name="_form" value="{{ hash('sha256', 'attendance/checkin.blade.php:1'.'|'.(route('login'))) }}">
                 @csrf
-                <x-form-field name="email" label="Correo de estudiante" type="email" required autocomplete="username"/>
-                <x-form-field name="password" label="Contraseña" type="password" required autocomplete="current-password"/>
+                <x-form-field :scope="hash('sha256', 'attendance/checkin.blade.php:1'.'|'.(route('login')))" name="email" label="Correo de estudiante" type="email" required autocomplete="username"/>
+                <x-form-field :scope="hash('sha256', 'attendance/checkin.blade.php:1'.'|'.(route('login')))" name="password" label="Contraseña" type="password" required autocomplete="current-password"/>
                 <button class="btn btn-primary w-100">Iniciar sesión y continuar</button>
             </form>
         @endauth

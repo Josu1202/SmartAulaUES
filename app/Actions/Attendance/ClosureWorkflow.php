@@ -41,9 +41,12 @@ final class ClosureWorkflow
     {
         return DB::transaction(function () use ($period, $actor): AssessmentPeriod {
             $period = $this->lockPeriod($period);
+            if ($actor !== null) {
+                app(AcademicRegistry::class)->requireActiveOffering($period->offering);
+            }
             if ($period->state === 'closed') {
                 if (! $this->snapshots->valid($period->reports()->find($period->current_report_id), $period)) {
-                    $this->fail('El cómputo figura cerrado sin snapshot válido. Coordinación debe reabrirlo y revisar sus datos; no se reconstruye un cierre histórico.');
+                    $this->fail('No se pueden verificar los resultados conservados del cómputo cerrado. Coordinación debe reabrirlo y revisar sus datos.');
                 }
 
                 return $period; // Repeated calls never create another version.
@@ -73,7 +76,12 @@ final class ClosureWorkflow
                     $this->audit->record($actor, $session, 'session.unstarted', $before, 'Clasificada al procesar el cierre del cómputo; no genera resultados.');
                 }
             }
-            $rows = $this->summary->captureForClosure($period);
+            // A pending decision already prevents an automatic close. Check it afresh under
+            // the academic locks, after finalization/classification, before calculating every
+            // enrollment. Manual review still receives the complete academic diagnosis.
+            $pending = $actor === null && AbsenceRequest::where('status', 'pending')
+                ->whereHas('session', fn ($query) => $query->where('period_id', $period->id))->exists();
+            $rows = $pending ? [] : $this->summary->captureForClosure($period);
             $issues = $this->periodIssues($period, $rows);
             if ($issues !== []) {
                 $this->rememberIssues($period, $issues, $actor, 'period.closure_blocked');
@@ -134,7 +142,7 @@ final class ClosureWorkflow
                 $issues[] = 'Sesión #'.$session->id.': programada con datos contradictorios; requiere revisión administrativa.';
             }
             if ($session->state === SessionState::InProgress) {
-                $issues[] = 'Sesión #'.$session->id.': '.($session->started_at === null ? 'sin inicio real fiable; finalízala manualmente o recupera su auditoría.' : ($session->ends_at > now() ? 'horario válido aún vigente, posiblemente cruza medianoche; no se trunca automáticamente.' : 'todavía no terminó el día local de su inicio real.'));
+                $issues[] = 'Sesión #'.$session->id.': '.($session->started_at === null ? 'sin inicio real fiable; finalízala manualmente o recupera su auditoría.' : ($session->ends_at > now() ? 'horario válido aún vigente, posiblemente cruza medianoche; no se trunca automáticamente.' : 'fin programado vencido; requiere procesar la finalización.'));
             }
             if (in_array($session->state, [SessionState::Cancelled, SessionState::Unstarted], true)
                 && ($session->attendances->isNotEmpty() || $session->absenceRequests->contains('status', 'approved') || $session->absenceRequests->contains('status', 'pending') || ($session->state === SessionState::Unstarted && $this->hasStartEvidence($session)))) {

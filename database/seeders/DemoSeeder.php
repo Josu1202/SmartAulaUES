@@ -23,8 +23,8 @@ class DemoSeeder extends Seeder
             throw new RuntimeException('Los datos ficticios solo se permiten en local/testing con DEMO_SEED=true.');
         }
         $password = (string) config('smartaulaues.demo_password');
-        if (strlen($password) < 12) {
-            throw new RuntimeException('Define DEMO_PASSWORD con al menos 12 caracteres antes de sembrar.');
+        if (mb_strlen($password) < 12 || strlen($password) > 72 || str_contains($password, "\0")) {
+            throw new RuntimeException('Define DEMO_PASSWORD con al menos 12 caracteres y hasta 72 bytes UTF-8 antes de sembrar.');
         }
         DB::transaction(function () use ($password): void {
             User::firstOrCreate(['email' => 'coordinacion@siaa.test'], ['name' => 'Coordinación de prueba', 'role' => Role::Coordinator, 'password' => $password, 'active' => true]);
@@ -35,7 +35,7 @@ class DemoSeeder extends Seeder
             $students = [];
             for ($i = 1; $i <= 20; $i++) {
                 $number = str_pad((string) $i, 2, '0', STR_PAD_LEFT);
-                $students[] = User::firstOrCreate(['email' => "estudiante{$number}@siaa.test"], ['name' => "Estudiante de prueba {$number}", 'student_code' => "DEMO-{$number}", 'role' => Role::Student, 'password' => $password, 'active' => true]);
+                $students[] = User::firstOrCreate(['email' => "estudiante{$number}@siaa.test"], ['name' => "Estudiante de prueba {$number}", 'student_code' => "DEMO-{$number}", 'role' => Role::Student, 'password' => $password, 'active' => true, 'entry_year' => 2026 - (($i - 1) % 5), 'study_year' => (($i - 1) % 5) + 1]);
             }
             $cycle = AcademicCycle::firstOrCreate(['code' => '2026-II-DEMO'], ['starts_on' => '2026-08-01', 'ends_on' => '2026-12-15', 'status' => 'active']);
             foreach ([['ACS-DEMO', 'Análisis de sistemas'], ['FAR-DEMO', 'Fundamentos de arquitectura']] as $i => [$code,$name]) {

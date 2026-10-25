@@ -25,10 +25,10 @@
     </section>
     <div class="stat-grid">
         <div class="card stat-card"><span class="stat-icon"><x-icon name="book" /></span><span
-                class="stat-label">{{ $user->role === \App\Enums\Role::Student ? 'Mis materias' : 'Grupos disponibles' }}</span><strong>{{ $offerings->count() }}</strong><small>En
+                class="stat-label">{{ $user->role === \App\Enums\Role::Student ? 'Mis materias' : 'Grupos disponibles' }}</span><strong>{{ $offerings->total() }}</strong><small>En
                 tu espacio académico</small></div>
         <div class="card stat-card"><span class="stat-icon"><x-icon name="users" /></span><span
-                class="stat-label">{{ $user->role === \App\Enums\Role::Student ? 'Mis inscripciones' : ($user->role === \App\Enums\Role::Coordinator ? 'Estudiantes activos' : 'Inscripciones') }}</span><strong>{{ $user->role === \App\Enums\Role::Student ? $offerings->count() : $studentCount }}</strong><small>{{ $user->role === \App\Enums\Role::Teacher ? 'Puede haber estudiantes en varios grupos' : 'Datos del sistema' }}</small>
+                class="stat-label">{{ $user->role === \App\Enums\Role::Student ? 'Mis inscripciones' : ($user->role === \App\Enums\Role::Coordinator ? 'Estudiantes activos' : 'Inscripciones') }}</span><strong>{{ $user->role === \App\Enums\Role::Student ? $offerings->total() : $studentCount }}</strong><small>{{ $user->role === \App\Enums\Role::Teacher ? 'Puede haber estudiantes en varios grupos' : 'Datos del sistema' }}</small>
         </div>
         <div class="card stat-card"><span class="stat-icon"><x-icon name="calendar" /></span><span
                 class="stat-label">Próximas sesiones</span><strong>{{ $sessions->count() }}</strong><small>Hasta 5 próximas
@@ -53,8 +53,9 @@
                         name="arrow" /></a>@empty<div class="empty-small">Aún no tienes grupos asignados.</div>
                 @endforelse
             </div>
+            {{ $offerings->links() }}
             <div class="card-bottom-note"><x-icon
-                    name="info" />{{ config('smartaulaues.demo_enabled') ? 'Escenario académico con datos ficticios.' : 'Se muestran los grupos autorizados para tu cuenta.' }}
+                    name="info" />Se muestran los grupos autorizados para tu cuenta.
             </div>
         </section>
         <section class="card">

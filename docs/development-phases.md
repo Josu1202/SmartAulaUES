@@ -1,5 +1,11 @@
 # Tres fases de desarrollo · SmartAulaUES
 
+Actualización vigente 24/10: A01–A04 integrados por PR #3–#6; base A05 `6273a30`.
+A05 integral de Persona 2 está implementado localmente para revisión en worktree aislado,
+sin release/publicación. [Entrega](a05-entrega.md), [decisiones](a05-decisiones.md) y
+[verificación](a05-verificacion-final.md). Las referencias inferiores a A04 local/A05 pendiente
+son históricas. No se declaran implementados PDF, noticias ni módulos B de Persona 3.
+
 A 23/10/2026: A01/A02/A03 integrados por PR #3/18c7596, #4/bf07b01 y #5/5172b91.
 A04 local en feature/p3a-a04-gestion-grupos: [contrato](a04-group-management.md) y
 [evidencia](a04-verification.md). No release nueva ni integración de A04. Aceptación física A02 y

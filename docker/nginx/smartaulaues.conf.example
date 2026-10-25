@@ -1,0 +1,25 @@
+# Host reverse proxy example. Replace REQUIRED_DOMAIN and provision its valid certificate.
+# Trust only the actual proxy IP/CIDR seen by Laravel, via the private production environment.
+server {
+    listen 80;
+    server_name REQUIRED_DOMAIN;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name REQUIRED_DOMAIN;
+    ssl_certificate /etc/letsencrypt/live/REQUIRED_DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/REQUIRED_DOMAIN/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    client_max_body_size 10m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8086;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 60s;
+    }
+}

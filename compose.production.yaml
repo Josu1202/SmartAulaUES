@@ -1,0 +1,83 @@
+name: ${COMPOSE_PROJECT_NAME:-smartaulaues-production}
+x-environment: &production-environment
+  APP_NAME: SmartAulaUES
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_KEY: ${APP_KEY:?Configura APP_KEY privada y conserva su valor}
+  APP_URL: ${PRODUCTION_APP_URL:?Configura el dominio HTTPS definitivo}
+  APP_LOCALE: es
+  APP_FALLBACK_LOCALE: es
+  DB_CONNECTION: pgsql
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_DATABASE: ${PRODUCTION_DB_DATABASE:-smartaulaues}
+  DB_USERNAME: ${DB_USERNAME:-siaa}
+  DB_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD privada}
+  SESSION_DRIVER: database
+  SESSION_ENCRYPT: "true"
+  SESSION_SECURE_COOKIE: "true"
+  SESSION_HTTP_ONLY: "true"
+  SESSION_SAME_SITE: lax
+  CACHE_STORE: database
+  QUEUE_CONNECTION: sync
+  LOG_CHANNEL: stderr
+  DEMO_SEED: "false"
+  SMARTAULAUES_TRUSTED_PROXIES: ${SMARTAULAUES_TRUSTED_PROXIES:-}
+  MAIL_MAILER: ${MAIL_MAILER:-log}
+  MAIL_HOST: ${MAIL_HOST:-}
+  MAIL_PORT: ${MAIL_PORT:-587}
+  MAIL_SCHEME: ${MAIL_SCHEME:-smtp}
+  MAIL_USERNAME: ${MAIL_USERNAME:-}
+  MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+  MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-}
+  MAIL_FROM_NAME: SmartAulaUES
+services:
+  app:
+    build: {context: ., dockerfile: Dockerfile.production}
+    image: smartaulaues-runtime:${SMARTAULAUES_IMAGE_TAG:-local}
+    restart: unless-stopped
+    init: true
+    environment: *production-environment
+    ports: ["127.0.0.1:${PRODUCTION_HTTP_PORT:-8086}:8080"]
+    volumes: ["private_files:/var/www/html/storage/app"]
+    depends_on:
+      db: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "php", "scripts/check-web-health.php"]
+      interval: 30s
+      timeout: 15s
+      start_period: 90s
+      retries: 3
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PRODUCTION_DB_DATABASE:-smartaulaues}
+      POSTGRES_USER: ${DB_USERNAME:-siaa}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD privada}
+    volumes: ["database:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  scheduler:
+    build: {context: ., dockerfile: Dockerfile.production}
+    image: smartaulaues-runtime:${SMARTAULAUES_IMAGE_TAG:-local}
+    user: www-data
+    command: ["php", "artisan", "schedule:work"]
+    restart: unless-stopped
+    init: true
+    environment: *production-environment
+    volumes: ["private_files:/var/www/html/storage/app"]
+    depends_on:
+      app: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "php", "artisan", "attendance:scheduler-status", "--max-age=180"]
+      interval: 60s
+      timeout: 15s
+      start_period: 120s
+      retries: 3
+volumes:
+  database:
+  private_files:

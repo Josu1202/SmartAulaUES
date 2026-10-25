@@ -1,5 +1,13 @@
 # Decisiones técnicas · 0.3.2
 
+## A05 · reglas vigentes del 24/10
+
+[Decisiones completas](a05-decisiones.md): fin en ends_at UTC y scheduler cada minuto, sin
+espera diaria; egreso explícito; CSV por pestaña y cambio inicial obligatorio; NFC secuencial
+y etiqueta compartida con A02 intacto; reasignación atómica y scopes de formulario. Continúan
+locks, replay, snapshots, privacidad y reaperturas. A01–A04 integrados en la base 6273a30.
+Los registros A03 inferiores sobre día local/cada cinco minutos son históricos sustituidos por A05.
+
 ## A04 · grupos actuales, historial y suspensión administrativa · 23/10
 
 - Historial deriva de ciclo cerrado. Sin bandera de archivo, copia de tablas ni cierre adicional.

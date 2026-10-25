@@ -1,5 +1,20 @@
 # Notas de cambio · estado y asignación
 
+La petición posterior de datos, presentación, rendimiento y operación se implementa sobre
+los mismos avances A05: [estado y evidencia nuevos](operacion-verificacion.md),
+[comandos vigentes](operacion-local-y-produccion.md) y [cuentas](escenarios-y-cuentas-locales.md).
+No modifica la versión ni atribuye como completadas las aceptaciones físicas/hosting de Persona 3.
+
+## Estado vigente A05 · 24/10
+
+Las siete solicitudes transcritas se atienden en A05: textos residuales, año 1–5/Egresado,
+contraseña común con cambio obligatorio, NFC por lote, teléfono con etiqueta compartida,
+fin automático en ends_at y formularios aislados. [Decisiones y límites](a05-decisiones.md),
+[entrega](a05-entrega.md), [evidencia](a05-verificacion-final.md).
+Web NFC no emula una tarjeta; la etiqueta compartida conserva A02 y no acredita por sí sola
+lectura física. NFC/GPS reales y hosting siguen pendientes externos. La espera diaria A03
+queda sustituida expresamente; los registros y la tabla inferiores son históricos.
+
 22/10/2026: A01/A02 integrados por PR #3/#4, base bf07b01. A03 local para revisión:
 la solicitud de finalizar automáticamente se concreta como respaldo al terminar el día local del inicio
 real, sin ampliar ventanas ni finalizar solo por ends_at. Cierres, snapshots y reapertura en

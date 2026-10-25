@@ -1,0 +1,43 @@
+name: smartaulaues-tests
+services:
+  tests:
+    image: smartaulaues-development:local
+    build: .
+    working_dir: /var/www/html
+    command: ["sleep", "infinity"]
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - framework:/var/www/html/storage/framework
+    environment:
+      APP_ENV: testing
+      APP_URL: http://localhost
+      APP_DEBUG: "false"
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: siaa_test
+      DB_USERNAME: ${DB_USERNAME:-siaa}
+      DB_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD privada}
+      SESSION_DRIVER: array
+      CACHE_STORE: array
+      BCRYPT_ROUNDS: 4
+      DEMO_SEED: "false"
+    depends_on:
+      db: {condition: service_healthy}
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: siaa_test
+      POSTGRES_USER: ${DB_USERNAME:-siaa}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD privada}
+    volumes: ["database:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d siaa_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  database:
+  vendor:
+  framework:

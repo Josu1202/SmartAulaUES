@@ -21,11 +21,11 @@ class DashboardStatistics
         $attendances = Attendance::whereIn('offering_id', $ids)->whereHas('session', fn ($q) => $q->whereIn('state', ['in_progress', 'completed']))->whereHas('enrollment', fn ($q) => $q->visibleTo($user));
         $results = (clone $attendances)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
         $methods = (clone $attendances)->where('status', 'present')->whereNotNull('method')->selectRaw('method, count(*) as total')->groupBy('method')->pluck('total', 'method');
-        $years = $user->role === Role::Coordinator ? User::where('role', 'student')->where('active', true)->selectRaw('study_year, count(*) as total')->groupBy('study_year')->orderBy('study_year')->get()->mapWithKeys(fn ($row) => [$row->study_year ? $row->study_year.'º año' : 'Sin asignar' => $row->total])->all() : [];
+        $years = $user->role === Role::Coordinator ? User::where('role', 'student')->where('active', true)->selectRaw('study_year, graduated, count(*) as total')->groupBy('study_year', 'graduated')->orderBy('study_year')->get()->mapWithKeys(fn ($row) => [$row->graduated ? 'Egresados' : ($row->study_year ? $row->study_year.'º año' : 'Sin asignar') => $row->total])->all() : [];
 
         return ['sessions' => ['Programadas' => (int) ($sessions['scheduled'] ?? 0), 'En curso' => (int) ($sessions['in_progress'] ?? 0), 'Finalizadas' => (int) ($sessions['completed'] ?? 0), 'Canceladas' => (int) ($sessions['cancelled'] ?? 0), 'Sin inicio registrado' => (int) ($sessions['unstarted'] ?? 0)],
             'results' => ['Presentes' => (int) ($results['present'] ?? 0), 'Ausentes' => (int) ($results['absent'] ?? 0), 'Justificadas' => (int) ($results['justified'] ?? 0)],
-            'methods' => ['NFC' => (int) ($methods['nfc'] ?? 0), 'QR' => (int) ($methods['qr'] ?? 0), 'Enlace' => (int) ($methods['link'] ?? 0), 'Manual' => (int) ($methods['manual'] ?? 0)], 'years' => $years,
+            'methods' => ['NFC' => (int) ($methods['nfc'] ?? 0), 'Etiqueta compartida (declarado)' => (int) ($methods['nfc_tag'] ?? 0), 'QR' => (int) ($methods['qr'] ?? 0), 'Enlace' => (int) ($methods['link'] ?? 0), 'Manual' => (int) ($methods['manual'] ?? 0)], 'years' => $years,
             'pending_requests' => AbsenceRequest::whereIn('offering_id', $ids)->where('status', 'pending')->whereHas('enrollment', fn ($q) => $q->visibleTo($user))->count()];
     }
 }

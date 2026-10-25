@@ -38,9 +38,9 @@
             <div class="sidebar-section-title">TERMINAL MÓVIL</div>
             <a href="{{ route('terminal.index') }}"
                 class="sidebar-link {{ request()->routeIs('terminal.*') ? 'active' : '' }}"><x-icon
-                    name="nfc" />Terminal y prueba NFC</a>
+                    name="nfc" />Terminal NFC</a>
         @endif
-    </nav>
+    @if(auth()->user()?->role === \App\Enums\Role::Student)<a class="nav-link" href="{{ route('student.shared-tag') }}">Leer etiqueta compartida</a>@endif</nav>
     <div class="sidebar-bottom"><span
             class="sidebar-dot"></span>{{ auth()->user()->role->label() }}<small>v{{ config('smartaulaues.version') }}</small>
     </div>

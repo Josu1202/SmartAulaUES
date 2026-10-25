@@ -40,13 +40,13 @@ export function initializeNfcDiagnostic(root) {
     if (!("NDEFReader" in window)) {
         start.disabled = true;
         show(
-            "Este navegador no ofrece Web NFC. Prueba con Chrome en un Android con NFC habilitado.",
+            "Este navegador no permite leer etiquetas. Usa Chrome en un Android con NFC habilitado.",
             "error",
         );
         return;
     }
     show(
-        "El navegador ofrece Web NFC. Inicia la lectura para comprobar el dispositivo.",
+        "Este navegador permite leer etiquetas. Inicia la lectura para comprobar el dispositivo.",
     );
     start.addEventListener("click", async () => {
         if (controller) return;
@@ -65,9 +65,9 @@ export function initializeNfcDiagnostic(root) {
                     count++;
                     show(
                         kind === "smartaulaues"
-                            ? `Etiqueta SmartAulaUES reconocida. Lectura ${count}. Esta prueba no registra asistencias.`
+                            ? `Etiqueta SmartAulaUES reconocida. Lectura ${count}. Esta lectura no registra asistencias.`
                             : kind === "unreadable"
-                              ? "El contenido no pudo interpretarse. Prueba otra etiqueta."
+                              ? "El contenido no pudo interpretarse. Acerca otra etiqueta."
                               : "Etiqueta NDEF leída. Su contenido no corresponde al formato SmartAulaUES.",
                         kind === "unreadable" ? "error" : "reading",
                     );
@@ -91,7 +91,7 @@ export function initializeNfcDiagnostic(root) {
                 show(
                     error.name === "NotAllowedError"
                         ? "El permiso NFC fue denegado. Revisa los permisos del navegador."
-                        : "No se pudo iniciar NFC. Comprueba el hardware y que NFC esté encendido.",
+                        : "No se pudo iniciar NFC. Comprueba que tu dispositivo tiene NFC y que está encendido.",
                     "error",
                 );
                 controller = null;
@@ -105,7 +105,7 @@ export function initializeNfcDiagnostic(root) {
         controller = null;
         start.disabled = false;
         stop.disabled = true;
-        show("Lector detenido. Puedes iniciar otra prueba.");
+        show("Lector detenido. Puedes iniciar otra lectura.");
     };
     stop.addEventListener("click", stopReading);
     document.addEventListener("visibilitychange", () => {

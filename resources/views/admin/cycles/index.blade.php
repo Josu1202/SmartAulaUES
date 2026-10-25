@@ -30,9 +30,9 @@
                                 @if($cycle->closed_at)<p class="mt-2">Cerrado el {{ $cycle->closed_at->timezone(config('smartaulaues.display_timezone'))->format('d/m/Y H:i') }}</p>@endif
                                 @if($cycle->closure_issues)<details class="mt-2"><summary>Impedimentos del último intento</summary><ul class="mt-2">@foreach($cycle->closure_issues as $issue)<li>{{ $issue }}</li>@endforeach</ul><a href="{{ route('offerings.index') }}">Consultar grupos</a></details>@endif
                                 @if($cycle->status === 'closed')
-                                    <details class="mt-2"><summary>Reabrir ciclo</summary><form method="POST" action="{{ route('admin.cycles.reopen', $cycle) }}" class="mt-2">@csrf<x-form-field name="reason" :id="'cycle-reopen-'.$cycle->id" label="Motivo de reapertura" required minlength="5" maxlength="1000" /><button class="btn btn-sm btn-outline-dark">Reabrir ciclo</button></form></details>
+                                    <details class="mt-2"><summary>Reabrir ciclo</summary><form method="POST" action="{{ route('admin.cycles.reopen', $cycle) }}" class="mt-2"><input type="hidden" name="_form" value="{{ hash('sha256', 'admin/cycles/index.blade.php:1'.'|'.(route('admin.cycles.reopen', $cycle))) }}">@csrf<x-form-field :scope="hash('sha256', 'admin/cycles/index.blade.php:1'.'|'.(route('admin.cycles.reopen', $cycle)))" name="reason" :id="'cycle-reopen-'.$cycle->id" label="Motivo de reapertura" required minlength="5" maxlength="1000" /><button class="btn btn-sm btn-outline-dark">Reabrir ciclo</button></form></details>
                                 @elseif($cycle->ends_on->toDateString() < now('America/El_Salvador')->toDateString())
-                                    <form method="POST" action="{{ route('admin.cycles.close', $cycle) }}" class="mt-2">@csrf<button class="btn btn-sm btn-primary">Validar y cerrar ciclo</button></form>
+                                    <form method="POST" action="{{ route('admin.cycles.close', $cycle) }}" class="mt-2"><input type="hidden" name="_form" value="{{ hash('sha256', 'admin/cycles/index.blade.php:2'.'|'.(route('admin.cycles.close', $cycle))) }}">@csrf<button class="btn btn-sm btn-primary">Validar y cerrar ciclo</button></form>
                                 @endif
                             </td>
                     </tr>@empty<tr>

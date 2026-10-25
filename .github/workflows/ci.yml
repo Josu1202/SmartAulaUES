@@ -50,6 +50,9 @@ jobs:
       - run: npm test
       - run: php scripts/check-test-database.php
       - run: php artisan test --compact --display-warnings --fail-on-warning
+      - run: php scripts/verify-a05-upgrade.php --env=testing
       - run: php tests/Concurrency/attendance-races.php --env=testing
       - run: php tests/Concurrency/attendance-summary.php --env=testing
       - run: php tests/Concurrency/academic-closures.php --env=testing
+      - run: php tests/Concurrency/offering-management.php --env=testing
+      - run: php tests/Concurrency/a05-integration.php --env=testing

@@ -8,6 +8,21 @@ use Tests\TestCase;
 
 class AuditLocaleTest extends TestCase
 {
+    public function test_expanded_audit_values_are_readable_without_changing_the_original_record_or_exposing_secrets(): void
+    {
+        $actor = User::factory()->coordinator()->create();
+        $payload = ['entry_year' => 2026, 'must_change_password' => true, 'role' => 'student', 'starts_on' => '2026-10-24',
+            'started_at' => '2026-10-25T04:00:00Z', 'enabled_methods' => ['link', 'nfc_tag'],
+            'periods' => [['number' => 1, 'ends_on' => '2026-10-24']], 'password' => 'SECRET_NOT_PUBLIC', 'token_hash' => 'SECRET_NOT_PUBLIC'];
+        $log = AuditLog::create(['actor_id' => $actor->id, 'entity_type' => 'User', 'entity_id' => (string) $actor->id, 'action' => 'user.updated', 'after' => $payload]);
+        $stored = $log->fresh()->after;
+        $this->actingAs($actor)->get('/admin/audit')->assertOk()->assertSee('Año de ingreso: 2026')->assertSee('Cambio de contraseña obligatorio: Sí')
+            ->assertSee('Perfil: Estudiante')->assertSee('Fecha inicial: 24/10/2026')->assertSee('Inicio real: 24/10/2026 22:00:00')
+            ->assertSee('Métodos de registro: Enlace; Etiqueta compartida (declarado)')->assertSee('Número de cómputo: 1')
+            ->assertDontSee('entry_year')->assertDontSee('must_change_password')->assertDontSee('SECRET_NOT_PUBLIC')->assertDontSee('token_hash');
+        $this->assertSame($stored, $log->fresh()->after);
+    }
+
     public function test_audit_page_and_filters_work_when_the_active_locale_has_no_audit_translations(): void
     {
         $actor = User::factory()->coordinator()->create();

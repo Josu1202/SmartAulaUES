@@ -30,7 +30,7 @@ class PortalManager
             }
             $reference = null;
             try {
-                if (array_intersect(['qr', 'link'], $methods) && $this->geography->requiresLocation($record)) {
+                if (array_intersect(['qr', 'link', 'nfc_tag'], $methods) && $this->geography->requiresLocation($record)) {
                     $reference = $this->geography->reading($location);
                 }
             } catch (RegistrationRejected $exception) {
@@ -64,7 +64,7 @@ class PortalManager
             $session = $this->locks->get($portal->session);
             Gate::forUser($actor)->authorize('update', $session);
             $portal = AttendancePortal::lockForUpdate()->findOrFail($portal->id);
-            if ($portal->closed_at || $portal->opens_at > now() || $portal->expires_at <= now() || ! in_array('nfc', $portal->enabled_methods) || $session->state !== SessionState::InProgress) {
+            if ($portal->closed_at || $portal->opens_at > now() || $portal->expires_at <= now() || $session->starts_at > now() || $session->ends_at <= now() || ! in_array('nfc', $portal->enabled_methods) || $session->state !== SessionState::InProgress) {
                 $this->fail('portal_id', 'El portal NFC no está vigente.');
             }
             $reader = $portal->readerSessions()->create(['id' => (string) Str::uuid(), 'teacher_id' => $actor->id, 'label' => $label, 'expires_at' => $portal->expires_at, 'state' => 'active']);

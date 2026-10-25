@@ -42,6 +42,11 @@ class CredentialManager
         DB::transaction(function () use ($actor, $credential, $token): void {
             $student = User::lockForUpdate()->findOrFail($credential->user_id);
             $credential = NfcCredential::lockForUpdate()->findOrFail($credential->id);
+            // Lost successful responses are safe to retry; revoked replacements never reactivate.
+            if ($student->active && $student->role === Role::Student && $credential->state === 'active'
+                && hash_equals($credential->token_hash, hash('sha256', $token))) {
+                return;
+            }
             if (! $student->active || $student->role !== Role::Student || $credential->state !== 'pending' || $credential->pending_expires_at <= now() || ! hash_equals($credential->token_hash, hash('sha256', $token))) {
                 $this->fail('credential_token', 'La etiqueta no coincide, el alta venció o la cuenta está inactiva.');
             }
