@@ -40,6 +40,24 @@ final class OfferingLifecycle
     }
 
     /** Diagnostic only. Mutation always repeats these checks inside the locked transaction. */
+    public function diagnosticIssues(Offering $offering): array
+    {
+        $issues = [];
+        if ($offering->sessions()->where('state', 'in_progress')->exists()) {
+            $issues[] = 'Hay sesiones en curso: finalízalas antes de desactivar.';
+        }
+        if (AttendancePortal::whereHas('session', fn ($q) => $q->where('offering_id', $offering->id))->whereNull('closed_at')->exists()
+            || ReaderSession::whereHas('portal.session', fn ($q) => $q->where('offering_id', $offering->id))->where('state', 'active')->exists()) {
+            $issues[] = 'Hay recursos de registro sin cerrar. Cierra los vigentes o usa Cerrar recursos vencidos.';
+        }
+        if (AbsenceRequest::where('offering_id', $offering->id)->where('status', 'pending')->exists()) {
+            $issues[] = 'Hay permisos pendientes: resuélvelos antes de desactivar.';
+        }
+
+        return $issues;
+    }
+
+    /** Full atomic validation, only for a confirmed mutation. */
     public function deactivationIssues(Offering $offering): array
     {
         return DB::transaction(function () use ($offering): array {
@@ -61,7 +79,7 @@ final class OfferingLifecycle
                 $period->setRelation('offering', $offering);
                 if ($period->state === 'closed') {
                     if (! $this->snapshots->valid($period->reports()->find($period->current_report_id), $period)) {
-                        $issues[] = 'Cómputo '.$period->number.': cierre sin snapshot válido; reabre ciclo/cómputo y revisa sus datos.';
+                        $issues[] = 'Cómputo '.$period->number.': no se pueden verificar los resultados del cierre; reabre el ciclo y el cómputo y revisa sus datos.';
                     }
 
                     continue; // Closed results are never recalculated for A04.

@@ -18,7 +18,7 @@ class CsvImportTest extends TestCase
 
     private function previewUsers(string $content): void
     {
-        $this->post('/admin/imports/preview', ['kind' => 'users', 'file' => $this->csv($content), 'initial_password' => 'Csv-password-2026!', 'initial_password_confirmation' => 'Csv-password-2026!'])->assertSessionHasNoErrors()->assertRedirect('/admin/imports');
+        $this->post('/admin/imports/preview', ['kind' => 'users', 'file' => $this->csv($content), 'initial_password' => 'Csv-password-2026!', 'initial_password_confirmation' => 'Csv-password-2026!'])->assertSessionHasNoErrors()->assertRedirectContains('/admin/imports');
     }
 
     public function test_preview_does_not_write_and_confirmation_creates_the_entire_batch(): void
@@ -26,7 +26,7 @@ class CsvImportTest extends TestCase
         $this->actingAs(User::factory()->coordinator()->create());
         $this->previewUsers("name,email,role,student_code\n\"Nombre, compuesto\",student@example.test,student,ST001\nDocente,teacher@example.test,teacher,\n");
         $this->assertDatabaseCount('users', 1);
-        $preview = session('academic_import');
+        $preview = session('academic_imports.'.session('academic_import_id'));
         $this->assertStringNotContainsString('Csv-password-2026!', json_encode($preview));
         $this->assertTrue(Hash::check('Csv-password-2026!', $preview['password_hash']));
         $this->get('/admin/imports')->assertOk()->assertSee('Nombre, compuesto')->assertSee('Listo para confirmar');
@@ -34,7 +34,7 @@ class CsvImportTest extends TestCase
         $this->assertDatabaseCount('users', 3);
         $this->assertDatabaseCount('audit_logs', 3);
         $this->assertTrue(Hash::check('Csv-password-2026!', User::where('student_code', 'ST001')->sole()->password));
-        $this->assertNull(session('academic_import'));
+        $this->assertNull(session('academic_imports.'.session('academic_import_id')));
         $this->post('/admin/imports/confirm', ['nonce' => $preview['nonce']])->assertSessionHasErrors('file');
         $this->assertDatabaseCount('users', 3);
     }
@@ -43,7 +43,7 @@ class CsvImportTest extends TestCase
     {
         $this->actingAs(User::factory()->coordinator()->create());
         $this->post('/admin/imports/preview', ['kind' => 'users', 'file' => $this->csv("email,name,role,student_code\nx@example.test,Nombre,student,X001\n"), 'initial_password' => 'Csv-password-2026!', 'initial_password_confirmation' => 'Csv-password-2026!'])->assertSessionHasErrors('file');
-        $this->assertNull(session('academic_import'));
+        $this->assertNull(session('academic_imports.'.session('academic_import_id')));
         $this->assertDatabaseCount('users', 1);
     }
 
@@ -52,7 +52,7 @@ class CsvImportTest extends TestCase
         $this->actingAs(User::factory()->coordinator()->create());
         $this->previewUsers("name,email,role,student_code\nUno,one@example.test,student,D001\nDos,ONE@example.test,student,D001\n");
         $this->get('/admin/imports')->assertOk()->assertSee('Requiere correcciones')->assertSee('Correo duplicado');
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasErrors('file');
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasErrors('file');
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseCount('audit_logs', 0);
     }
@@ -63,7 +63,7 @@ class CsvImportTest extends TestCase
         $hash = $existing->password;
         $this->actingAs(User::factory()->coordinator()->create());
         $this->previewUsers("name,email,role,student_code\nOtro,existing@example.test,student,X001\nAdmin,new@example.test,coordinator,\n");
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasErrors('file');
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasErrors('file');
         $this->assertSame($hash, $existing->fresh()->password);
         $this->assertDatabaseCount('users', 2);
     }
@@ -73,7 +73,7 @@ class CsvImportTest extends TestCase
         $this->actingAs(User::factory()->coordinator()->create());
         $this->previewUsers("name,email,role,student_code\nPrimero,first@example.test,student,F001\nSegundo,second@example.test,student,S001\n");
         User::factory()->create(['email' => 'second@example.test', 'student_code' => 'OTHER001']);
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasErrors('file');
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasErrors('file');
         $this->assertDatabaseMissing('users', ['email' => 'first@example.test']);
         $this->assertDatabaseCount('users', 2);
         $this->assertDatabaseCount('audit_logs', 0);
@@ -88,7 +88,7 @@ class CsvImportTest extends TestCase
         $this->actingAs(User::factory()->coordinator()->create());
         $this->post('/admin/imports/preview', ['kind' => 'enrollments', 'offering_id' => $offering->id, 'file' => $this->csv("student_code,active_from,active_to\nST001,2026-01-01,\nST002,2026-01-01,\n")])->assertSessionHasNoErrors();
         $this->get('/admin/imports')->assertOk()->assertSee('supera el cupo');
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasErrors('file');
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasErrors('file');
         $this->assertDatabaseCount('enrollments', 0);
         $this->post('/admin/imports/preview', ['kind' => 'enrollments', 'offering_id' => $offering->id, 'file' => $this->csv("student_code,active_from,active_to\nST001,2025-12-01,\n")])->assertSessionHasNoErrors();
         $this->get('/admin/imports')->assertSee('dentro de las fechas del ciclo');
@@ -100,7 +100,7 @@ class CsvImportTest extends TestCase
         $student = User::factory()->create(['student_code' => 'ST001']);
         $this->actingAs(User::factory()->coordinator()->create());
         $this->post('/admin/imports/preview', ['kind' => 'enrollments', 'offering_id' => $offering->id, 'file' => $this->csv("student_code,active_from,active_to\nst001,2026-01-01,\n")])->assertSessionHasNoErrors();
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasNoErrors();
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasNoErrors();
         $this->assertDatabaseHas('enrollments', ['offering_id' => $offering->id, 'student_id' => $student->id]);
         $this->assertDatabaseCount('audit_logs', 2);
     }
@@ -113,7 +113,7 @@ class CsvImportTest extends TestCase
         $this->actingAs(User::factory()->coordinator()->create());
         $this->post('/admin/imports/preview', ['kind' => 'enrollments', 'offering_id' => $offering->id, 'file' => $this->csv("student_code,active_from,active_to\nST001,2026-01-01,\n")])->assertSessionHasNoErrors();
         Enrollment::factory()->create(['offering_id' => $offering->id]);
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasErrors('file');
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasErrors('file');
         $this->assertDatabaseCount('enrollments', 1);
     }
 
@@ -121,7 +121,7 @@ class CsvImportTest extends TestCase
     {
         $this->actingAs(User::factory()->coordinator()->create());
         $this->previewUsers("name,email,role,student_code\nNuevo,new@example.test,student,NEW001\n");
-        $nonce = session('academic_import.nonce');
+        $nonce = session('academic_imports.'.session('academic_import_id').'.nonce');
         $this->post('/admin/imports/confirm', ['nonce' => str_repeat('x', 40)])->assertSessionHasErrors('file');
         $this->travel(16)->minutes();
         $this->post('/admin/imports/confirm', ['nonce' => $nonce])->assertSessionHasErrors('file');

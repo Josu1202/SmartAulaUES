@@ -1,4 +1,9 @@
-# A03 · finalización diaria, cierres y revisión administrativa
+# A03 · finalización automática, cierres y revisión administrativa
+
+**Regla vigente A05 (24/10):** sustituye la espera diaria original por finalización al alcanzar
+`ends_at` UTC en la siguiente ejecución, cada minuto. Inicio real fiable sigue siendo obligatorio;
+programadas sin inicio no generan ausencias. [Decisiones A05](a05-decisiones.md) y
+[operación de entrega](a05-entrega.md) prevalecen sobre los registros históricos de verificación A03.
 
 Continuidad del 24/10: A03 está integrado por PR #5 (`5172b91`). [A04](a04-group-management.md)
 clasifica Historial por ciclo cerrado y añade suspensión administrativa independiente. El scheduler
@@ -24,17 +29,16 @@ La integración de A02 no demuestra aceptación física de GPS/HTTPS; continúa 
 
 Instantes en UTC; días académicos en `America/El_Salvador`. Se guarda `started_at` al iniciar
 realmente una sesión y `finalized_at` al procesar su finalización, sin simular medianoche.
-Una sesión en curso es elegible para el respaldo desde las 00:00 del día siguiente al inicio real.
-Llegar a `ends_at` no dispara la finalización y no se esperan 24 horas desde el inicio.
+Una sesión en curso con inicio fiable es elegible desde `ends_at <= now()` en UTC.
+No espera medianoche ni 24 horas desde su inicio. El registro usa intervalo final exclusivo;
+una nueva escritura se rechaza al alcanzar `ends_at`, aunque el scheduler aún no la finalizó.
 
-**Excepción explícita del calendario existente:** SessionWorkflow permite horarios que atraviesan
-medianoche. Al ser elegible el respaldo a medianoche, si el horario válido aún está vigente,
-no se trunca la clase: se procesa a partir de su fin programado en una ejecución posterior.
-La pantalla explica esta incompatibilidad y el cierre del cómputo muestra el impedimento.
+**Calendario que cruza medianoche:** SessionWorkflow conserva la fecha/hora completas de fin.
+No se trunca la clase a medianoche: se procesa desde su `ends_at` real en una ejecución posterior.
 La finalización manual con motivo anticipado mantiene las reglas actuales.
 
 Las ventanas de QR/enlace/NFC/manual siguen limitadas por horario, portal, lector y autorización.
-Mantener una sesión en curso hasta el día siguiente no admite registros posteriores a su horario.
+Un retraso del procesador no admite registros posteriores al horario autorizado.
 A02 conserva radio 30 m, incertidumbre individual >0 y ≤10 m y fórmula
 `distancia + precisión docente + precisión estudiante ≤30 m`. No se modifican geolocalización ni NFC.
 
@@ -180,12 +184,14 @@ docker compose exec -T app php artisan schedule:list
 docker compose exec -T app php artisan attendance:process-closures
 ```
 
-La tarea se intenta cada cinco minutos y recupera registros vencidos aunque se haya perdido la
-ejecución de medianoche. Cada sesión/cómputo/ciclo se procesa en su transacción, no en una transacción
+La tarea se intenta cada minuto y recupera registros vencidos aunque se haya detenido el scheduler.
+Cada sesión/cómputo/ciclo se procesa en su transacción, no en una transacción
 global del lote. Un fallo operativo se registra y no impide procesar recursos independientes; el comando
 devuelve fallo si hubo errores operativos. Los impedimentos académicos quedan visibles para resolver.
-`withoutOverlapping(30)` reduce solapamientos; los locks PostgreSQL y la versión única protegen las
-operaciones aun con invocaciones manuales concurrentes. La limpieza geográfica diaria de A02 se conserva.
+El advisory lock global PostgreSQL del comando evita procesadores solapados, incluidas invocaciones
+manuales. A05 retira el lock de caché de treinta minutos que podía impedir recuperar un worker
+terminado abruptamente; los locks de recursos y la versión única conservan su protección.
+La limpieza geográfica diaria de A02 se conserva.
 
 Hosting: habilitar cron una vez por minuto en la instalación correcta, usuario con permisos de
 aplicación, PHP/extensiones del proyecto, configuración y BD correctas y caché compartida operativa:
@@ -220,7 +226,7 @@ RefreshDatabase está autorizado exclusivamente para `siaa_test` desechable tras
 ## Revisión manual breve
 
 1. Docente inicia una clase en horario: detalle muestra inicio real. Tras el horario ya no admite
-   registros; la finalización manual conserva reglas y el respaldo espera terminar el día local.
+   registros; la finalización manual conserva reglas y el procesador finaliza desde ends_at.
 2. En datos de prueba de un cómputo vencido, ejecutar el comando: programadas sin contradicción
    pasan a Sin inicio registrado; permisos pendientes o resultados incompletos bloquean el cierre.
 3. Resolver permisos o revisar finalización con Coordinación y motivo. Reintentar: cierre con

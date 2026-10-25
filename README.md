@@ -1,5 +1,23 @@
 # SmartAulaUES · Asistencia académica universitaria
 
+**Estado local para revisión:** actualización del mismo SmartAulaUES, versión 0.3.2,
+rama `feature/p3a-a05-integracion-final` sobre A01–A04 integrados. Sin commit, push, PR o release.
+El checkout habitual y su entorno se conservan; los cambios siguen aislados en `../SmartAulaUES-A05`.
+
+**Acceso:** http://127.0.0.1:8085/login. Web y scheduler arrancan mediante el Compose versionado.
+[Guía única de operación local y producción](docs/operacion-local-y-produccion.md),
+[52 cuentas y recorridos](docs/escenarios-y-cuentas-locales.md),
+[verificación y rendimiento](docs/operacion-verificacion.md),
+[inventario para commit futuro](docs/operacion-inventario.csv).
+Las pruebas tienen su propia BD; la imagen Apache se distingue del servidor de desarrollo.
+Se conservan la integración académica, snapshots y geolocalización, con textos y errores completos
+en español, datos relativos y preparación repetible. NFC/GPS físicos y hosting definitivo
+requieren aceptación externa. PDF/CSV de resultados, ranking y noticias siguen pendientes.
+Las secciones históricas inferiores describen entregas anteriores; para comandos y cuentas
+actuales utiliza la guía de operación.
+
+El bloque siguiente conserva el registro histórico de A04 antes de su integración mediante PR #6.
+
 **A04 local para revisión, sin release:** rama `feature/p3a-a04-gestion-grupos`, base `5172b91`
 (A03 integrado mediante PR #5; A01/A02 por PR #3/#4). Materias y grupos distingue Actuales e Historial
 por estado del ciclo, conserva ciclos vencidos abiertos y permite consultar desactivados con filtro.
@@ -69,7 +87,7 @@ operación explícita y auditada, conservando datos y fechas. Versiones desconoc
 | --- | --- | --- | --- |
 | 1. Organización académica | Usuario, miembro 1 | Cuentas/acceso, ciclos, materias, grupos/docentes/cupos, cómputos, inscripciones/retiros, CSV y auditoría | Implementada en v0.2.0; conservada y ampliada |
 | 2. Clases, asistencia y permisos | Miembro 2 | Directorios separados, años de estudiantes, formatos de ciclos, sesiones, credenciales y lector NFC, QR/enlace/manual, ausencias, permisos/evidencias, correcciones y avisos internos | Implementada en v0.3.0; aceptación NFC física pendiente; evidencia Compose/PostgreSQL en docs/a01-verification.md |
-| 3A. Integridad y registro | Integrante 2 | A01–A05 | A01 integrado; A02 local y aceptación física pendiente; A03–A05 pendientes |
+| 3A. Integridad y registro | Integrante 2 | A01–A05 | A01–A04 integrados; A05 local verificado; aceptación física A02 pendiente |
 | 3B. Seguimiento y entrega | Integrante 3 | B01–B07, consumiendo cálculo/snapshot de A | Pendiente |
 
 El alcance de v0.3.0 reúne funciones de fase 2 que antes se sugerían como varios incrementos.
@@ -208,129 +226,16 @@ Extrae el ZIP aparte, copia sus fuentes a una rama de tu checkout y conserva `.g
 almacenamiento privado y volumen. Instala dependencias, compila, limpia caché y ejecuta `php artisan migrate`.
 **No uses migrate:fresh, key:generate ni down -v para actualizar.** No necesitas repetir el seeder.
 
-## Instalación nueva con Docker: Windows, Linux o macOS
+## Instalación y uso cotidiano
 
-Requiere Docker Desktop/Engine con Compose. Comandos desde la carpeta `SmartAulaUES` extraída.
+Todos los comandos vigentes, requisitos, preparación privada, dependencias, assets, migraciones,
+seeder, arranque y reinicios están en [la guía única](docs/operacion-local-y-produccion.md).
+Incluye reconstrucción protegida de la BD local, suites aisladas, diagnóstico, Apache/HTTPS/proxy,
+respaldo/restauración y regreso a la carpeta habitual después de integrar la rama.
+No hay que iniciar un servidor manual dentro de un contenedor encendido.
 
-1. Copia `.env.example` a `.env`. PowerShell: `Copy-Item .env.example .env`.
-2. Define contraseñas nuevas en `DB_PASSWORD` y `DEMO_PASSWORD`. La segunda requiere al menos
-   12 caracteres. Conserva `APP_ENV=local`, `DB_CONNECTION=pgsql` y `DEMO_SEED=true` para la demo.
-3. Ejecuta:
-
-```bash
-docker compose up -d db
-docker compose build app
-docker compose run --rm app composer install
-docker compose run --rm app php artisan key:generate
-docker compose run --rm app php artisan migrate --seed
-docker compose run --rm node npm ci
-docker compose run --rm node npm run build
-docker compose up -d app
-```
-
-Abre **http://localhost:8080**. PostgreSQL publica **55432** en tu equipo. Dentro de Docker la aplicación
-usa **db:5432**. `--no-reload` en Dockerfile conserva esa dirección en el proceso HTTP; no lo elimines.
-Si 8080 está ocupado, añade `APP_PORT=8090` y usa `APP_URL=http://localhost:8090` en `.env`.
-Los puertos se publican únicamente en el equipo local. Este Compose es de desarrollo.
-
-```bash
-docker compose run --rm app php artisan test --compact
-docker compose run --rm node npm test
-docker compose stop
-```
-
-El volumen nuevo crea `siaa_test`. Si tu volumen ya existía y falta esa base:
-`docker compose exec db createdb -U siaa siaa_test` (adapta el usuario si lo cambiaste).
-La base de pruebas debe usarse exclusivamente para pruebas, que recrean sus tablas.
-`docker compose stop` conserva datos. **`docker compose down -v` elimina los volúmenes** y no es parte del arranque.
-
-### pgAdmin opcional
-
-La aplicación administra usuarios/grupos desde sus formularios. pgAdmin sirve para inspeccionar la BD;
-PostgreSQL y Laravel gestionan los datos y migraciones aunque pgAdmin no se inicie.
-
-Añade a tu `.env` un `PGADMIN_PASSWORD` nuevo, `PGADMIN_EMAIL=admin@example.com` y `PGADMIN_PORT=5050`.
-Si copiaste `.env.example` estos campos ya existen; solo falta la contraseña.
-
-```bash
-docker compose --profile tools up -d pgadmin
-```
-
-Abre **http://localhost:5050**, entra con `PGADMIN_EMAIL`/`PGADMIN_PASSWORD` y abre el servidor
-**SmartAulaUES · desarrollo**. Para conectar a PostgreSQL introduce **DB_PASSWORD**, que es una contraseña
-diferente de la del portal pgAdmin. El servidor precargado usa host `db`, puerto `5432`, base/usuario `siaa`.
-Si personalizaste DB_DATABASE/DB_USERNAME, edita la conexión en pgAdmin. No guardes contraseñas en servers.json.
-No cambies tablas manualmente como sustituto de una migración versionada.
-
-`docker compose stop pgadmin` detiene la herramienta. Su volumen independiente conserva preferencias;
-no modifica el volumen de PostgreSQL. Instalar la aplicación no obliga a iniciar pgAdmin.
-
-## Instalación local sin Docker
-
-PHP 8.4, Composer 2, PostgreSQL 17, Node 24/npm. Extensiones: pdo_pgsql, mbstring, XML/DOM, ctype,
-curl, fileinfo, intl, gd, zip y bcmath. `composer check-platform-reqs` verifica requisitos reales.
-
-```bash
-php scripts/configure.php
-```
-
-Crea `.env` con contraseñas aleatorias y muestra la contraseña de las cuentas ficticias. Conserva
-un `.env` existente. Adapta DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD a tu PostgreSQL y crea las bases
-**siaa** y **siaa_test** con tu usuario.
-
-```bash
-composer install
-npm ci
-php artisan key:generate
-php artisan migrate --seed
-npm run build
-php artisan serve --port=8080
-```
-
-Estos comandos corresponden a instalación nueva; una actualización conserva APP_KEY.
-Para editar recursos con recarga ejecuta `npm run dev` en otra terminal.
-`composer run setup` automatiza una instalación con `.env`/PostgreSQL previamente configurados;
-conserva una APP_KEY existente y no elimina la BD.
-
-Para pruebas locales, copia `.env.testing.example` a `.env.testing`, configura credenciales de
-`siaa_test` y ejecuta `php artisan key:generate --env=testing`. Después:
-
-```bash
-composer validate --strict
-composer check-platform-reqs
-vendor/bin/pint --test
-php artisan test --compact
-npm test
-npm run build
-```
-
-## Cuentas ficticias y diagnóstico de acceso
-
-| Perfil | Correo |
-| --- | --- |
-| Coordinación | coordinacion@siaa.test |
-| Docente 1 / 2 | docente1@siaa.test / docente2@siaa.test |
-| Estudiante 01 | estudiante01@siaa.test |
-| Otros estudiantes | estudiante02@siaa.test … estudiante20@siaa.test |
-
-Las cuentas nuevas del seed usan **DEMO_PASSWORD de `.env`**. El ZIP no contiene contraseñas, APP_KEY ni
-una BD prellenada. Seed idempotente: 23 usuarios, 2 materias/grupos, 40 inscripciones y 8 sesiones ficticias.
-Solo crea cuentas en local/testing con `DEMO_SEED=true`; no restablece contraseñas ya existentes.
-Coordinación puede recuperar el acceso de otras cuentas desde **Estudiantes / Docentes / Coordinación → Editar → Restablecer acceso**.
-
-Si cambiaste DEMO_PASSWORD después del primer seed, las cuentas anteriores mantienen su contraseña inicial.
-Si aparece `Connection refused` comprueba `docker compose ps` y `docker compose logs --tail=80 app db`.
-Si PostgreSQL dice `password authentication failed`, cambiar DB_PASSWORD en `.env` **no cambia** la
-contraseña del usuario de un volumen existente. Para sincronizarla sin borrar datos:
-
-```bash
-docker compose exec db psql -U siaa -d postgres
-```
-
-Dentro de psql ejecuta `\password siaa`, escribe dos veces el mismo valor de DB_PASSWORD y sal con `\q`.
-Después ejecuta `docker compose run --rm app php artisan config:clear` y `docker compose restart app`.
-Adapta `siaa` al usuario real de tu base. No publiques tu `.env` ni pegues sus contraseñas en un issue.
-
+[Cuentas ficticias y escenarios actuales](docs/escenarios-y-cuentas-locales.md).
+La contraseña local se obtiene con el comando privado indicado allí; no se publica en README.
 ## Recorrido de aceptación de fase 2
 
 1. Coordinación: entra en Estudiantes, crea un lote manual/CSV y revisa antes de confirmar.

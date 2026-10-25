@@ -56,3 +56,5 @@ initializeAttendanceConsole(document.querySelector('[data-attendance-console]'))
 initializeManualAttendance();
 initializeCredentials(document.querySelector('[data-credential-manager]'));
 initializeCheckIn(document.querySelector('[data-checkin]'));
+import { initializeSharedTag } from './shared-tag.js';
+initializeSharedTag(document.querySelector('[data-shared-tag-reader]'));

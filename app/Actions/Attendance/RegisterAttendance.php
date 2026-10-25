@@ -52,7 +52,7 @@ class RegisterAttendance
             // Global event lock precedes the parent locks, including calls targeting different cycles.
             DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', [$data['event_id']]);
             $session = ClassSession::with('offering')->findOrFail($session->id);
-            if (in_array($method, ['qr', 'link'])) {
+            if (in_array($method, ['qr', 'link', 'nfc_tag'])) {
                 abort_unless($actor->active && $actor->role === Role::Student, 403);
                 Gate::forUser($actor)->authorize('view', $session);
             } else {
@@ -65,6 +65,10 @@ class RegisterAttendance
                 return ['http' => $existing->http_status === 201 ? 200 : ($existing->http_status ?? 200), 'body' => [...($existing->response ?? ['status' => $existing->outcome]), 'replayed' => true]];
             }
             $session = $this->locks->get($session);
+            // Reassignment may have committed while waiting for the academic locks.
+            $actor = User::findOrFail($actor->id);
+            abort_if(! $actor->active || $actor->must_change_password, 403, 'Actualiza tu acceso antes de registrar asistencia.');
+            Gate::forUser($actor)->authorize(in_array($method, ['qr', 'link', 'nfc_tag']) ? 'view' : 'update', $session);
             $credential = null;
             $reader = null;
             $attendance = null;
@@ -93,8 +97,8 @@ class RegisterAttendance
                     }
                 } else {
                     $portal = AttendancePortal::lockForUpdate()->findOrFail($data['portal_id']);
-                    $student = User::lockForUpdate()->findOrFail(in_array($method, ['qr', 'link']) ? $actor->id : $data['student_id']);
-                    if (in_array($method, ['qr', 'link']) && ! hash_equals($portal->token_hash, hash('sha256', $data['portal_token']))) {
+                    $student = User::lockForUpdate()->findOrFail(in_array($method, ['qr', 'link', 'nfc_tag']) ? $actor->id : $data['student_id']);
+                    if (in_array($method, ['qr', 'link', 'nfc_tag']) && ! hash_equals($portal->token_hash, hash('sha256', $data['portal_token']))) {
                         $this->reject('El enlace no es válido.');
                     }
                 }
@@ -112,7 +116,7 @@ class RegisterAttendance
                 if (! $enrollment) {
                     $this->reject('El estudiante no tiene inscripción vigente en este grupo.');
                 }
-                if (in_array($method, ['qr', 'link'])) {
+                if (in_array($method, ['qr', 'link', 'nfc_tag'])) {
                     $geoValidation = $this->geography->validate($portal, $session, $data['location'] ?? null);
                 }
                 $attendance = Attendance::where('session_id', $session->id)->where('enrollment_id', $enrollment->id)->first();

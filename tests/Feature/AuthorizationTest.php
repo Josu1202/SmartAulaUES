@@ -66,7 +66,7 @@ class AuthorizationTest extends TestCase
     {
         $this->actingAs(User::factory()->create())->get('/teacher/terminal')->assertForbidden();
         $teacher = User::factory()->teacher()->create();
-        $this->withSession(['password_hash_web' => $teacher->password])->actingAs($teacher)->get('/teacher/terminal')->assertOk()->assertSee('Esta prueba no registra asistencias');
+        $this->withSession(['password_hash_web' => $teacher->password])->actingAs($teacher)->get('/teacher/terminal')->assertOk()->assertSee('no registra asistencias ni asigna etiquetas');
     }
 
     public function test_session_policy_denies_an_unassigned_teacher(): void

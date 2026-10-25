@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Academic\UserManager;
+use App\Rules\PasswordByteLimit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class ProfileController extends Controller
 
     public function changePassword(Request $request, UserManager $manager): RedirectResponse
     {
-        $data = $request->validate(['current_password' => ['required', 'current_password:web'], 'password' => ['required', 'string', 'min:12', 'max:128', 'confirmed', 'different:current_password']]);
+        $data = $request->validate(['current_password' => ['required', 'current_password:web'], 'password' => ['required', 'string', 'min:12', 'max:128', new PasswordByteLimit, 'confirmed', 'different:current_password']]);
         $manager->changeOwnPassword($request->user(), $data['password']);
         Auth::logout();
         $request->session()->invalidate();

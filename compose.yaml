@@ -1,63 +1,107 @@
-name: siaa
+name: ${COMPOSE_PROJECT_NAME:-smartaulaues-local}
+x-local-environment: &local-environment
+  APP_NAME: SmartAulaUES
+  APP_LOCALE: es
+  APP_FALLBACK_LOCALE: es
+  APP_ENV: local
+  APP_URL: http://127.0.0.1:${SMARTAULAUES_HTTP_PORT:-8085}
+  APP_DEBUG: "false"
+  DB_CONNECTION: pgsql
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_DATABASE: smartaulaues_local
+  DB_USERNAME: ${DB_USERNAME:-siaa}
+  DB_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD en el archivo privado .env}
+  SESSION_DRIVER: database
+  SESSION_COOKIE: smartaulaues-local-session
+  SESSION_DOMAIN: ""
+  SESSION_SECURE_COOKIE: "false"
+  CACHE_STORE: database
+  QUEUE_CONNECTION: sync
+  MAIL_MAILER: log
+  DEMO_SEED: "false"
+  SMARTAULAUES_TRUSTED_PROXIES: ""
+x-code-volumes: &code-volumes
+  - .:/var/www/html
+  - vendor:/var/www/html/vendor
+  - framework:/var/www/html/storage/framework
 services:
   app:
     build: .
-    ports:
-      - "127.0.0.1:${APP_PORT:-8080}:8080"
-    volumes:
-      - .:/var/www/html
-    environment:
-      DB_HOST: db
-      DB_PORT: 5432
+    image: smartaulaues-development:local
+    restart: unless-stopped
+    init: true
+    ports: ["127.0.0.1:${SMARTAULAUES_HTTP_PORT:-8085}:8080"]
+    volumes: *code-volumes
+    environment: *local-environment
     depends_on:
-      db:
-        condition: service_healthy
+      db: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "php", "scripts/check-web-health.php"]
+      interval: 30s
+      timeout: 15s
+      start_period: 90s
+      retries: 3
   db:
     image: postgres:17-alpine
-    ports:
-      - "127.0.0.1:${DB_PORT:-55432}:5432"
+    restart: unless-stopped
+    ports: ["127.0.0.1:${SMARTAULAUES_DATABASE_PORT:-55433}:5432"]
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-siaa}
+      POSTGRES_DB: smartaulaues_local
       POSTGRES_USER: ${DB_USERNAME:-siaa}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?Ejecuta php scripts/configure.php o configura DB_PASSWORD en .env}
-    volumes:
-      - siaa_db:/var/lib/postgresql/data
-      - ./docker/postgres/init-test.sql:/docker-entrypoint-initdb.d/10-test.sql:ro
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Configura DB_PASSWORD en el archivo privado .env}
+    volumes: ["database:/var/lib/postgresql/data"]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 10
+  scheduler:
+    image: smartaulaues-development:local
+    build: .
+    command: ["php", "artisan", "schedule:work"]
+    restart: unless-stopped
+    init: true
+    volumes: *code-volumes
+    environment: *local-environment
+    depends_on:
+      app: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "php", "artisan", "attendance:scheduler-status", "--max-age=180"]
+      interval: 60s
+      timeout: 15s
+      start_period: 120s
+      retries: 3
   node:
     image: node:24-bookworm-slim
     working_dir: /var/www/html
-    user: node
     volumes:
       - .:/var/www/html
-    profiles: ["tools"]
+      - node_modules:/var/www/html/node_modules
+    profiles: [tools]
   pgadmin:
     image: dpage/pgadmin4:9.17
-    profiles: ["tools"]
-    ports:
-      - "127.0.0.1:${PGADMIN_PORT:-5050}:80"
+    profiles: [tools]
+    ports: ["127.0.0.1:${PGADMIN_PORT:-5051}:80"]
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.test}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-}
       PGADMIN_CONFIG_SERVER_MODE: "True"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
       - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
     depends_on:
-      db:
-        condition: service_healthy
+      db: {condition: service_healthy}
   tunnel:
     image: cloudflare/cloudflared:latest
-    profiles: ["mobile"]
+    profiles: [mobile]
     command: ["tunnel", "--no-autoupdate", "--url", "http://app:8080"]
     restart: "no"
     depends_on:
-      app:
-        condition: service_started
+      app: {condition: service_healthy}
 volumes:
-  siaa_db:
+  database:
+  vendor:
+  framework:
+  node_modules:
   pgadmin_data:

@@ -9,7 +9,7 @@ return [
     'period.policy_normalized' => 'Reglamento de desarrollo actualizado',
     'period.closed' => 'Cómputo cerrado', 'period.reopened' => 'Cómputo reabierto', 'period.closure_blocked' => 'Cierre de cómputo bloqueado',
     'cycle.closed' => 'Ciclo cerrado', 'cycle.reopened' => 'Ciclo reabierto', 'cycle.closure_blocked' => 'Cierre de ciclo bloqueado',
-    'session.auto_finished' => 'Clase finalizada por respaldo diario', 'session.unstarted' => 'Sesión sin inicio registrado', 'session.start_recovered' => 'Inicio real recuperado de auditoría', 'session.reconciled' => 'Finalización revisada por Coordinación',
+    'session.auto_finished' => 'Clase finalizada automáticamente por horario', 'session.unstarted' => 'Sesión sin inicio registrado', 'session.start_recovered' => 'Inicio real recuperado de auditoría', 'session.reconciled' => 'Finalización revisada por Coordinación',
     'attendance.reconciled' => 'Resultado conciliado por Coordinación', 'request.reopened' => 'Resolución de permiso reabierta',
     'format.created' => 'Formato de ciclo creado', 'format.updated' => 'Formato de ciclo actualizado',
     'session.created' => 'Sesión programada', 'session.updated' => 'Sesión reprogramada', 'session.start' => 'Clase iniciada', 'session.finish' => 'Clase finalizada', 'session.cancel' => 'Clase cancelada',

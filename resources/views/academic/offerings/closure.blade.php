@@ -25,12 +25,14 @@
         @endcan
         @if(auth()->user()->role === \App\Enums\Role::Coordinator && $offering->cycle->status !== 'closed')
             @if($selectedPeriod->state === 'closed' && $offering->active)
-                <details><summary>Reabrir cómputo</summary><form class="mt-2" method="POST" action="{{ route('admin.periods.reopen', $selectedPeriod) }}">@csrf
-                    <x-form-field name="reason" id="period-reopen-reason" label="Motivo de reapertura" required minlength="5" maxlength="1000" />
+                <details><summary>Reabrir cómputo</summary><form class="mt-2" method="POST" action="{{ route('admin.periods.reopen', $selectedPeriod) }}"><input type="hidden" name="_form" value="{{ hash('sha256', 'academic/offerings/closure.blade.php:1'.'|'.(route('admin.periods.reopen', $selectedPeriod))) }}">@csrf
+                    <x-form-field :scope="hash('sha256', 'academic/offerings/closure.blade.php:1'.'|'.(route('admin.periods.reopen', $selectedPeriod)))" name="reason" id="period-reopen-reason" label="Motivo de reapertura" required minlength="5" maxlength="1000" />
                     <button class="btn btn-outline-dark">Reabrir para revisión</button>
                 </form></details>
+            @elseif(!$offering->active)
+                <p class="form-hint">Reactiva el grupo antes de cerrar o reabrir este cómputo manualmente. El procesador automático conserva sus reglas.</p>
             @elseif($selectedPeriod->state !== 'closed' && $selectedPeriod->ends_on->toDateString() < now('America/El_Salvador')->toDateString())
-                <form method="POST" action="{{ route('admin.periods.close', $selectedPeriod) }}">@csrf<button class="btn btn-primary">Validar y cerrar cómputo</button></form>
+                <form method="POST" action="{{ route('admin.periods.close', $selectedPeriod) }}"><input type="hidden" name="_form" value="{{ hash('sha256', 'academic/offerings/closure.blade.php:2'.'|'.(route('admin.periods.close', $selectedPeriod))) }}">@csrf<button class="btn btn-primary">Validar y cerrar cómputo</button></form>
             @elseif($selectedPeriod->state === 'closed' && !$offering->active)
                 <p class="form-hint">Reactiva el grupo antes de reabrir este cómputo para revisión.</p>
             @else

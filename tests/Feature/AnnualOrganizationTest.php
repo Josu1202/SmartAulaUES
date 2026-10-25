@@ -48,10 +48,10 @@ class AnnualOrganizationTest extends TestCase
     public function test_manual_bulk_registration_uses_preview_and_atomic_confirmation(): void
     {
         $this->actingAs(User::factory()->coordinator()->create());
-        $this->post('/admin/students/batch', ['entry_year' => 2026, 'study_year' => 2, 'students' => [['name' => 'Uno', 'email' => 'one@example.test', 'student_code' => 'AA001'], ['name' => 'Dos', 'email' => 'two@example.test', 'student_code' => 'AA002']], 'initial_password' => 'Bulk-password-2026!', 'initial_password_confirmation' => 'Bulk-password-2026!'])->assertRedirect('/admin/imports')->assertSessionHasNoErrors();
+        $this->post('/admin/students/batch', ['entry_year' => 2026, 'study_year' => 2, 'students' => [['name' => 'Uno', 'email' => 'one@example.test', 'student_code' => 'AA001'], ['name' => 'Dos', 'email' => 'two@example.test', 'student_code' => 'AA002']], 'initial_password' => 'Bulk-password-2026!', 'initial_password_confirmation' => 'Bulk-password-2026!'])->assertRedirectContains('/admin/imports')->assertSessionHasNoErrors();
         $this->assertDatabaseCount('users', 1);
         $this->get('/admin/imports')->assertOk()->assertSee('AA001');
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasNoErrors();
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasNoErrors();
         $this->assertDatabaseCount('users', 3);
         $this->assertDatabaseHas('users', ['student_code' => 'AA002', 'entry_year' => 2026, 'study_year' => 2]);
     }
@@ -61,7 +61,7 @@ class AnnualOrganizationTest extends TestCase
         $this->actingAs(User::factory()->coordinator()->create());
         foreach (['students' => "name,email,student_code,entry_year,study_year\nPersona,student@example.test,ST001,2024,3\n", 'teachers' => "name,email\nDocente,teacher@example.test\n"] as $kind => $csv) {
             $this->post('/admin/imports/preview', ['kind' => $kind, 'file' => UploadedFile::fake()->createWithContent('rows.csv', $csv), 'initial_password' => 'Csv-password-2026!', 'initial_password_confirmation' => 'Csv-password-2026!'])->assertSessionHasNoErrors();
-            $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasNoErrors();
+            $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasNoErrors();
         }
         $this->assertDatabaseHas('users', ['student_code' => 'ST001', 'study_year' => 3, 'entry_year' => 2024]);
         $this->assertDatabaseHas('users', ['email' => 'teacher@example.test', 'role' => 'teacher', 'entry_year' => null]);
@@ -75,7 +75,7 @@ class AnnualOrganizationTest extends TestCase
         $this->actingAs(User::factory()->coordinator()->create())->post('/admin/imports/preview', ['kind' => 'student_years', 'file' => UploadedFile::fake()->createWithContent('years.csv', "student_code,entry_year,study_year\nPREV001,2023,4\n")])->assertSessionHasNoErrors();
         $this->assertNull($student->fresh()->study_year);
         $this->get('/admin/imports')->assertOk()->assertSee('Años de estudiantes existentes');
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasNoErrors();
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasNoErrors();
         $this->assertSame($password, $student->fresh()->password);
         $this->assertFalse($student->fresh()->active);
         $this->assertSame(4, $student->fresh()->study_year);
@@ -90,11 +90,11 @@ class AnnualOrganizationTest extends TestCase
         $b = User::factory()->create(['student_code' => 'YEAR002']);
         $this->actingAs(User::factory()->coordinator()->create());
         $this->post('/admin/imports/preview', ['kind' => 'student_years', 'file' => UploadedFile::fake()->createWithContent('years.csv', "student_code,entry_year,study_year\nYEAR001,2025,2\nMISSING,2024,3\n")])->assertSessionHasNoErrors();
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasErrors('file');
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasErrors('file');
         $this->assertNull($a->fresh()->study_year);
         $this->post('/admin/imports/preview', ['kind' => 'student_years', 'file' => UploadedFile::fake()->createWithContent('years.csv', "student_code,entry_year,study_year\nYEAR001,2025,2\nYEAR002,2024,3\n")])->assertSessionHasNoErrors();
         $b->update(['role' => 'teacher', 'student_code' => null]);
-        $this->post('/admin/imports/confirm', ['nonce' => session('academic_import.nonce')])->assertSessionHasErrors('file');
+        $this->post('/admin/imports/confirm', ['nonce' => session('academic_imports.'.session('academic_import_id').'.nonce')])->assertSessionHasErrors('file');
         $this->assertNull($a->fresh()->study_year);
         $this->assertDatabaseCount('audit_logs', 0);
     }

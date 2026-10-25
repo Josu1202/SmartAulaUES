@@ -1,0 +1,12 @@
+# Optional local HTTPS tunnel overrides. Never use this wildcard trust in production.
+services:
+  app:
+    environment:
+      APP_URL: ${SMARTAULAUES_MOBILE_URL:?Usa la URL HTTPS real que muestran los logs del tunnel}
+      SESSION_SECURE_COOKIE: "true"
+      SMARTAULAUES_TRUSTED_PROXIES: ${SMARTAULAUES_MOBILE_PROXIES:-*}
+  scheduler:
+    environment:
+      APP_URL: ${SMARTAULAUES_MOBILE_URL:?Usa la URL HTTPS real que muestran los logs del tunnel}
+      SESSION_SECURE_COOKIE: "true"
+      SMARTAULAUES_TRUSTED_PROXIES: ${SMARTAULAUES_MOBILE_PROXIES:-*}

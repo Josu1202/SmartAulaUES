@@ -53,8 +53,15 @@ class UserManager
                     $record->{$field} = $data[$field];
                 }
             }
+            if (array_key_exists('study_year', $data)) {
+                $record->graduated = $role === Role::Student && $data['study_year'] === 'egresado';
+                $record->study_year = $record->graduated ? null : $record->study_year;
+            } elseif ($role !== Role::Student) {
+                $record->graduated = false;
+            }
             if (! $record->exists) {
                 $record->password = $data['password'];
+                $record->must_change_password = (bool) ($data['must_change_password'] ?? false);
             }
             $record->save();
             if (! $active) {
@@ -72,13 +79,14 @@ class UserManager
         DB::transaction(function () use ($actor, $user, $password, $reason): void {
             $user = User::lockForUpdate()->findOrFail($user->id);
             $user->password = $password;
+            $user->must_change_password = true;
             $user->save();
             $this->revokeSessions($user);
             $this->audit->record($actor, $user, 'user.password_reset', reason: $reason);
         });
     }
 
-    public function setStudentYears(User $actor, User $user, int $entryYear, int $studyYear): void
+    public function setStudentYears(User $actor, User $user, int $entryYear, int|string $studyYear): void
     {
         Gate::forUser($actor)->authorize('update', $user);
         DB::transaction(function () use ($actor, $user, $entryYear, $studyYear): void {
@@ -87,7 +95,7 @@ class UserManager
                 $this->fail('file', 'La cuenta ya no corresponde a un estudiante. Genera otra revisión.');
             }
             $before = $this->audit->snapshot($record);
-            $record->fill(['entry_year' => $entryYear, 'study_year' => $studyYear])->save();
+            $record->fill(['entry_year' => $entryYear, 'study_year' => $studyYear === 'egresado' ? null : $studyYear, 'graduated' => $studyYear === 'egresado'])->save();
             $this->audit->record($actor, $record, 'user.years_updated', $before, 'Años actualizados mediante un lote revisado.');
         });
     }
@@ -95,7 +103,9 @@ class UserManager
     public function changeOwnPassword(User $user, string $password): void
     {
         DB::transaction(function () use ($user, $password): void {
+            $user = User::lockForUpdate()->findOrFail($user->id);
             $user->password = $password;
+            $user->must_change_password = false;
             $user->save();
             $this->revokeSessions($user);
             $this->audit->record($user, $user, 'user.password_changed');

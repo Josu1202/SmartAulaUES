@@ -6,6 +6,7 @@ use App\Actions\Attendance\SessionWorkflow;
 use App\Http\Requests\SaveSessionRequest;
 use App\Models\ClassSession;
 use App\Models\Offering;
+use App\Queries\OfferingCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -13,12 +14,14 @@ use Illuminate\View\View;
 
 class SessionController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, OfferingCatalog $catalog): View
     {
         $data = $request->validate(['offering_id' => ['nullable', 'integer'], 'state' => ['nullable', 'in:scheduled,in_progress,completed,cancelled,unstarted']]);
-        $sessions = ClassSession::whereHas('offering', fn ($q) => $q->visibleTo($request->user()))->with('offering.subject', 'offering.cycle', 'period')->when($data['offering_id'] ?? null, fn ($q, $id) => $q->where('offering_id', $id))->when($data['state'] ?? null, fn ($q, $state) => $q->where('state', $state))->orderByDesc('starts_at')->paginate(15)->withQueryString();
+        $filters = $catalog->filters($request);
+        $groups = $catalog->query($request->user(), $filters);
+        $sessions = ClassSession::whereIn('offering_id', (clone $groups)->select('offerings.id'))->with('offering.subject', 'offering.cycle', 'period')->when($data['offering_id'] ?? null, fn ($q, $id) => $q->where('offering_id', $id))->when($data['state'] ?? null, fn ($q, $state) => $q->where('state', $state))->orderByDesc('starts_at')->paginate(15)->withQueryString();
 
-        return view('academic.sessions.index', ['sessions' => $sessions, 'offerings' => Offering::visibleTo($request->user())->with('subject')->get()]);
+        return view('academic.sessions.index', ['sessions' => $sessions, 'offerings' => $groups->with('subject')->get(), 'filters' => $filters, 'cycles' => $catalog->cycles($request->user())]);
     }
 
     public function create(Offering $offering): View

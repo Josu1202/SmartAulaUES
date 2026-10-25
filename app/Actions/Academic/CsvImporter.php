@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\AuditLog;
 use App\Models\Offering;
 use App\Models\User;
+use App\Rules\StudentLevel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -67,6 +68,14 @@ class CsvImporter
 
     public function review(string $kind, array $rows, ?Offering $offering = null): array
     {
+        // Bound lookup cost by batch, not by row (also reused at confirmation).
+        $fields = collect($rows)->pluck('fields');
+        $emails = $fields->pluck('email')->filter()->map(fn ($v) => mb_strtolower($v))->all();
+        $codes = $fields->pluck('student_code')->filter()->map(fn ($v) => mb_strtoupper($v))->all();
+        $accounts = User::whereIn('student_code', $codes)->orWhereIn('email', $emails)->get();
+        $byEmail = $accounts->keyBy(fn ($u) => mb_strtolower($u->email));
+        $byCode = $accounts->keyBy('student_code');
+        $enrolled = $offering ? $offering->enrollments()->pluck('student_id')->flip() : collect();
         $entries = [];
         $seenEmails = [];
         $seenCodes = [];
@@ -86,10 +95,10 @@ class CsvImporter
                     'role' => ['required', Rule::in(['teacher', 'student'])],
                     'student_code' => [Rule::requiredIf($fields['role'] === 'student'), 'nullable', 'max:30', 'regex:/^[A-Z0-9][A-Z0-9._-]*$/'],
                     'entry_year' => [$kind === 'students' ? 'required' : 'nullable', 'integer', 'between:1900,2200'],
-                    'study_year' => [$kind === 'students' ? 'required' : 'nullable', 'integer', 'between:1,10'],
+                    'study_year' => [$kind === 'students' ? 'required' : 'nullable', new StudentLevel],
                 ], attributes: ['name' => 'nombre', 'email' => 'correo', 'role' => 'perfil', 'student_code' => 'carné']);
                 $errors = $validation->errors()->all();
-                if (User::whereRaw('lower(email) = ?', [$fields['email']])->exists() || isset($seenEmails[$fields['email']])) {
+                if ($byEmail->has($fields['email']) || isset($seenEmails[$fields['email']])) {
                     $errors[] = 'Correo duplicado en el archivo o en el sistema.';
                 }
                 $seenEmails[$fields['email']] = true;
@@ -101,10 +110,10 @@ class CsvImporter
                 $validation = Validator::make($fields, [
                     'student_code' => ['required', 'string', 'max:30'],
                     'entry_year' => ['required', 'integer', 'between:1900,2200'],
-                    'study_year' => ['required', 'integer', 'between:1,10'],
+                    'study_year' => ['required', new StudentLevel],
                 ], attributes: ['student_code' => 'carné', 'entry_year' => 'año de ingreso', 'study_year' => 'año de carrera']);
                 $errors = $validation->errors()->all();
-                $student = User::where('student_code', $fields['student_code'])->first();
+                $student = $byCode->get($fields['student_code']);
                 if (! $student || $student->role !== Role::Student) {
                     $errors[] = 'No existe un estudiante con este carné.';
                 }
@@ -112,10 +121,10 @@ class CsvImporter
             } else {
                 $validation = Validator::make($fields, ['student_code' => ['required', 'string', 'max:30'], 'active_from' => ['required', 'date_format:Y-m-d'], 'active_to' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:active_from']], attributes: ['active_from' => 'inicio de vigencia', 'active_to' => 'fin de vigencia', 'student_code' => 'carné']);
                 $errors = $validation->errors()->all();
-                $student = User::where('student_code', $fields['student_code'])->first();
-                if (! $student || ! $student->active || $student->role !== Role::Student) {
+                $student = $byCode->get($fields['student_code']);
+                if (! $student || ! $student->active || $student->graduated || $student->role !== Role::Student) {
                     $errors[] = 'No existe un estudiante activo con este carné.';
-                } elseif ($offering?->enrollments()->where('student_id', $student->id)->exists()) {
+                } elseif ($enrolled->has($student->id)) {
                     $errors[] = 'El estudiante ya está inscrito en este grupo.';
                 }
                 if ($offering && ! $validation->fails()) {
@@ -128,7 +137,7 @@ class CsvImporter
                 $data = ['student_id' => $student?->id, 'active_from' => $fields['active_from'], 'active_to' => $fields['active_to'] ?: null];
             }
             if ($fields['student_code'] !== '') {
-                if (isset($seenCodes[$fields['student_code']]) || (! in_array($kind, ['enrollments', 'student_years']) && User::where('student_code', $fields['student_code'])->exists())) {
+                if (isset($seenCodes[$fields['student_code']]) || (! in_array($kind, ['enrollments', 'student_years']) && $byCode->has($fields['student_code']))) {
                     $errors[] = 'Carné duplicado en el archivo o en el sistema.';
                 }
                 $seenCodes[$fields['student_code']] = true;
@@ -158,9 +167,14 @@ class CsvImporter
         Gate::forUser($actor)->authorize('create', User::class);
 
         return DB::transaction(function () use ($actor, $preview): int {
+            // Same ordering as UserManager; manual edits cannot race batch revalidation.
+            User::where('role', 'coordinator')->orderBy('id')->lockForUpdate()->get();
             $offering = null;
             if ($preview['kind'] === 'enrollments') {
                 $offering = $this->registry->lockOffering(Offering::findOrFail($preview['offering_id']));
+            }
+            if (isset($preview['baseline']) && ! hash_equals($preview['baseline'], $this->baseline($preview, lock: true))) {
+                $this->fail('Los datos cambiaron desde la revisión. Genera una nueva vista previa.');
             }
             $review = $this->review($preview['kind'], $preview['rows'], $offering);
             if (! $review['valid']) {
@@ -168,9 +182,9 @@ class CsvImporter
             }
             foreach ($review['entries'] as $entry) {
                 if ($preview['kind'] === 'student_years') {
-                    $this->users->setStudentYears($actor, User::findOrFail($entry['data']['student_id']), (int) $entry['data']['entry_year'], (int) $entry['data']['study_year']);
+                    $this->users->setStudentYears($actor, User::findOrFail($entry['data']['student_id']), (int) $entry['data']['entry_year'], $entry['data']['study_year']);
                 } elseif ($preview['kind'] !== 'enrollments') {
-                    $this->users->save($actor, [...$entry['data'], 'password' => $preview['password_hash']]);
+                    $this->users->save($actor, [...$entry['data'], 'password' => $preview['password_hash'], 'must_change_password' => true]);
                 } else {
                     $this->registry->saveEnrollment($actor, $offering, $entry['data']);
                 }
@@ -180,6 +194,18 @@ class CsvImporter
 
             return $count;
         });
+    }
+
+    public function baseline(array $preview, bool $lock = false): string
+    {
+        $fields = collect($preview['rows'])->pluck('fields');
+        $query = User::whereIn('student_code', $fields->pluck('student_code')->filter()->map(fn ($v) => mb_strtoupper($v)))
+            ->orWhereIn('email', $fields->pluck('email')->filter()->map(fn ($v) => mb_strtolower($v)))->orderBy('id');
+        if ($lock) {
+            $query->lockForUpdate();
+        }
+
+        return hash('sha256', $query->get(['id', 'name', 'email', 'student_code', 'role', 'active', 'entry_year', 'study_year', 'graduated', 'updated_at'])->toJson());
     }
 
     private function fail(string $message): never

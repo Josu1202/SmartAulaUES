@@ -5,6 +5,7 @@ namespace App\Actions\Academic;
 use App\Enums\Role;
 use App\Models\AcademicCycle;
 use App\Models\AssessmentPeriod;
+use App\Models\ClassSession;
 use App\Models\CycleFormat;
 use App\Models\Enrollment;
 use App\Models\Offering;
@@ -99,6 +100,30 @@ class AcademicRegistry
             if (! $teacher->active || $teacher->role !== Role::Teacher) {
                 $this->fail('teacher_id', 'Selecciona un docente activo.');
             }
+            if ($record->exists && $record->teacher_id !== $teacher->id) {
+                $record->periods()->orderBy('id')->lockForUpdate()->get();
+                $record->sessions()->orderBy('id')->lockForUpdate()->get();
+                if ($record->sessions()->where('state', 'in_progress')->exists()) {
+                    $this->fail('teacher_id', 'Finaliza la sesión en curso antes de reasignar el grupo.');
+                }
+                // Session scheduling also locks the destination teacher before checking overlaps.
+                foreach ($record->sessions()->where('state', 'scheduled')->where('ends_at', '>', now())->orderBy('id')->get() as $session) {
+                    if (ClassSession::whereHas('offering', fn ($q) => $q->where('teacher_id', $teacher->id))
+                        ->where('offering_id', '!=', $record->id)->whereNotIn('state', ['cancelled', 'unstarted'])
+                        ->where('starts_at', '<', $session->ends_at)->where('ends_at', '>', $session->starts_at)->exists()) {
+                        $this->fail('teacher_id', 'El nuevo docente tiene un conflicto con la sesión #'.$session->id.'.');
+                    }
+                }
+                // Preserve original attendance/audit actors, but invalidate every old registration access.
+                foreach ($record->sessions()->orderBy('id')->get() as $session) {
+                    foreach ($session->portals()->whereNull('closed_at')->orderBy('id')->lockForUpdate()->get() as $portal) {
+                        $portalBefore = $this->audit->snapshot($portal);
+                        $portal->update(['closed_at' => now()]);
+                        $portal->readerSessions()->where('state', 'active')->update(['state' => 'closed']);
+                        $this->audit->record($actor, $portal, 'portal.closed', $portalBefore, 'Cerrado por reasignación docente.');
+                    }
+                }
+            }
             $subject = Subject::lockForUpdate()->findOrFail($data['subject_id']);
             if (! $subject->active && (! $record->exists || $record->subject_id !== $subject->id)) {
                 $this->fail('subject_id', 'Selecciona una materia activa.');
@@ -183,8 +208,8 @@ class AcademicRegistry
                 }
             }
             $student = User::lockForUpdate()->findOrFail($record->student_id);
-            if (! $record->exists && (! $student->active || $student->role !== Role::Student)) {
-                $this->fail('student_id', 'Selecciona un estudiante activo.');
+            if (! $record->exists && (! $student->active || $student->graduated || $student->role !== Role::Student)) {
+                $this->fail('student_id', 'Selecciona un estudiante activo de 1.º a 5.º; Egresado conserva sus inscripciones existentes.');
             }
             if (! $record->exists && $offering->enrollments()->where('student_id', $student->id)->exists()) {
                 $this->fail('student_id', 'El estudiante ya está inscrito. Edita la inscripción existente para ajustar su vigencia.');

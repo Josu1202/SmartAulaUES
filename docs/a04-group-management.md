@@ -1,5 +1,10 @@
 # A04 · organización y administración de grupos
 
+Continuidad vigente 24/10: A04 integrado por PR #6 en `6273a30`, base del worktree A05.
+[A05](a05-entrega.md) conserva estos contratos y exige grupo activo también al cierre manual
+del cómputo; el scheduler procesa desactivados desde ends_at. La descripción local inferior
+corresponde al trabajo anterior al merge y no describe una integración pendiente.
+
 Trabajo local en `feature/p3a-a04-gestion-grupos`, base real `5172b91` (merge A03, PR #5).
 A01/A02 ya integrados por PR #3/#4. Implementación iniciada el 23/10 y verificación completada
 en la continuación del 24/10/2026. Release **0.3.2** conservada. Sin commit, push, PR, merge ni despliegue.

@@ -23,7 +23,7 @@ class AuditRecorder
     public function snapshot(Model $model): array
     {
         return $model->only(match ($model::class) {
-            User::class => ['name', 'email', 'role', 'student_code', 'active', 'entry_year', 'study_year'],
+            User::class => ['name', 'email', 'role', 'student_code', 'active', 'entry_year', 'study_year', 'graduated', 'must_change_password'],
             AcademicCycle::class => ['code', 'starts_on', 'ends_on', 'status', 'closed_at', 'reopened_at', 'closure_issues'],
             Subject::class => ['code', 'name', 'active'],
             Offering::class => ['cycle_id', 'subject_id', 'teacher_id', 'group_code', 'capacity', 'cycle_format_id', 'active'],

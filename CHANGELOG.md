@@ -1,5 +1,35 @@
 # Historial de versiones SmartAulaUES
 
+## Preparación operativa local · 24/10/2026 · sin release
+
+- Seeder neutral de 52 cuentas, fechas relativas/cronología, snapshots coherentes, repetición segura,
+  contraseña local cifrada y reconstrucción explícita limitada a BD local verificada con respaldo.
+- Marca normal y textos dirigidos al usuario; catálogos españoles completos, errores HTML/JSON sin
+  SQL/trazas/secretos y presentación legible de auditoría sin reescribir registros.
+- Inicio paginado con totales completos, egresados diferenciados y reintento de cierres bloqueados
+  sin cálculo colectivo innecesario. E/S de Windows y OPcache medidos por separado de SQL/HTTP.
+- Compose local/testing/producción versionados: web por CMD, worker recuperable, salud TCP/HTTP,
+  volúmenes Linux, imagen Apache, ejemplos privados sin secretos y override móvil explícito.
+- Guía única de operación, cuentas, mediciones, evidencia nueva e inventario; A05 anterior conservado.
+  No cambia 0.3.2 ni implica despliegue, CI remoto o aceptación física.
+
+## A05 · integración final de Persona 2 · 24/10/2026 · local, sin release
+
+- Base origin/main `6273a307f3411a5e1ba40c427153cdf39e545a0e` con A01–A04 integrados; worktree
+  y rama feature/p3a-a05-integracion-final. No commit/push/PR/release/despliegue, 0.3.2 conservada.
+- Fin automático desde ends_at, scheduler Compose supervisado, lock PG e indicador operativo.
+- Año 1–5/Egresado explícito; CSV independiente por pestaña, revalidación y cambio obligatorio
+  de contraseña provisional. Bcrypt sin truncamiento de nuevas contraseñas.
+- NFC individual y cola por lote, confirmación repetible y etiqueta compartida para estudiante
+  con geolocalización A02 y garantías diferenciadas. Sin emulación de tarjeta.
+- Reasignación docente atómica, scopes de formulario, catálogo de sesiones/permisos, vencimiento
+  visual, recuperación de errores/red, avisos por matrícula y GET de grupo sin cálculo colectivo.
+- Guard de suspensión en cierre manual y reautorización del registro tras esperar locks.
+- Composer lock corrige HTTP Foundation/YAML vulnerables con 7.4.21 compatibles; sin paquetes nuevos.
+- Una migración incremental, pruebas/carreras/CI ampliados. Documentación y límites en docs/a05-entrega.md.
+
+El apartado A04 siguiente conserva el registro previo; A04 ya fue integrado mediante PR #6.
+
 ## A04 · organización y suspensión de grupos · 23/10/2026 · local, sin release
 
 - Base real `5172b91`, A03 integrado por PR #5. Rama `feature/p3a-a04-gestion-grupos`; versión 0.3.2.

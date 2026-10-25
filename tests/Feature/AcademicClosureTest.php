@@ -57,26 +57,26 @@ class AcademicClosureTest extends TestCase
         return AbsenceRequest::create(['session_id' => $session->id, 'offering_id' => $session->offering_id, 'enrollment_id' => $enrollment->id, 'status' => $status, 'reason' => 'MOTIVO_PRIVADO_A03', 'evidence_path' => 'absence-evidence/PRIVADO.pdf']);
     }
 
-    public function test_actual_start_is_saved_and_backup_uses_local_midnight_instead_of_end_or_twenty_four_hours(): void
+    public function test_actual_start_is_saved_and_automatic_finish_uses_scheduled_end(): void
     {
         [$period, $enrollment] = $this->scenario();
         $session = $this->makeSession($period);
         $this->travelTo(now()->setDateTime(2026, 10, 22, 16, 7));
         app(SessionWorkflow::class)->transition($period->offering->teacher, $session, 'start');
         $this->assertSame('2026-10-22 16:07:00', $session->fresh()->started_at->format('Y-m-d H:i:s'));
-        $this->travelTo(now()->setDateTime(2026, 10, 23, 5, 59, 59));
+        $this->travelTo(now()->setDateTime(2026, 10, 22, 16, 59, 59));
         $this->assertFalse(app(SessionWorkflow::class)->finishOverdue($session));
         $this->assertDatabaseCount('attendances', 0);
         $this->travelTo(now()->addSecond());
         $this->assertTrue(app(SessionWorkflow::class)->finishOverdue($session));
         $this->assertSame(SessionState::Completed, $session->fresh()->state);
-        $this->assertSame('2026-10-23 06:00:00', $session->fresh()->finalized_at->format('Y-m-d H:i:s'));
+        $this->assertSame('2026-10-22 17:00:00', $session->fresh()->finalized_at->format('Y-m-d H:i:s'));
         $this->assertDatabaseHas('attendances', ['enrollment_id' => $enrollment->id, 'status' => 'absent', 'recorded_by' => null]);
         $this->assertFalse(app(SessionWorkflow::class)->finishOverdue($session));
         $this->assertDatabaseHas('audit_logs', ['action' => 'session.auto_finished', 'actor_id' => null]);
     }
 
-    public function test_daily_finalization_preserves_presence_approved_permissions_inclusive_withdrawal_and_closes_readers(): void
+    public function test_automatic_finalization_preserves_presence_approved_permissions_inclusive_withdrawal_and_closes_readers(): void
     {
         [$period, $present] = $this->scenario();
         $session = $this->makeSession($period, ['state' => 'in_progress', 'started_at' => '2026-10-22T16:10:00Z']);
@@ -108,7 +108,6 @@ class AcademicClosureTest extends TestCase
             $this->assertSame('La sesión ya no admite registros.', $response['body']['message']);
         }
         $this->assertDatabaseCount('attendances', 0);
-        $this->assertFalse(app(SessionWorkflow::class)->finishOverdue($session));
         $this->actingAs($period->offering->teacher)->get('/sessions/'.$session->id)->assertOk()
             ->assertSee('El horario de registro terminó.')->assertSee('Finalizar clase')
             ->assertDontSee('data-open-portal', false)->assertDontSee('data-live-start', false)->assertDontSee('data-manual-attendance', false)
@@ -119,6 +118,7 @@ class AcademicClosureTest extends TestCase
         $this->travelTo(now()->setTime(17, 0));
         $this->get('/sessions/'.$session->id)->assertOk()->assertSee('El horario de registro terminó.')
             ->assertDontSee('data-open-portal', false)->assertDontSee('data-manual-attendance', false);
+        $this->assertTrue(app(SessionWorkflow::class)->finishOverdue($session));
     }
 
     public function test_cross_midnight_schedule_is_not_truncated_and_legacy_start_is_not_invented(): void
@@ -187,7 +187,11 @@ class AcademicClosureTest extends TestCase
         $this->assertSame([], $private['period']->closure_issues);
         $this->assertSame([], $private['periods']->first()->closure_issues);
         $count = AuditLog::where('action', 'period.closure_blocked')->count();
+        DB::enableQueryLog();
         $workflow->autoClosePeriod($period);
+        $queries = collect(DB::getQueryLog())->pluck('query');
+        DB::disableQueryLog();
+        $this->assertFalse($queries->contains(fn ($sql) => str_contains($sql, 'select * from "users" where "users"."id" in')));
         $this->assertSame($count, AuditLog::where('action', 'period.closure_blocked')->count());
         app(AbsenceWorkflow::class)->resolve($admin, $permission, 'approved', 'Permiso verificado y resuelto');
         $workflow->autoClosePeriod($period);
@@ -438,7 +442,7 @@ class AcademicClosureTest extends TestCase
         $student = User::factory()->create(['student_code' => 'A03CSV001']);
         $this->actingAs($admin)->post('/admin/imports/preview', ['kind' => 'enrollments', 'offering_id' => $period->offering_id,
             'file' => UploadedFile::fake()->createWithContent('inscripciones.csv', "student_code,active_from,active_to\n".$student->student_code.",2026-10-01,\n")])->assertSessionHasNoErrors();
-        $preview = session('academic_import');
+        $preview = session('academic_imports.'.session('academic_import_id'));
         app(ClosureWorkflow::class)->closePeriod($admin, $period);
         $this->post('/admin/imports/confirm', ['nonce' => $preview['nonce']])->assertSessionHasErrors('active_from');
         $this->assertDatabaseCount('enrollments', 1);
@@ -563,9 +567,9 @@ class AcademicClosureTest extends TestCase
         $this->actingAs($period->offering->teacher)->post('/sessions/'.$session->id.'/state/finish')->assertSessionHasErrors('reason');
         $this->assertSame(SessionState::InProgress, $session->fresh()->state);
         $this->travelTo(now()->addSecond());
-        $this->assertFalse(app(SessionWorkflow::class)->finishOverdue($session));
-        $this->travelTo(now()->addSecond());
         $this->assertTrue(app(SessionWorkflow::class)->finishOverdue($session));
+        $this->travelTo(now()->addSecond());
+        $this->assertFalse(app(SessionWorkflow::class)->finishOverdue($session));
         $this->assertSame(1, $session->attendances()->count());
         $this->assertSame('absent', $session->attendances()->sole()->status->value);
         $early = $this->makeSession($period, ['state' => 'in_progress', 'started_at' => now(), 'starts_at' => now()->subMinute(), 'ends_at' => now()->addMinutes(10)]);

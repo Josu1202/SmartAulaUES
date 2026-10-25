@@ -6,6 +6,7 @@ use App\Actions\Attendance\CredentialManager;
 use App\Http\Controllers\Controller;
 use App\Models\NfcCredential;
 use App\Models\User;
+use App\Rules\StudentLevel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,8 +18,8 @@ class NfcCredentialController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', NfcCredential::class);
-        $data = $request->validate(['q' => ['nullable', 'string', 'max:80']]);
-        $students = User::where('role', 'student')->where('active', true)->when($data['q'] ?? null, fn ($q, $search) => $q->where(fn ($q) => $q->where('name', 'ilike', '%'.$search.'%')->orWhere('student_code', 'ilike', '%'.$search.'%')))->orderBy('name')->limit(200)->get();
+        $data = $request->validate(['q' => ['nullable', 'string', 'max:80'], 'study_year' => ['nullable', new StudentLevel]]);
+        $students = User::where('role', 'student')->where('active', true)->when($data['study_year'] ?? null, fn ($q, $year) => $q->studyLevel($year))->when($data['q'] ?? null, fn ($q, $search) => $q->where(fn ($q) => $q->where('name', 'ilike', '%'.$search.'%')->orWhere('student_code', 'ilike', '%'.$search.'%')))->orderBy('name')->paginate(25, ['*'], 'students_page')->withQueryString();
 
         return view('admin.credentials.index', ['students' => $students, 'credentials' => NfcCredential::with('user')->latest('id')->paginate(15)]);
     }

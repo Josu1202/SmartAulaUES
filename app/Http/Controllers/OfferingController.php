@@ -34,13 +34,14 @@ class OfferingController extends Controller
         $data = $request->validate(['period_id' => ['nullable', 'integer', 'min:1'], 'results_page' => ['nullable', 'integer', 'min:1'], 'report_version' => ['nullable', 'integer', 'min:1']]);
         $attendanceResults = $summary->forOffering($request->user(), $offering, isset($data['period_id']) ? (int) $data['period_id'] : null, (int) ($data['results_page'] ?? 1), reportVersion: isset($data['report_version']) ? (int) $data['report_version'] : null);
         $attendanceResults['rows']->withQueryString();
-        $offering->load(['subject', 'cycle', 'teacher', 'periods', 'sessions']);
+        $offering->load(['subject', 'cycle', 'teacher', 'periods'])->loadCount(['sessions as scheduled_sessions_count' => fn ($q) => $q->where('state', 'scheduled')]);
+        $sessions = $offering->sessions()->orderBy('starts_at')->paginate(15, ['*'], 'sessions_page')->withQueryString();
         $enrollments = $offering->enrollments()->visibleTo($request->user())->with('student')->orderBy('id')->paginate(20)->withQueryString();
         $reservedSeats = $registry->reservedSeats($offering);
         $lifecycle = app(OfferingLifecycle::class);
-        $deactivationIssues = $request->user()->can('administer', $offering) && $offering->active ? $lifecycle->deactivationIssues($offering) : [];
+        $deactivationIssues = $request->user()->can('administer', $offering) && $offering->active ? $lifecycle->diagnosticIssues($offering) : [];
         $deletionIssues = $request->user()->can('delete', $offering) ? $lifecycle->deletionIssues($offering) : [];
 
-        return view('academic.offerings.show', compact('offering', 'enrollments', 'reservedSeats', 'attendanceResults', 'deactivationIssues', 'deletionIssues'));
+        return view('academic.offerings.show', compact('offering', 'enrollments', 'reservedSeats', 'attendanceResults', 'deactivationIssues', 'deletionIssues', 'sessions'));
     }
 }

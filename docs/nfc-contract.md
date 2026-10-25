@@ -1,5 +1,12 @@
 # Contrato operativo NFC y asistencia · v0.3.0
 
+**Extensión A05 sobre 0.3.2:** emisión secuencial por año/Egresado y selección explícita;
+un token preparado por turno. Confirmar activa/token exacto es idempotente; revocada no se
+reactiva. El método `nfc_tag` es acceso declarado por etiqueta compartida para el estudiante,
+con validaciones A02 cuando es presencial. No demuestra lectura física ni emula una tarjeta.
+Contratos y decisiones vigentes en [a05-decisiones.md](a05-decisiones.md).
+Sesiones iniciadas finalizan desde ends_at por scheduler cada minuto, sin ampliar ventanas.
+
 Extensión local A02 sobre 0.3.2: [QR/enlace geográficos](a02-geographic-access.md).
 POST de apertura y check-in presencial incluyen `location` (coordenadas/precisión/timestamp);
 check-in incluye además `location.portal_id`. La modalidad efectiva es del servidor.

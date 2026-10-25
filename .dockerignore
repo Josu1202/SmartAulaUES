@@ -8,3 +8,8 @@ node_modules
 storage/logs/*
 storage/framework/cache/*
 storage/framework/views/*
+storage/app/*
+Microsoft
+public/build
+.phpunit.result.cache
+bootstrap/cache/*

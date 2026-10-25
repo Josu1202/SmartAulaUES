@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\SaveUserRequest;
 use App\Models\User;
+use App\Rules\StudentLevel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -19,8 +20,8 @@ class UserController extends Controller
     {
         Gate::authorize('viewAny', User::class);
         $directoryRole = $request->route('directory_role');
-        $filters = $request->validate(['q' => ['nullable', 'string', 'max:80'], 'entry_year' => ['nullable', 'integer', 'between:1900,2200'], 'study_year' => ['nullable', 'integer', 'between:1,10'], 'active' => ['nullable', 'in:0,1']]);
-        $users = User::query()->where('role', $directoryRole ?? 'coordinator')->when($filters['entry_year'] ?? null, fn ($q, $year) => $q->where('entry_year', $year))->when($filters['study_year'] ?? null, fn ($q, $year) => $q->where('study_year', $year))->when(isset($filters['active']), fn ($q) => $q->where('active', $filters['active']))->when($filters['q'] ?? null, function ($q, $search): void {
+        $filters = $request->validate(['q' => ['nullable', 'string', 'max:80'], 'entry_year' => ['nullable', 'integer', 'between:1900,2200'], 'study_year' => ['nullable', new StudentLevel], 'active' => ['nullable', 'in:0,1']]);
+        $users = User::query()->where('role', $directoryRole ?? 'coordinator')->when($filters['entry_year'] ?? null, fn ($q, $year) => $q->where('entry_year', $year))->when($filters['study_year'] ?? null, fn ($q, $year) => $q->studyLevel($year))->when(isset($filters['active']), fn ($q) => $q->where('active', $filters['active']))->when($filters['q'] ?? null, function ($q, $search): void {
             $q->where(function ($q) use ($search): void {
                 $q->where('name', 'ilike', '%'.$search.'%')->orWhere('email', 'ilike', '%'.$search.'%')->orWhere('student_code', 'ilike', '%'.$search.'%');
             });

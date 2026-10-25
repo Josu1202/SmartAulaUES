@@ -1,5 +1,10 @@
 # A01 · Reglamento y cálculo · contrato 1
 
+Continuidad A05: la fórmula y el consumidor autorizado se conservan. Finalización desde ends_at
+reemplaza la espera diaria A03; las programadas sin inicio siguen fuera del denominador.
+Caso de regresión explícito: ocho completadas con asistencia válida y dos unstarted = 8/8,
+100.00 %, con snapshot inmutable. [Reglas A05](a05-decisiones.md).
+
 Extensión A03 del 22/10, sobre A01/A02 integrados: [cierres y snapshots](a03-closures.md).
 Fórmula intacta. `unstarted` (Sin inicio registrado) se excluye del denominador y se cuenta por separado.
 AttendanceSummary consulta snapshot al cerrar y cálculo vivo En revisión al reabrir; añade selección

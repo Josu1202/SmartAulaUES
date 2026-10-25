@@ -1,5 +1,10 @@
 # SmartAulaUES desde el celular por HTTPS · v0.3.2
 
+**Compose actual:** utilizar el override versionado `compose.mobile.yaml` y los comandos de
+[la guía de operación](operacion-local-y-produccion.md#8-diagnóstico-local). Editar solo `.env`
+no sustituye las variables fijadas por el Compose normalizado. Las instrucciones inferiores
+conservan la explicación anterior; no se generó una URL pública en esta revisión.
+
 Para la rama local A02, aplicar antes su migración incremental y recompilar recursos:
 [guía A02 y casos físicos](a02-geographic-access.md). Los pasos de HTTPS de este documento se
 reutilizan; las instrucciones históricas de commit/push de abajo no forman parte de la entrega A02.
@@ -168,3 +173,11 @@ No se afirma que se haya iniciado el túnel de tu computadora ni probado chips f
 - Cloudflare, Quick Tunnels: https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/
 - Laravel 13, proxies: https://laravel.com/docs/13.x/requests#configuring-trusted-proxies
 - Chrome, Web NFC: https://developer.chrome.com/docs/capabilities/nfc
+# Operación vigente del túnel con el Compose normalizado
+
+La configuración actual conserva el perfil `mobile` y añade el override versionado
+`compose.mobile.yaml`. Los pasos vigentes de PowerShell, URL real, cookies, proxy y regreso
+a localhost están en [la guía única de operación](operacion-local-y-produccion.md#8-diagnóstico-local).
+Desde esta revisión las variables fijas del Compose base se cambian mediante ese override;
+editar solo `.env` ya no sustituye APP_URL/SESSION_SECURE_COOKIE de esos servicios.
+El resto de este documento conserva la explicación y los ensayos anteriores de v0.3.2.

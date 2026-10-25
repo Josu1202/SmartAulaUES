@@ -1,4 +1,4 @@
-# Lotes manuales y CSV · SmartAulaUES v0.3.0
+# Lotes manuales y CSV · A05 sobre SmartAulaUES 0.3.2
 
 Solo coordinación. CSV UTF-8 (BOM opcional), coma, encabezados exactos en el orden indicado.
 Hasta 500 registros/1 MB; líneas vacías se omiten. Las plantillas descargables tienen solo encabezados.
@@ -14,7 +14,9 @@ Luis Ejemplo,luis@example.test,LE25002,2025,3
 ```
 
 Carné obligatorio/único (máx. 30), correo único sin distinguir mayúsculas, nombre obligatorio.
-entry_year: 1900–2200; study_year: 1–10. Se normalizan carné mayúsculas/correo minúsculas.
+entry_year: 1900–2200; study_year: 1–5 o el literal `egresado`.
+Egresado se guarda con graduated=true y study_year=NULL; ingreso es independiente.
+Se normalizan carné mayúsculas/correo minúsculas.
 El perfil se fija a student; no columna role ni contraseña. Las cuentas existentes se rechazan.
 Son dos datos actuales del estudiante; avanzar carrera no altera el historial de inscripciones.
 
@@ -42,7 +44,8 @@ actualizar el año de carrera. No requiere contraseña inicial. Cada cambio y el
 
 ## Inscripciones nuevas a un grupo
 
-Selecciona el grupo de destino; estudiantes existentes activos. No cambia las cuentas ni sus años.
+Selecciona un grupo activo de ciclo no cerrado; estudiantes existentes activos no egresados.
+No cambia las cuentas ni sus años. Egresado conserva sus inscripciones/historial, sin nuevas matrículas.
 
 ```csv
 student_code,active_from,active_to
@@ -69,17 +72,22 @@ Para nuevos archivos usa las plantillas separadas con los campos de año.
 
 ## Contraseñas iniciales y confirmación
 
-Solo altas users/students/teachers: contraseña fuera del CSV, confirmada y mínimo 12 caracteres.
+Solo altas users/students/teachers: contraseña fuera del CSV, confirmada, mínimo 12 caracteres y
+máximo 72 bytes UTF-8, sin NUL. No se incluye columna de contraseña.
 La revisión guarda hash en la sesión, nunca texto de contraseña; SESSION_ENCRYPT=true en el ejemplo
 predeterminado. No mostrar hashes ni contraseñas en preview/bitácora. Entrega acceso al titular de forma
-privada. Puede cambiar contraseña en Mi cuenta; cambio inicial obligatorio aún no está implementado.
+privada. El cambio en Mi cuenta es obligatorio en el primer ingreso; hasta entonces se bloquean
+las rutas académicas. Después del cambio se revocan sesiones y debe volver a iniciar sesión.
+QR/enlace/etiqueta vigentes se abren nuevamente; no se extiende su ventana ni se persiste su token.
 
-1. Descargar plantilla/cargar archivo o completar el lote manual. Sustituye cualquier revisión anterior.
+1. Descargar plantilla/cargar archivo o completar el lote manual. Cada carga crea una revisión
+   independiente identificada en la URL; no sustituye otras pestañas. Máximo diez pendientes por sesión.
 2. Ver errores por fila. Ninguna escritura académica antes de confirmar; error bloquea todo el lote.
 3. Corregir y cargar de nuevo. Sin edición de celdas ni importación parcial en la pantalla de revisión.
 4. Confirmar antes de 15 minutos, en la sesión/usuario propietario y con nonce/CSRF correctos.
+   Exactamente al vencimiento ya no se confirma.
 5. Revalidar la BD dentro de una transacción: duplicados, roles/estado, fechas, cupo, destino y cuentas
-   cambiadas desde la revisión. Si falla, ninguna fila se guarda.
+   cambiadas desde la revisión mediante huella de las cuentas. Si falla, ninguna fila se guarda.
 6. Éxito: cambios individuales y resumen auditados; se retira revisión. Confirmar otra vez no duplica.
 
 Rutas de preview/confirm usan bloqueo de sesión y throttling. Filas provienen de la revisión del servidor,

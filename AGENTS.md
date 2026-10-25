@@ -1,6 +1,67 @@
 # Entorno de trabajo SmartAulaUES
 
-## Continuidad vigente: A04 local sobre A01–A03 integrados, sin release
+## Continuidad prioritaria: operación normalizada y datos neutrales
+
+24/10 (evidencias UTC 25/10): misma rama/worktree/base A05 y versión 0.3.2; sin commit/push/PR/merge.
+Leer docs/operacion-local-y-produccion.md, escenarios-y-cuentas-locales.md y operacion-verificacion.md.
+Compose normal smartaulaues-local: web 127.0.0.1:8085, DB smartaulaues_local/55433, scheduler activo.
+Web arranca por CMD; no reactivar siaa-a05 ni su antiguo worker/private Compose. El checkout habitual
+y su DB siaa/55432 siguen intactos. Preservar .env/APP_KEY, .env.example previo, Microsoft y evidencias.
+Suites solo en compose.testing.yaml (proyecto smartaulaues-tests), testing/siaa_test verificados;
+no compartir la BD disponible de revisión con suites destructivas. Carreras nativas secuenciales.
+ExplorationSeeder: 52 cuentas naturales/example.test, acciones de dominio, cronología/fechas relativas,
+snapshots válidos; egreso después de matrícula. Repetir conserva cambios. local:scenario exige contraseña
+privada; local:access solo local, cifrado con APP_KEY. local:rebuild requiere destino local verificado,
+confirmación explícita y web/worker detenidos; conservar respaldo de exploración. Nunca autoseed al arrancar.
+Volúmenes Linux para vendor/framework; actualizar vendor mediante composer install al cambiar el lock.
+Dockerfile.production/compose.production.yaml usan Apache y secretos externos, sin migrar/seed al iniciar.
+compose.mobile.yaml es el override local de URL/cookies/proxy; no usar su comodín en producción.
+Toda la interfaz conserva marca SmartAulaUES, catálogos completos es y errores sin SQL/trazas/secretos.
+La bitácora presenta etiquetas/fechas sin modificar payloads. Inicio paginado mantiene todos los totales.
+Scheduler evita cálculo colectivo si un pendiente fresco ya impide cierre automático; revisión manual
+completa y recálculo tras resolver. Mantener locks, snapshots, privacidad, replay y contratos A01–A05.
+Los reportes A05 anteriores y sus inventarios son históricos; usar el inventario operativo actual.
+Resultado operativo final: 288 PHP/4229 aserciones, 44 JS, 37 carreras nativas, 181 PHP Pint;
+85 páginas/266 comprobaciones Edge y revisión final de sesión por tres perfiles/anchos. Worker real
+recuperado tras SIGKILL, datos persistentes y cierre a +4 s; escenario fresco respaldando el previo.
+No atribuir pruebas locales a hosting/CI/NFC/GPS físicos ni a capacidad productiva. B01–B07 conservan alcance.
+
+## Continuidad anterior: A05 integral en worktree aislado, sin release
+
+24/10: A01–A04 integrados en origin/main; base exacta A05
+6273a307f3411a5e1ba40c427153cdf39e545a0e (PR #6 de A04).
+Rama feature/p3a-a05-integracion-final, worktree ../SmartAulaUES-A05.
+Preservar checkout habitual, .env/APP_KEY, cambio previo .env.example y Microsoft/.
+Leer docs/a05-analisis.md, a05-decisiones.md, a05-entrega.md y a05-verificacion-final.md.
+Versión 0.3.2; no commit/push/PR/merge/release/despliegue.
+La nueva regla autorizada sustituye la espera diaria A03: inicio fiable y ends_at <= now UTC;
+scheduler cada minuto. Ventana final exclusiva; replay antes de guards; unstarted solo al cierre,
+sin resultados artificiales. Permisos pendientes bloquean cierre; reapertura conserva versiones.
+Compose scheduler supervisado y advisory lock PG; operation_runs y attendance:scheduler-status.
+study_year 1–5; graduated explícito con año NULL. No inferir egreso de 6–10; migración bloquea
+esos valores para clasificación previa. Egresado conserva matrícula/historia; no matrículas nuevas.
+CSV por nonce/pestaña/propietario/15 min, máximo diez; revalida cuentas bajo locks, lote atómico.
+Altas CSV/lote y resets requieren cambio inicial; no persistir contraseña plana ni tokens de invitación.
+Bcrypt: mínimo 12 caracteres y máximo 72 bytes UTF-8, sin NUL. No cambiar hashes existentes.
+NFC lote prepara uno por turno; confirmar activa/token exacto es idempotente, revocada no se reactiva.
+nfc_tag es acceso declarado por etiqueta compartida, no prueba física; A02 geográfico intacto.
+Reasignar docente exige validación atómica, sin clase en curso ni conflictos futuros; actores originales.
+Cierre manual de cómputo exige grupo activo; scheduler conserva su excepción. Diagnóstico GET ligero;
+validación completa al mutar. Formularios identificados por _form/scope, no solo ID HTML.
+Migración nueva 2026_10_24_000100; desarrollo habitual sin migrar ni reiniciar.
+Pruebas solo siaa_test efectiva tras scripts/check-test-database.php; no scheduler durante PHPUnit/carreras.
+A05AcceptanceSeeder es manual, sintético y solo testing/siaa_test; evidencias privadas fuera de Git.
+Dos dependencias bloqueadas se corrigen por avisos oficiales: HTTP Foundation/YAML 7.4.21, sin paquetes nuevos.
+Verificación final A05: 268 pruebas/1952 aserciones sin warnings; incluye 22 casos A05/208 aserciones
+y A04 ampliada 54/311. 44 JS, 37 comprobaciones nativas PostgreSQL, 74 comprobaciones Edge con
+64 medidas/65 PNG y cero errores JS. NDEF emulado, no NFC físico. Upgrade rollback-only aprobado;
+worker real recupera vencidos, Docker reinicia tras muerte abrupta y segunda ejecución no duplica.
+Scheduler detenido al terminar, datos A05 sintéticos preparados; desarrollo sin migrar ni reiniciar.
+Inventario de 280 archivos y evidencia por caso en docs/a05-verificacion-final.md. CI/hosting/hardware externos.
+No declarar aprobados CI remoto, hosting ni NFC/GPS físico; módulos B de Persona 3 conservan su alcance.
+Las continuidades inferiores de A04 local y espera diaria A03 son registros históricos sustituidos.
+
+## Continuidad anterior: A04 local sobre A01–A03 integrados, sin release
 
 23/10: rama feature/p3a-a04-gestion-grupos sobre 5172b91, merge A03 por PR #5 confirmado
 en el historial local; A01/A02 por PR #3/#4. Las notas inferiores de A03 local son históricas.

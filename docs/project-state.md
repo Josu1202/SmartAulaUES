@@ -1,6 +1,43 @@
 # Estado de continuidad · SmartAulaUES
 
-## Estado vigente: A04 local sobre A01, A02 y A03 integrados
+## Estado vigente: revisión local con arranque reproducible
+
+La misma rama `feature/p3a-a05-integracion-final`, base `6273a307f3411a5e1ba40c427153cdf39e545a0e`,
+conserva 0.3.2 y los avances A01–A05 sin publicar. Web y scheduler normales en el proyecto
+`smartaulaues-local`, URL http://127.0.0.1:8085, BD ficticia `smartaulaues_local` propia.
+El checkout habitual/BD siaa, entorno privado y cambios previos permanecen conservados.
+[Operación vigente](operacion-local-y-produccion.md), [cuentas](escenarios-y-cuentas-locales.md),
+[verificación/rendimiento](operacion-verificacion.md), [inventario](operacion-inventario.csv).
+
+El escenario neutral prepara 52 cuentas, fechas relativas, estados académicos y resultados válidos;
+repetirlo no sobrescribe exploración. Se corrigieron traducciones, errores, bitácora, paginación de
+Inicio y reintentos del scheduler. Volúmenes Linux/OPcache medidos, imagen Apache y configuración
+de producción separadas; suites en otra BD. Hosting y hardware siguen sujetos a aceptación real.
+Las validaciones anteriores de A05 se conservan abajo como historia, no como estado del worker actual.
+
+Última regresión: 288 PHP/4.229 aserciones sin warnings, 44 JS, 37 comprobaciones concurrentes,
+181 archivos Pint y build/auditoría aprobados. Se verificaron HTTP/Edge, Apache local, reinicios
+y cierre real en cuatro segundos sin duplicados. El escenario local fresco y su scheduler quedan activos.
+
+## Registro previo: A05 local sobre A01–A04 integrados
+
+24/10/2026: origin/main = `6273a307f3411a5e1ba40c427153cdf39e545a0e`, merge de PR #6 de A04.
+Worktree seguro `../SmartAulaUES-A05`, rama `feature/p3a-a05-integracion-final`; checkout habitual
+con cambios previos preservado. Versión 0.3.2 sin release ni publicación.
+Alcance integral, reglas y verificación: [entrega A05](a05-entrega.md), [decisiones](a05-decisiones.md),
+[análisis/inventario](a05-analisis.md), [escenarios](a05-verificacion-final.md).
+Fin automático desde ends_at sustituye la espera diaria A03. Scheduler supervisado y observable;
+CSV independiente por pestaña/cambio inicial, egreso explícito, NFC por turno/etiqueta compartida,
+reasignación y compatibilidad de estados. Sin alterar snapshots ni geolocalización A02.
+Desarrollo habitual sin migrar. Pruebas exclusivamente en siaa_test; resultados físicos/hosting y
+CI remoto no se infieren. B01–B07 siguen sujetos al alcance de Persona 3.
+Verificación final local: 268 PHP/1952 aserciones sin warnings, 44 JS, 37 comprobaciones nativas,
+74 comprobaciones Edge/64 medidas/65 PNG, y worker real recuperado/reiniciado sin duplicar.
+Upgrade incremental con rollback-only, Composer/Pint/build aprobados. NDEF emulado y límites
+externos detallados en el informe; datos sintéticos preparados en siaa_test y worker detenido.
+Los apartados inferiores son continuidad histórica anterior, no el estado vigente de esta entrega.
+
+## Registro anterior: A04 local sobre A01, A02 y A03 integrados
 
 23/10/2026: historial local confirma `5172b91` (merge PR #5 de A03), `bf07b01` (PR #4)
 y `18c7596` (PR #3). Rama `feature/p3a-a04-gestion-grupos`, versión 0.3.2 conservada.
