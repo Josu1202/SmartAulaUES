@@ -37,6 +37,94 @@
                 class="stat-label">Permisos pendientes</span><strong data-pending-count>{{ $statistics['pending_requests'] }}</strong><small>{{ $user->role === \App\Enums\Role::Student ? 'Mis solicitudes por resolver' : 'Solicitudes por revisar' }}</small></div>
     </div>
     @include('dashboard.operational-charts', ['showYears' => $user->role === \App\Enums\Role::Coordinator])
+    @if($user->role === \App\Enums\Role::Teacher)
+        <section class="card mb-4" id="absence-ranking" aria-labelledby="absence-ranking-heading">
+            <div class="card-header">
+                <h2 class="card-title" id="absence-ranking-heading">Estudiantes con más ausencias</h2>
+                <span class="badge-soft">Seguimiento docente</span>
+            </div>
+            <div class="card-body">
+                <p class="text-secondary">Ranking de faltas sin justificar en un grupo y cómputo. La tasa de inasistencia usa faltas sin justificar / sesiones elegibles; las justificadas se muestran aparte. No es una sanción ni una evaluación oficial.</p>
+                @if($absenceRanking['groups']->isNotEmpty())
+                    <form method="GET" action="{{ route('dashboard') }}#absence-ranking" class="d-flex align-items-end gap-2 flex-wrap mb-3">
+                        <div>
+                            <label for="ranking-group" class="form-label">Grupo</label>
+                            <select name="ranking_group_id" id="ranking-group" class="form-select">
+                                @foreach($absenceRanking['groups'] as $rankingGroup)
+                                    <option value="{{ $rankingGroup->id }}" @selected($absenceRanking['group']?->id === $rankingGroup->id)>{{ $rankingGroup->subject->name }} · Grupo {{ $rankingGroup->group_code }} · {{ $rankingGroup->cycle->code }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button class="btn btn-outline-dark" type="submit">Consultar grupo</button>
+                    </form>
+                @endif
+                @if($absenceRanking['periods']->isNotEmpty())
+                    <nav aria-label="Cómputos del ranking" class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <span class="text-secondary">Cómputo:</span>
+                        @foreach($absenceRanking['periods'] as $rankingPeriod)
+                            <a class="btn btn-sm {{ $absenceRanking['period']?->id === $rankingPeriod->id ? 'btn-primary' : 'btn-outline-dark' }}" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $rankingPeriod->id]) }}#absence-ranking" @if($absenceRanking['period']?->id === $rankingPeriod->id) aria-current="page" @endif>{{ $rankingPeriod->number }}</a>
+                        @endforeach
+                    </nav>
+                @endif
+                @if($absenceRanking['error'])
+                    <div class="alert alert-warning" role="status">{{ $absenceRanking['error'] }} Consulte los resultados del grupo o contacte a Coordinación.</div>
+                @elseif($absenceRanking['period'] === null)
+                    <p class="mb-0 text-secondary">{{ $absenceRanking['group'] === null ? 'Aún no tiene grupos asignados.' : 'Este grupo todavía no tiene cómputos definidos.' }}</p>
+                @else
+                    <p class="small text-secondary">Cómputo {{ $absenceRanking['period']->number }} · {{ match($absenceRanking['source']) { 'snapshot' => 'Resultados del cierre conservado', 'review' => 'Datos en revisión', default => 'Datos provisionales' } }} · Se muestran hasta 10 de {{ $absenceRanking['total_students'] }} inscripciones. «—» indica que aún no hay porcentaje calculable.</p>
+                    <div class="table-responsive" role="region" aria-label="Ranking de ausencias del grupo" tabindex="0">
+                        <table class="table table-vcenter">
+                            <thead><tr><th scope="col">Posición</th><th scope="col">Estudiante</th><th scope="col">Carné</th><th scope="col">Faltas</th><th scope="col">Sesiones elegibles</th><th scope="col">Inasistencia</th><th scope="col">Justificadas</th><th scope="col">Detalle</th></tr></thead>
+                            <tbody>
+                                @forelse($absenceRanking['rows'] as $rankingPosition => $rankedStudent)
+                                    <tr>
+                                        <td>{{ $rankingPosition + 1 }}</td>
+                                        <th scope="row">{{ $rankedStudent['name'] }}
+                                            @if($rankedStudent['state'] !== 'provisional')<small class="d-block text-secondary">{{ match($rankedStudent['state']) { 'no_sessions' => 'Sin sesiones evaluables', 'incomplete' => 'Resultados incompletos', default => 'Política no disponible' } }}</small>@endif
+                                            @if($rankedStudent['pending_requests'] > 0)<small class="d-block text-secondary">Permisos pendientes: {{ $rankedStudent['pending_requests'] }}</small>@endif
+                                        </th>
+                                        <td>{{ $rankedStudent['code'] ?? 'Sin carné' }}</td>
+                                        <td>{{ $rankedStudent['absent'] }}</td>
+                                        <td>{{ $rankedStudent['eligible'] }}</td>
+                                        <td class="text-nowrap">{{ $rankedStudent['absence_percentage'] === null ? '—' : $rankedStudent['absence_percentage'].' %' }}</td>
+                                        <td>{{ $rankedStudent['justified'] }}</td>
+                                        <td><a href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_enrollment_id' => $rankedStudent['enrollment_id']]) }}#ranking-student-detail">Ver detalle de {{ $rankedStudent['name'] }}</a></td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="8" class="text-center text-secondary">No hay estudiantes inscritos para este cómputo.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </section>
+        @if($absenceRanking['detail'] !== null)
+            <section class="card mb-4" id="ranking-student-detail" aria-labelledby="ranking-student-detail-heading">
+                <div class="card-header"><h2 class="card-title" id="ranking-student-detail-heading">Detalle de {{ $absenceRanking['detail']['student']['name'] }} · Cómputo {{ $absenceRanking['period']->number }}</h2><a href="#absence-ranking" class="section-link">Volver al ranking</a></div>
+                <div class="card-body">
+                    <p class="text-secondary">{{ $absenceRanking['detail']['student']['code'] ?? 'Sin carné' }} · {{ $absenceRanking['detail']['student']['absent'] }} faltas sin justificar, {{ $absenceRanking['detail']['student']['justified'] }} justificadas y {{ $absenceRanking['detail']['student']['eligible'] }} clases evaluables. Los estados futuros o cancelados no cuentan como ausencia.</p>
+                    <div class="table-responsive" role="region" aria-label="Sesiones del estudiante seleccionado" tabindex="0">
+                        <table class="table table-vcenter">
+                            <thead><tr><th scope="col">Fecha académica</th><th scope="col">Estado de clase</th><th scope="col">Resultado</th><th scope="col">Permiso</th></tr></thead>
+                            <tbody>
+                                @forelse($absenceRanking['detail']['sessions'] as $fact)
+                                    <tr>
+                                        <td>{{ $fact['academic_date'] }}</td>
+                                        <td>{{ match($fact['state']) { 'completed' => 'Finalizada', 'cancelled' => 'Cancelada', 'unstarted' => 'Sin inicio', 'in_progress' => 'En curso', default => 'Programada' } }}</td>
+                                        <td>{{ match($fact['status']) { 'present' => 'Presente', 'absent' => 'Ausente', 'justified' => 'Justificada', default => 'Sin resultado' } }}</td>
+                                        <td>{{ match($fact['request_status']) { 'pending' => 'Pendiente', 'approved' => 'Aprobado', 'rejected' => 'Rechazado', default => '—' } }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="4" class="text-center text-secondary">Sin sesiones dentro de la vigencia de la inscripción.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        @endif
+    @endif
     <div class="dashboard-grid">
         <section class="card">
             <div class="card-header">
