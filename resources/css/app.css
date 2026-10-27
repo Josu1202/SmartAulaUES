@@ -12,6 +12,28 @@
 #attendance-results {
     scroll-margin-top: 100px;
 }
+/* B01: keep the eight-column teacher ranking readable without affecting other tables. */
+#absence-ranking,
+#ranking-student-detail {
+    scroll-margin-top: 100px;
+}
+#absence-ranking .absence-ranking-table {
+    min-width: 990px;
+}
+#absence-ranking .absence-ranking-table th,
+#absence-ranking .absence-ranking-table td {
+    padding: 12px 10px;
+    vertical-align: middle;
+}
+#absence-ranking .absence-ranking-table th[scope="row"] {
+    min-width: 115px;
+    white-space: normal;
+}
+#absence-ranking .absence-ranking-table th:last-child,
+#absence-ranking .absence-ranking-table td:last-child {
+    min-width: 120px;
+    white-space: nowrap;
+}
 #attendance-results table {
     min-width: 1100px;
 }

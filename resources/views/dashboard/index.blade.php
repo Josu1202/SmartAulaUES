@@ -57,6 +57,7 @@
                         </div>
                         <button class="btn btn-outline-dark" type="submit">Consultar grupo</button>
                     </form>
+                    <p class="small text-secondary mb-3">Para cambiar de grupo, selecciónelo y pulse «Consultar grupo». Se abrirá su primer cómputo.</p>
                 @endif
                 @if($absenceRanking['periods']->isNotEmpty())
                     <nav aria-label="Cómputos del ranking" class="d-flex flex-wrap align-items-center gap-2 mb-3">
@@ -72,8 +73,8 @@
                     <p class="mb-0 text-secondary">{{ $absenceRanking['group'] === null ? 'Aún no tiene grupos asignados.' : 'Este grupo todavía no tiene cómputos definidos.' }}</p>
                 @else
                     <p class="small text-secondary">Cómputo {{ $absenceRanking['period']->number }} · {{ match($absenceRanking['source']) { 'snapshot' => 'Resultados del cierre conservado', 'review' => 'Datos en revisión', default => 'Datos provisionales' } }} · Se muestran hasta 10 de {{ $absenceRanking['total_students'] }} inscripciones. «—» indica que aún no hay porcentaje calculable.</p>
-                    <div class="table-responsive" role="region" aria-label="Ranking de ausencias del grupo" tabindex="0">
-                        <table class="table table-vcenter">
+                    <div class="table-responsive" role="region" aria-label="Ranking de ausencias del grupo; puede desplazarse horizontalmente" tabindex="0">
+                        <table class="table table-vcenter absence-ranking-table">
                             <thead><tr><th scope="col">Posición</th><th scope="col">Estudiante</th><th scope="col">Carné</th><th scope="col">Faltas</th><th scope="col">Sesiones elegibles</th><th scope="col">Inasistencia</th><th scope="col">Justificadas</th><th scope="col">Detalle</th></tr></thead>
                             <tbody>
                                 @forelse($absenceRanking['rows'] as $rankingPosition => $rankedStudent)
@@ -88,7 +89,7 @@
                                         <td>{{ $rankedStudent['eligible'] }}</td>
                                         <td class="text-nowrap">{{ $rankedStudent['absence_percentage'] === null ? '—' : $rankedStudent['absence_percentage'].' %' }}</td>
                                         <td>{{ $rankedStudent['justified'] }}</td>
-                                        <td><a href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_enrollment_id' => $rankedStudent['enrollment_id']]) }}#ranking-student-detail">Ver detalle de {{ $rankedStudent['name'] }}</a></td>
+                                        <td><a class="btn btn-sm btn-outline-dark text-nowrap" aria-label="Ver detalle de {{ $rankedStudent['name'] }}" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_enrollment_id' => $rankedStudent['enrollment_id']]) }}#ranking-student-detail">Ver detalle</a></td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="8" class="text-center text-secondary">No hay estudiantes inscritos para este cómputo.</td></tr>
