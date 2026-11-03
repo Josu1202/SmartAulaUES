@@ -25,8 +25,23 @@ class DashboardController extends Controller
         $studentCount = $user->role === Role::Coordinator ? User::where('role', Role::Student)->where('active', true)->count()
             : Enrollment::whereIn('offering_id', $ids)->visibleTo($user)->count();
 
-        $statistics = app(DashboardStatistics::class)->forUser($user);
+        $dashboard = app(DashboardStatistics::class);
+        $statistics = $dashboard->forUser($user);
+        $absenceRanking = null;
+        if ($user->role === Role::Teacher) {
+            $rankingInput = $request->validate([
+                'ranking_group_id' => ['nullable', 'integer', 'min:1'],
+                'ranking_period_id' => ['nullable', 'integer', 'min:1'],
+                'ranking_enrollment_id' => ['nullable', 'integer', 'min:1'],
+            ]);
+            $absenceRanking = $dashboard->teacherAbsenceRanking(
+                $user,
+                isset($rankingInput['ranking_group_id']) ? (int) $rankingInput['ranking_group_id'] : null,
+                isset($rankingInput['ranking_period_id']) ? (int) $rankingInput['ranking_period_id'] : null,
+                isset($rankingInput['ranking_enrollment_id']) ? (int) $rankingInput['ranking_enrollment_id'] : null,
+            );
+        }
 
-        return view('dashboard.index', compact('user', 'offerings', 'sessions', 'studentCount', 'statistics'));
+        return view('dashboard.index', compact('user', 'offerings', 'sessions', 'studentCount', 'statistics', 'absenceRanking'));
     }
 }
