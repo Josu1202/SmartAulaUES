@@ -100,6 +100,9 @@
                 @endif
             </div>
         </section>
+        @if($absenceRanking['period'] !== null && $absenceRanking['error'] === null)
+            @include('dashboard.weekly-trend')
+        @endif
         @if($absenceRanking['detail'] !== null)
             <section class="card mb-4" id="ranking-student-detail" aria-labelledby="ranking-student-detail-heading">
                 <div class="card-header"><h2 class="card-title" id="ranking-student-detail-heading">Detalle de {{ $absenceRanking['detail']['student']['name'] }} · Cómputo {{ $absenceRanking['period']->number }}</h2><a href="#absence-ranking" class="section-link">Volver al ranking</a></div>
