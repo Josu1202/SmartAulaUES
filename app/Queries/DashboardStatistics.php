@@ -160,8 +160,7 @@ class DashboardStatistics
             abort_if($enrollmentId !== null && $detail === null, 404);
             $matrixPages = max(1, (int) ceil($matrixSeen / self::MATRIX_PER_PAGE));
             abort_if($matrixPage > $matrixPages, 404);
-            uasort($matrixSessions, static fn (array $a, array $b): int =>
-                strcmp($a['starts_at'], $b['starts_at']) ?: $a['id'] <=> $b['id']);
+            uasort($matrixSessions, static fn (array $a, array $b): int => strcmp($a['starts_at'], $b['starts_at']) ?: $a['id'] <=> $b['id']);
             $matrix = [
                 'sessions' => array_values($matrixSessions), 'rows' => $matrixRows,
                 'page' => $matrixPage, 'pages' => $matrixPages, 'total' => $matrixSeen,
