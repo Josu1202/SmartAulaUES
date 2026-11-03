@@ -9,6 +9,9 @@ use App\Models\Attendance;
 use App\Models\ClassSession;
 use App\Models\Offering;
 use App\Models\User;
+use App\Services\Attendance\AttendanceCalculator;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -35,6 +38,7 @@ class DashboardStatistics
         $base = [
             'groups' => $groups, 'group' => $group, 'periods' => $periods, 'period' => $period,
             'rows' => [], 'total_students' => 0, 'detail' => null, 'error' => null, 'source' => null,
+            'weekly_trend' => [],
         ];
         if ($period === null) {
             return $base;
@@ -49,6 +53,8 @@ class DashboardStatistics
             $detail = null;
             $page = 1;
             $source = null;
+            $weekly = [];
+            $calculator = app(AttendanceCalculator::class);
 
             do {
                 $batch = $summary->forOffering($teacher, $group, periodId: $period->id, page: $page, perPage: 100);
@@ -74,6 +80,35 @@ class DashboardStatistics
                         'pending_requests' => (int) $counts['pending_requests'],
                     ];
                     $rows[] = $row;
+                    // B01 only groups authorized facts into academic weeks. The A01
+                    // calculator remains the sole authority for valid result counts.
+                    // For closed periods, facts and as_of come from A03's snapshot.
+                    $factsByWeek = [];
+                    foreach ($calculation['session_facts'] as $fact) {
+                        if ($fact['state'] !== 'completed'
+                            || $fact['academic_date'] < $calculation['range']['from']
+                            || $fact['academic_date'] > $calculation['range']['to']) {
+                            continue;
+                        }
+                        $week = CarbonImmutable::parse($fact['academic_date'], 'America/El_Salvador')
+                            ->startOfWeek(CarbonInterface::MONDAY)->toDateString();
+                        $factsByWeek[$week][] = $fact;
+                        $weekly[$week] ??= [
+                            'week_start' => $week, 'completed_ids' => [], 'present' => 0,
+                            'absent' => 0, 'justified' => 0, 'eligible' => 0,
+                            'missing' => 0, 'inconsistent' => 0, 'pending_requests' => 0,
+                        ];
+                        $weekly[$week]['completed_ids'][$fact['id']] = true;
+                    }
+                    foreach ($factsByWeek as $week => $facts) {
+                        $result = $calculator->calculate(
+                            $calculation['policy_version'], $facts,
+                            $calculation['range']['from'], $calculation['range']['to'], $calculation['as_of']
+                        );
+                        foreach (['present', 'absent', 'justified', 'eligible', 'missing', 'inconsistent', 'pending_requests'] as $key) {
+                            $weekly[$week][$key] += (int) $result['counts'][$key];
+                        }
+                    }
                     if ($enrollmentId === $student['enrollment_id']) {
                         $range = $calculation['range'];
                         $detail = [
@@ -87,6 +122,16 @@ class DashboardStatistics
             } while ($page <= $batch['rows']->lastPage());
 
             abort_if($enrollmentId !== null && $detail === null, 404);
+            ksort($weekly);
+            $weeklyTrend = array_values(array_map(static function (array $week): array {
+                $week['completed_sessions'] = count($week['completed_ids']);
+                unset($week['completed_ids']);
+                $week['resolved'] = $week['present'] + $week['absent'] + $week['justified'];
+                $week['coverage_percentage'] = $week['eligible'] > 0
+                    ? number_format(100 * $week['resolved'] / $week['eligible'], 2, '.', '') : null;
+
+                return $week;
+            }, $weekly));
             usort($rows, fn (array $a, array $b) => $b['absent'] <=> $a['absent']
                 ?: strnatcasecmp($a['name'], $b['name'])
                 ?: $a['enrollment_id'] <=> $b['enrollment_id']);
@@ -96,6 +141,7 @@ class DashboardStatistics
                 'total_students' => count($rows),
                 'detail' => $detail,
                 'source' => $source,
+                'weekly_trend' => $weeklyTrend,
             ]);
         });
     }
