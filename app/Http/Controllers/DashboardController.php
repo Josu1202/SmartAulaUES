@@ -33,12 +33,14 @@ class DashboardController extends Controller
                 'ranking_group_id' => ['nullable', 'integer', 'min:1'],
                 'ranking_period_id' => ['nullable', 'integer', 'min:1'],
                 'ranking_enrollment_id' => ['nullable', 'integer', 'min:1'],
+                'matrix_page' => ['nullable', 'integer', 'min:1'],
             ]);
             $absenceRanking = $dashboard->teacherAbsenceRanking(
                 $user,
                 isset($rankingInput['ranking_group_id']) ? (int) $rankingInput['ranking_group_id'] : null,
                 isset($rankingInput['ranking_period_id']) ? (int) $rankingInput['ranking_period_id'] : null,
                 isset($rankingInput['ranking_enrollment_id']) ? (int) $rankingInput['ranking_enrollment_id'] : null,
+                isset($rankingInput['matrix_page']) ? (int) $rankingInput['matrix_page'] : 1,
             );
         }
 

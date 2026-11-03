@@ -17,13 +17,16 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardStatistics
 {
+    private const MATRIX_PER_PAGE = 15;
+
     /**
      * Primer incremento B01: un grupo y un cómputo autorizados por consulta.
      * No replica reglas académicas: consume AttendanceSummary y su calculador A01.
      */
-    public function teacherAbsenceRanking(User $teacher, ?int $groupId = null, ?int $periodId = null, ?int $enrollmentId = null): array
+    public function teacherAbsenceRanking(User $teacher, ?int $groupId = null, ?int $periodId = null, ?int $enrollmentId = null, int $matrixPage = 1): array
     {
         abort_unless($teacher->active && $teacher->role === Role::Teacher, 403);
+        abort_if($matrixPage < 1, 404);
 
         $groups = Offering::query()->visibleTo($teacher)->current()
             ->with(['subject', 'cycle'])->orderBy('offerings.id')->get();
@@ -39,6 +42,7 @@ class DashboardStatistics
             'groups' => $groups, 'group' => $group, 'periods' => $periods, 'period' => $period,
             'rows' => [], 'total_students' => 0, 'detail' => null, 'error' => null, 'source' => null,
             'weekly_trend' => [],
+            'matrix' => ['sessions' => [], 'rows' => [], 'page' => $matrixPage, 'pages' => 1, 'total' => 0],
         ];
         if ($period === null) {
             return $base;
@@ -46,7 +50,7 @@ class DashboardStatistics
 
         // Conserva el bloqueo de ciclo para que todas las páginas reflejen un mismo corte.
         // AttendanceSummary mantiene la autorización, los locks y los snapshots de A.
-        return DB::transaction(function () use ($teacher, $group, $period, $enrollmentId, $base): array {
+        return DB::transaction(function () use ($teacher, $group, $period, $enrollmentId, $matrixPage, $base): array {
             AcademicCycle::sharedLock()->findOrFail($group->cycle_id);
             $summary = app(AttendanceSummary::class);
             $rows = [];
@@ -55,6 +59,10 @@ class DashboardStatistics
             $source = null;
             $weekly = [];
             $calculator = app(AttendanceCalculator::class);
+            $matrixSessions = [];
+            $matrixRows = [];
+            $matrixSeen = 0;
+            $startRow = ($matrixPage - 1) * self::MATRIX_PER_PAGE;
 
             do {
                 $batch = $summary->forOffering($teacher, $group, periodId: $period->id, page: $page, perPage: 100);
@@ -80,6 +88,34 @@ class DashboardStatistics
                         'pending_requests' => (int) $counts['pending_requests'],
                     ];
                     $rows[] = $row;
+                    // Third B01 increment: reuse the exact authorized facts/snapshot returned
+                    // by AttendanceSummary. Students are paged, never the session columns.
+                    $matrixSeen++;
+                    if ($matrixSeen > $startRow && $matrixSeen <= $startRow + self::MATRIX_PER_PAGE) {
+                        $facts = [];
+                        $incidentIds = array_fill_keys(array_column($calculation['incidents'], 'session_id'), true);
+                        foreach ($calculation['session_facts'] as $fact) {
+                            $sessionId = (int) $fact['id'];
+                            $matrixSessions[$sessionId] ??= [
+                                'id' => $sessionId,
+                                'date' => $fact['academic_date'],
+                                'starts_at' => $fact['starts_at'],
+                                'state' => $fact['state'],
+                            ];
+                            $facts[$sessionId] = [
+                                'in_range' => $fact['academic_date'] >= $calculation['range']['from']
+                                    && $fact['academic_date'] <= $calculation['range']['to'],
+                                'state' => $fact['state'],
+                                'status' => $fact['status'],
+                                'request_status' => $fact['request_status'],
+                                'has_incident' => isset($incidentIds[$sessionId]),
+                            ];
+                        }
+                        $matrixRows[] = [
+                            'name' => $student['student_name'], 'code' => $student['student_code'],
+                            'enrollment_id' => $student['enrollment_id'], 'facts' => $facts,
+                        ];
+                    }
                     // B01 only groups authorized facts into academic weeks. The A01
                     // calculator remains the sole authority for valid result counts.
                     // For closed periods, facts and as_of come from A03's snapshot.
@@ -122,6 +158,14 @@ class DashboardStatistics
             } while ($page <= $batch['rows']->lastPage());
 
             abort_if($enrollmentId !== null && $detail === null, 404);
+            $matrixPages = max(1, (int) ceil($matrixSeen / self::MATRIX_PER_PAGE));
+            abort_if($matrixPage > $matrixPages, 404);
+            uasort($matrixSessions, static fn (array $a, array $b): int =>
+                strcmp($a['starts_at'], $b['starts_at']) ?: $a['id'] <=> $b['id']);
+            $matrix = [
+                'sessions' => array_values($matrixSessions), 'rows' => $matrixRows,
+                'page' => $matrixPage, 'pages' => $matrixPages, 'total' => $matrixSeen,
+            ];
             ksort($weekly);
             $weeklyTrend = array_values(array_map(static function (array $week): array {
                 $week['completed_sessions'] = count($week['completed_ids']);
@@ -142,6 +186,7 @@ class DashboardStatistics
                 'detail' => $detail,
                 'source' => $source,
                 'weekly_trend' => $weeklyTrend,
+                'matrix' => $matrix,
             ]);
         });
     }
