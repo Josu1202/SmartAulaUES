@@ -100,6 +100,9 @@
                 @endif
             </div>
         </section>
+        @if($absenceRanking['period_tracking'] !== null && $absenceRanking['error'] === null)
+            @include('dashboard.period-tracking')
+        @endif
         @if($absenceRanking['period'] !== null && $absenceRanking['error'] === null)
             @include('dashboard.weekly-trend')
         @endif
