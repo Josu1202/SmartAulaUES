@@ -7,9 +7,12 @@
         <span class="badge-soft">Grupo y cómputo seleccionados</span>
     </div>
     <div class="card-body">
+        @if($absenceRanking['date_filter']['from'] !== null || $absenceRanking['date_filter']['to'] !== null)
+            <p class="small text-secondary">Vista por fecha académica: {{ $absenceRanking['date_filter']['from'] ?? 'inicio del cómputo' }} a {{ $absenceRanking['date_filter']['to'] ?? 'fin del cómputo' }} (inclusive). Las semanas se identifican por su lunes de inicio, aunque el rango comience a mitad de semana.</p>
+        @endif
         <p class="text-secondary">Conteos de resultados individuales en clases finalizadas, agrupados por la semana académica (lunes a domingo, hora de El Salvador). Una clase puede aportar varios resultados: uno por estudiante elegible. Las clases futuras, canceladas y sin inicio no se cuentan como realizadas. Los datos no constituyen una evaluación oficial.</p>
         @if($trendWeeks === [])
-            <p class="text-secondary mb-0">Todavía no hay clases finalizadas con estudiantes elegibles para mostrar una tendencia en este cómputo.</p>
+            <p class="text-secondary mb-0">Todavía no hay clases finalizadas con estudiantes elegibles para mostrar una tendencia en este cómputo{{ $absenceRanking['date_filter']['from'] !== null || $absenceRanking['date_filter']['to'] !== null ? ' dentro de las fechas seleccionadas' : '' }}.</p>
         @else
             @php
             $chartWeeks = array_slice($trendWeeks, -10);
