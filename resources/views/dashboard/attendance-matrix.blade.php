@@ -63,10 +63,10 @@
             <span class="text-secondary">Página {{ $matrix['page'] }} de {{ $matrix['pages'] }}</span>
             <nav aria-label="Páginas de la matriz de asistencia" class="d-flex gap-2">
                 @if($matrix['page'] > 1)
-                    <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'matrix_page' => $matrix['page'] - 1]) }}#attendance-matrix">Anterior</a>
+                    <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_cycle_id' => $absenceRanking['cycle']?->id, 'ranking_sort' => $absenceRanking['sort'], 'matrix_page' => $matrix['page'] - 1]) }}#attendance-matrix">Anterior</a>
                 @endif
                 @if($matrix['page'] < $matrix['pages'])
-                    <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'matrix_page' => $matrix['page'] + 1]) }}#attendance-matrix">Siguiente</a>
+                    <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_cycle_id' => $absenceRanking['cycle']?->id, 'ranking_sort' => $absenceRanking['sort'], 'matrix_page' => $matrix['page'] + 1]) }}#attendance-matrix">Siguiente</a>
                 @endif
             </nav>
         </div>
