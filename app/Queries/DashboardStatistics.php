@@ -42,6 +42,7 @@ class DashboardStatistics
             'groups' => $groups, 'group' => $group, 'periods' => $periods, 'period' => $period,
             'rows' => [], 'total_students' => 0, 'detail' => null, 'error' => null, 'source' => null,
             'weekly_trend' => [],
+            'period_tracking' => null,
             'matrix' => ['sessions' => [], 'rows' => [], 'page' => $matrixPage, 'pages' => 1, 'total' => 0],
         ];
         if ($period === null) {
@@ -179,12 +180,33 @@ class DashboardStatistics
                 ?: strnatcasecmp($a['name'], $b['name'])
                 ?: $a['enrollment_id'] <=> $b['enrollment_id']);
 
+            // B01.4: operational indicators for the selected authorized period.
+            // Closure diagnostics are deliberately not exposed to teachers:
+            // A03's administrative view protects closure_issues with the manage policy.
+            $tracking = [
+                'state' => $period->state === 'closed' ? 'closed' : ($period->reopened_at !== null ? 'review' : 'open'),
+                'closed_at' => $period->closed_at,
+                'last_checked_at' => $period->closure_checked_at,
+                'pending_requests' => AbsenceRequest::query()
+                    ->where('offering_id', $group->id)
+                    ->where('status', 'pending')
+                    ->whereHas('session', fn (Builder $query) => $query->where('period_id', $period->id))
+                    ->whereHas('enrollment', fn (Builder $query) => $query->visibleTo($teacher))
+                    ->count(),
+                'in_progress_sessions' => ClassSession::query()
+                    ->where('offering_id', $group->id)
+                    ->where('period_id', $period->id)
+                    ->where('state', 'in_progress')
+                    ->count(),
+            ];
+
             return array_replace($base, [
                 'rows' => array_slice($rows, 0, 10),
                 'total_students' => count($rows),
                 'detail' => $detail,
                 'source' => $source,
                 'weekly_trend' => $weeklyTrend,
+                'period_tracking' => $tracking,
                 'matrix' => $matrix,
             ]);
         });
