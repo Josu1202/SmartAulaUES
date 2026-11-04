@@ -14,6 +14,7 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class DashboardStatistics
 {
@@ -23,7 +24,7 @@ class DashboardStatistics
      * Primer incremento B01: un grupo y un cómputo autorizados por consulta.
      * No replica reglas académicas: consume AttendanceSummary y su calculador A01.
      */
-    public function teacherAbsenceRanking(User $teacher, ?int $groupId = null, ?int $periodId = null, ?int $enrollmentId = null, int $matrixPage = 1, ?int $cycleId = null, string $sort = 'absences'): array
+    public function teacherAbsenceRanking(User $teacher, ?int $groupId = null, ?int $periodId = null, ?int $enrollmentId = null, int $matrixPage = 1, ?int $cycleId = null, string $sort = 'absences', ?string $dateFrom = null, ?string $dateTo = null): array
     {
         abort_unless($teacher->active && $teacher->role === Role::Teacher, 403);
         abort_if($matrixPage < 1, 404);
@@ -51,8 +52,32 @@ class DashboardStatistics
         abort_if($periodId !== null && $period === null, 404);
         abort_if($enrollmentId !== null && $period === null, 404);
 
+        // El rango exploratorio debe pertenecer al cómputo autorizado.
+        // No se modifica el snapshot de los cómputos cerrados.
+        if ($dateFrom !== null || $dateTo !== null) {
+            if ($period === null) {
+                throw ValidationException::withMessages([
+                    'ranking_date_from' => 'Seleccione primero un cómputo para filtrar fechas.',
+                ]);
+            }
+
+            $periodStart = $period->starts_on->toDateString();
+            $periodEnd = $period->ends_on->toDateString();
+            $errors = [];
+            if ($dateFrom !== null && ($dateFrom < $periodStart || $dateFrom > $periodEnd)) {
+                $errors['ranking_date_from'] = 'La fecha inicial debe estar entre '.$periodStart.' y '.$periodEnd.'.';
+            }
+            if ($dateTo !== null && ($dateTo < $periodStart || $dateTo > $periodEnd)) {
+                $errors['ranking_date_to'] = 'La fecha final debe estar entre '.$periodStart.' y '.$periodEnd.'.';
+            }
+            if ($errors !== []) {
+                throw ValidationException::withMessages($errors);
+            }
+        }
+
         $base = [
             'cycles' => $cycles, 'cycle' => $cycle, 'sort' => $sort,
+            'date_filter' => ['from' => $dateFrom, 'to' => $dateTo, 'affects_ranking' => $period?->state !== 'closed'],
             'groups' => $groups, 'group' => $group, 'periods' => $periods, 'period' => $period,
             'rows' => [], 'total_students' => 0, 'detail' => null, 'error' => null, 'source' => null,
             'weekly_trend' => [],
@@ -65,7 +90,7 @@ class DashboardStatistics
 
         // Conserva el bloqueo de ciclo para que todas las páginas reflejen un mismo corte.
         // AttendanceSummary mantiene la autorización, los locks y los snapshots de A.
-        return DB::transaction(function () use ($teacher, $group, $period, $enrollmentId, $matrixPage, $sort, $base): array {
+        return DB::transaction(function () use ($teacher, $group, $period, $enrollmentId, $matrixPage, $sort, $dateFrom, $dateTo, $base): array {
             AcademicCycle::sharedLock()->findOrFail($group->cycle_id);
             $summary = app(AttendanceSummary::class);
             $rows = [];
@@ -80,7 +105,13 @@ class DashboardStatistics
             $startRow = ($matrixPage - 1) * self::MATRIX_PER_PAGE;
 
             do {
-                $batch = $summary->forOffering($teacher, $group, periodId: $period->id, page: $page, perPage: 100);
+                // A01 accepts scoped, provisional calculations; A03 requires a complete
+                // immutable snapshot for closed periods (never pass date limits to it).
+                $batch = $summary->forOffering(
+                    $teacher, $group, periodId: $period->id, page: $page, perPage: 100,
+                    from: $period->state === 'closed' ? null : $dateFrom,
+                    to: $period->state === 'closed' ? null : $dateTo,
+                );
                 if ($batch['snapshotError'] !== null) {
                     return array_replace($base, ['error' => 'No se pudo verificar la versión de cierre de este cómputo.']);
                 }
@@ -110,6 +141,10 @@ class DashboardStatistics
                         $facts = [];
                         $incidentIds = array_fill_keys(array_column($calculation['incidents'], 'session_id'), true);
                         foreach ($calculation['session_facts'] as $fact) {
+                            if (($dateFrom !== null && $fact['academic_date'] < $dateFrom)
+                                || ($dateTo !== null && $fact['academic_date'] > $dateTo)) {
+                                continue;
+                            }
                             $sessionId = (int) $fact['id'];
                             $matrixSessions[$sessionId] ??= [
                                 'id' => $sessionId,
@@ -138,7 +173,9 @@ class DashboardStatistics
                     foreach ($calculation['session_facts'] as $fact) {
                         if ($fact['state'] !== 'completed'
                             || $fact['academic_date'] < $calculation['range']['from']
-                            || $fact['academic_date'] > $calculation['range']['to']) {
+                            || $fact['academic_date'] > $calculation['range']['to']
+                            || ($dateFrom !== null && $fact['academic_date'] < $dateFrom)
+                            || ($dateTo !== null && $fact['academic_date'] > $dateTo)) {
                             continue;
                         }
                         $week = CarbonImmutable::parse($fact['academic_date'], 'America/El_Salvador')
@@ -165,7 +202,9 @@ class DashboardStatistics
                         $detail = [
                             'student' => $row,
                             'sessions' => array_values(array_filter($calculation['session_facts'],
-                                fn (array $fact) => $fact['academic_date'] >= $range['from'] && $fact['academic_date'] <= $range['to'])),
+                                fn (array $fact) => $fact['academic_date'] >= $range['from'] && $fact['academic_date'] <= $range['to']
+                                    && ($dateFrom === null || $fact['academic_date'] >= $dateFrom)
+                                    && ($dateTo === null || $fact['academic_date'] <= $dateTo))),
                         ];
                     }
                 }

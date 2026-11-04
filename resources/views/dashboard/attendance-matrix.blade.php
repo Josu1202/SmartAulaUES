@@ -9,7 +9,7 @@
         @if($matrix['rows'] === [])
             <p role="status" class="mb-0 text-secondary">No hay estudiantes inscritos en esta página de la matriz.</p>
         @elseif($matrix['sessions'] === [])
-            <p role="status" class="mb-0 text-secondary">Este cómputo todavía no tiene sesiones registradas.</p>
+            <p role="status" class="mb-0 text-secondary">{{ $absenceRanking['date_filter']['from'] !== null || $absenceRanking['date_filter']['to'] !== null ? 'No hay sesiones dentro de las fechas seleccionadas.' : 'Este cómputo todavía no tiene sesiones registradas.' }}</p>
         @else
             <p class="small text-secondary">Se muestran {{ count($matrix['rows']) }} de {{ $matrix['total'] }} inscripciones en la página {{ $matrix['page'] }} de {{ $matrix['pages'] }}. Para consultar todas las sesiones, desplace horizontalmente la tabla.</p>
             <div class="table-responsive" role="region" tabindex="0" aria-label="Matriz de asistencia del grupo con desplazamiento horizontal">
@@ -63,10 +63,10 @@
             <span class="text-secondary">Página {{ $matrix['page'] }} de {{ $matrix['pages'] }}</span>
             <nav aria-label="Páginas de la matriz de asistencia" class="d-flex gap-2">
                 @if($matrix['page'] > 1)
-                    <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_cycle_id' => $absenceRanking['cycle']?->id, 'ranking_sort' => $absenceRanking['sort'], 'matrix_page' => $matrix['page'] - 1]) }}#attendance-matrix">Anterior</a>
+                    <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_cycle_id' => $absenceRanking['cycle']?->id, 'ranking_sort' => $absenceRanking['sort'], 'matrix_page' => $matrix['page'] - 1, 'ranking_date_from' => $absenceRanking['date_filter']['from'], 'ranking_date_to' => $absenceRanking['date_filter']['to']]) }}#attendance-matrix">Anterior</a>
                 @endif
                 @if($matrix['page'] < $matrix['pages'])
-                    <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_cycle_id' => $absenceRanking['cycle']?->id, 'ranking_sort' => $absenceRanking['sort'], 'matrix_page' => $matrix['page'] + 1]) }}#attendance-matrix">Siguiente</a>
+                    <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_cycle_id' => $absenceRanking['cycle']?->id, 'ranking_sort' => $absenceRanking['sort'], 'matrix_page' => $matrix['page'] + 1, 'ranking_date_from' => $absenceRanking['date_filter']['from'], 'ranking_date_to' => $absenceRanking['date_filter']['to']]) }}#attendance-matrix">Siguiente</a>
                 @endif
             </nav>
         </div>
