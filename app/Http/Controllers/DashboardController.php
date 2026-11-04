@@ -30,6 +30,8 @@ class DashboardController extends Controller
         $absenceRanking = null;
         if ($user->role === Role::Teacher) {
             $rankingInput = $request->validate([
+                'ranking_cycle_id' => ['nullable', 'integer', 'min:1'],
+                'ranking_sort' => ['nullable', 'in:absences,rate'],
                 'ranking_group_id' => ['nullable', 'integer', 'min:1'],
                 'ranking_period_id' => ['nullable', 'integer', 'min:1'],
                 'ranking_enrollment_id' => ['nullable', 'integer', 'min:1'],
@@ -41,6 +43,8 @@ class DashboardController extends Controller
                 isset($rankingInput['ranking_period_id']) ? (int) $rankingInput['ranking_period_id'] : null,
                 isset($rankingInput['ranking_enrollment_id']) ? (int) $rankingInput['ranking_enrollment_id'] : null,
                 isset($rankingInput['matrix_page']) ? (int) $rankingInput['matrix_page'] : 1,
+                isset($rankingInput['ranking_cycle_id']) ? (int) $rankingInput['ranking_cycle_id'] : null,
+                $rankingInput['ranking_sort'] ?? 'absences',
             );
         }
 

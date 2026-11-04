@@ -45,8 +45,28 @@
             </div>
             <div class="card-body">
                 <p class="text-secondary">Ranking de faltas sin justificar en un grupo y cómputo. La tasa de inasistencia usa faltas sin justificar / sesiones elegibles; las justificadas se muestran aparte. No es una sanción ni una evaluación oficial.</p>
+                @if($absenceRanking['cycles']->isNotEmpty())
+                    <form method="GET" action="{{ route('dashboard') }}#absence-ranking" class="d-flex align-items-end gap-2 flex-wrap mb-3">
+                        <div>
+                            <label for="ranking-cycle" class="form-label">Ciclo académico</label>
+                            <select name="ranking_cycle_id" id="ranking-cycle" class="form-select">
+                                <option value="" @selected($absenceRanking['cycle'] === null)>Ciclos actuales</option>
+                                @foreach($absenceRanking['cycles'] as $rankingCycle)
+                                    <option value="{{ $rankingCycle->id }}" @selected($absenceRanking['cycle']?->id === $rankingCycle->id)>{{ $rankingCycle->code }}{{ $rankingCycle->status === 'closed' ? ' · Histórico' : '' }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <input type="hidden" name="ranking_sort" value="{{ $absenceRanking['sort'] }}">
+                        <button class="btn btn-outline-dark" type="submit">Consultar ciclo</button>
+                    </form>
+                    <p class="small text-secondary mb-3">Al seleccionar un ciclo, puede consultar también sus grupos históricos e inactivos. Solo se muestran grupos autorizados.</p>
+                @endif
                 @if($absenceRanking['groups']->isNotEmpty())
                     <form method="GET" action="{{ route('dashboard') }}#absence-ranking" class="d-flex align-items-end gap-2 flex-wrap mb-3">
+                        @if($absenceRanking['cycle'] !== null)
+                            <input type="hidden" name="ranking_cycle_id" value="{{ $absenceRanking['cycle']->id }}">
+                        @endif
+                        <input type="hidden" name="ranking_sort" value="{{ $absenceRanking['sort'] }}">
                         <div>
                             <label for="ranking-group" class="form-label">Grupo</label>
                             <select name="ranking_group_id" id="ranking-group" class="form-select">
@@ -63,14 +83,31 @@
                     <nav aria-label="Cómputos del ranking" class="d-flex flex-wrap align-items-center gap-2 mb-3">
                         <span class="text-secondary">Cómputo:</span>
                         @foreach($absenceRanking['periods'] as $rankingPeriod)
-                            <a class="btn btn-sm {{ $absenceRanking['period']?->id === $rankingPeriod->id ? 'btn-primary' : 'btn-outline-dark' }}" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $rankingPeriod->id]) }}#absence-ranking" @if($absenceRanking['period']?->id === $rankingPeriod->id) aria-current="page" @endif>{{ $rankingPeriod->number }}</a>
+                            <a class="btn btn-sm {{ $absenceRanking['period']?->id === $rankingPeriod->id ? 'btn-primary' : 'btn-outline-dark' }}" href="{{ route('dashboard', ['ranking_cycle_id' => $absenceRanking['cycle']?->id, 'ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $rankingPeriod->id, 'ranking_sort' => $absenceRanking['sort']]) }}#absence-ranking" @if($absenceRanking['period']?->id === $rankingPeriod->id) aria-current="page" @endif>{{ $rankingPeriod->number }}</a>
                         @endforeach
                     </nav>
+                @endif
+                @if($absenceRanking['period'] !== null)
+                    <form method="GET" action="{{ route('dashboard') }}#absence-ranking" class="d-flex align-items-end gap-2 flex-wrap mb-3">
+                        @if($absenceRanking['cycle'] !== null)
+                            <input type="hidden" name="ranking_cycle_id" value="{{ $absenceRanking['cycle']->id }}">
+                        @endif
+                        <input type="hidden" name="ranking_group_id" value="{{ $absenceRanking['group']->id }}">
+                        <input type="hidden" name="ranking_period_id" value="{{ $absenceRanking['period']->id }}">
+                        <div>
+                            <label for="ranking-sort" class="form-label">Ordenar ranking por</label>
+                            <select name="ranking_sort" id="ranking-sort" class="form-select">
+                                <option value="absences" @selected($absenceRanking['sort'] === 'absences')>Cantidad de ausencias</option>
+                                <option value="rate" @selected($absenceRanking['sort'] === 'rate')>Tasa de inasistencia</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline-dark" type="submit">Aplicar orden</button>
+                    </form>
                 @endif
                 @if($absenceRanking['error'])
                     <div class="alert alert-warning" role="status">{{ $absenceRanking['error'] }} Consulte los resultados del grupo o contacte a Coordinación.</div>
                 @elseif($absenceRanking['period'] === null)
-                    <p class="mb-0 text-secondary">{{ $absenceRanking['group'] === null ? 'Aún no tiene grupos asignados.' : 'Este grupo todavía no tiene cómputos definidos.' }}</p>
+                    <p class="mb-0 text-secondary">{{ $absenceRanking['group'] === null ? 'No hay grupos disponibles en esta selección. Pruebe otro ciclo.' : 'Este grupo todavía no tiene cómputos definidos.' }}</p>
                 @else
                     <p class="small text-secondary">Cómputo {{ $absenceRanking['period']->number }} · {{ match($absenceRanking['source']) { 'snapshot' => 'Resultados del cierre conservado', 'review' => 'Datos en revisión', default => 'Datos provisionales' } }} · Se muestran hasta 10 de {{ $absenceRanking['total_students'] }} inscripciones. «—» indica que aún no hay porcentaje calculable.</p>
                     <div class="table-responsive" role="region" aria-label="Ranking de ausencias del grupo; puede desplazarse horizontalmente" tabindex="0">
@@ -89,7 +126,7 @@
                                         <td>{{ $rankedStudent['eligible'] }}</td>
                                         <td class="text-nowrap">{{ $rankedStudent['absence_percentage'] === null ? '—' : $rankedStudent['absence_percentage'].' %' }}</td>
                                         <td>{{ $rankedStudent['justified'] }}</td>
-                                        <td><a class="btn btn-sm btn-outline-dark text-nowrap" aria-label="Ver detalle de {{ $rankedStudent['name'] }}" href="{{ route('dashboard', ['ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_enrollment_id' => $rankedStudent['enrollment_id']]) }}#ranking-student-detail">Ver detalle</a></td>
+                                        <td><a class="btn btn-sm btn-outline-dark text-nowrap" aria-label="Ver detalle de {{ $rankedStudent['name'] }}" href="{{ route('dashboard', ['ranking_cycle_id' => $absenceRanking['cycle']?->id, 'ranking_group_id' => $absenceRanking['group']->id, 'ranking_period_id' => $absenceRanking['period']->id, 'ranking_sort' => $absenceRanking['sort'], 'ranking_enrollment_id' => $rankedStudent['enrollment_id']]) }}#ranking-student-detail">Ver detalle</a></td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="8" class="text-center text-secondary">No hay estudiantes inscritos para este cómputo.</td></tr>

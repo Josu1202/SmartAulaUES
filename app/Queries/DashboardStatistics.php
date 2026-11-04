@@ -23,12 +23,25 @@ class DashboardStatistics
      * Primer incremento B01: un grupo y un cómputo autorizados por consulta.
      * No replica reglas académicas: consume AttendanceSummary y su calculador A01.
      */
-    public function teacherAbsenceRanking(User $teacher, ?int $groupId = null, ?int $periodId = null, ?int $enrollmentId = null, int $matrixPage = 1): array
+    public function teacherAbsenceRanking(User $teacher, ?int $groupId = null, ?int $periodId = null, ?int $enrollmentId = null, int $matrixPage = 1, ?int $cycleId = null, string $sort = 'absences'): array
     {
         abort_unless($teacher->active && $teacher->role === Role::Teacher, 403);
         abort_if($matrixPage < 1, 404);
+        abort_unless(in_array($sort, ['absences', 'rate'], true), 422);
 
-        $groups = Offering::query()->visibleTo($teacher)->current()
+        // Ciclos disponibles solo a través de grupos autorizados, incluidos los históricos.
+        $cycles = AcademicCycle::query()
+            ->whereHas('offerings', fn (Builder $query) => $query->visibleTo($teacher))
+            ->orderByDesc('starts_on')->orderBy('id')->get();
+        $cycle = $cycleId === null ? null : $cycles->firstWhere('id', $cycleId);
+        abort_if($cycleId !== null && $cycle === null, 404);
+
+        // Sin ciclo explícito se conserva la vista operativa actual.
+        // Al seleccionar ciclo se permite consultar grupos históricos o inactivos propios.
+        $groups = Offering::query()->visibleTo($teacher)
+            ->when($cycleId === null,
+                fn (Builder $query) => $query->current(),
+                fn (Builder $query) => $query->where('cycle_id', $cycleId))
             ->with(['subject', 'cycle'])->orderBy('offerings.id')->get();
         $group = $groupId === null ? $groups->first() : $groups->firstWhere('id', $groupId);
         abort_if($groupId !== null && $group === null, 404);
@@ -39,6 +52,7 @@ class DashboardStatistics
         abort_if($enrollmentId !== null && $period === null, 404);
 
         $base = [
+            'cycles' => $cycles, 'cycle' => $cycle, 'sort' => $sort,
             'groups' => $groups, 'group' => $group, 'periods' => $periods, 'period' => $period,
             'rows' => [], 'total_students' => 0, 'detail' => null, 'error' => null, 'source' => null,
             'weekly_trend' => [],
@@ -51,7 +65,7 @@ class DashboardStatistics
 
         // Conserva el bloqueo de ciclo para que todas las páginas reflejen un mismo corte.
         // AttendanceSummary mantiene la autorización, los locks y los snapshots de A.
-        return DB::transaction(function () use ($teacher, $group, $period, $enrollmentId, $matrixPage, $base): array {
+        return DB::transaction(function () use ($teacher, $group, $period, $enrollmentId, $matrixPage, $sort, $base): array {
             AcademicCycle::sharedLock()->findOrFail($group->cycle_id);
             $summary = app(AttendanceSummary::class);
             $rows = [];
@@ -176,9 +190,26 @@ class DashboardStatistics
 
                 return $week;
             }, $weekly));
-            usort($rows, fn (array $a, array $b) => $b['absent'] <=> $a['absent']
-                ?: strnatcasecmp($a['name'], $b['name'])
-                ?: $a['enrollment_id'] <=> $b['enrollment_id']);
+            usort($rows, static function (array $a, array $b) use ($sort): int {
+                if ($sort === 'rate') {
+                    // Sin denominador o sin estado calculable: al final del ranking.
+                    $missingRate = ($a['absence_percentage'] === null) <=> ($b['absence_percentage'] === null);
+                    if ($missingRate !== 0) {
+                        return $missingRate;
+                    }
+                    if ($a['absence_percentage'] !== null && $b['absence_percentage'] !== null) {
+                        // Comparamos el cociente real, no el porcentaje redondeado a dos decimales.
+                        $byRate = ($b['absent'] / $b['eligible']) <=> ($a['absent'] / $a['eligible']);
+                        if ($byRate !== 0) {
+                            return $byRate;
+                        }
+                    }
+                }
+
+                return $b['absent'] <=> $a['absent']
+                    ?: strnatcasecmp($a['name'], $b['name'])
+                    ?: $a['enrollment_id'] <=> $b['enrollment_id'];
+            });
 
             // B01.4: operational indicators for the selected authorized period.
             // Closure diagnostics are deliberately not exposed to teachers:
