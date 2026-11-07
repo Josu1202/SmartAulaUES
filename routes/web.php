@@ -20,6 +20,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReadinessController;
+use App\Http\Controllers\ReportPdfController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TerminalController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,11 @@ Route::middleware(['auth', 'active', 'auth.session', 'password.changed'])->group
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::middleware('role:coordinator,teacher')->group(function (): void {
+        Route::get('/reports', [ReportPdfController::class, 'index'])->name('reports.index');
+        Route::post('/reports/{reportVersion}/generate', [ReportPdfController::class, 'generate'])->middleware('throttle:10,1')->name('reports.generate');
+        Route::get('/reports/{reportVersion}/download', [ReportPdfController::class, 'download'])->name('reports.download');
+    });
     Route::get('/profile', ProfileController::class)->name('profile');
     Route::put('/profile/password', [ProfileController::class, 'changePassword'])->middleware('throttle:6,1')->name('profile.password');
     Route::get('/offerings', [OfferingController::class, 'index'])->name('offerings.index');
