@@ -17,7 +17,7 @@ x-local-environment: &local-environment
   SESSION_DOMAIN: ""
   SESSION_SECURE_COOKIE: "false"
   CACHE_STORE: database
-  QUEUE_CONNECTION: sync
+  QUEUE_CONNECTION: database
   MAIL_MAILER: log
   DEMO_SEED: "false"
   SMARTAULAUES_TRUSTED_PROXIES: ""
@@ -72,6 +72,17 @@ services:
       timeout: 15s
       start_period: 120s
       retries: 3
+  worker:
+    image: smartaulaues-development:local
+    build: .
+    command: ["php", "artisan", "queue:work", "database", "--queue=reports,default", "--sleep=2", "--tries=3", "--timeout=60"]
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 80s
+    volumes: *code-volumes
+    environment: *local-environment
+    depends_on:
+      app: {condition: service_healthy}
   node:
     image: node:24-bookworm-slim
     working_dir: /var/www/html
