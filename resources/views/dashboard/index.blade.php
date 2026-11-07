@@ -118,6 +118,17 @@
                 @elseif($absenceRanking['period'] === null)
                     <p class="mb-0 text-secondary">{{ $absenceRanking['group'] === null ? 'No hay grupos disponibles en esta selección. Pruebe otro ciclo.' : 'Este grupo todavía no tiene cómputos definidos.' }}</p>
                 @else
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                        <a class="btn btn-sm btn-outline-dark" href="{{ route('dashboard.tracking.csv', [
+                            'ranking_cycle_id' => $absenceRanking['cycle']?->id,
+                            'ranking_group_id' => $absenceRanking['group']->id,
+                            'ranking_period_id' => $absenceRanking['period']->id,
+                            'ranking_sort' => $absenceRanking['sort'],
+                            'ranking_date_from' => $absenceRanking['date_filter']['from'],
+                            'ranking_date_to' => $absenceRanking['date_filter']['to'],
+                        ]) }}">Exportar seguimiento CSV</a>
+                        <span class="small text-secondary">Incluye todas las inscripciones del ranking. Los cierres conservan el resultado certificado completo.</span>
+                    </div>
                     <p class="small text-secondary">{{ $absenceRanking['date_filter']['from'] !== null || $absenceRanking['date_filter']['to'] !== null ? ($absenceRanking['date_filter']['affects_ranking'] ? 'Vista exploratoria del rango' : 'Ranking del cierre completo, sin recorte') : 'Ranking del cómputo' }} · Cómputo {{ $absenceRanking['period']->number }} · {{ match($absenceRanking['source']) { 'snapshot' => 'Resultados del cierre conservado', 'review' => 'Datos en revisión', default => 'Datos provisionales' } }} · Se muestran hasta 10 de {{ $absenceRanking['total_students'] }} inscripciones. «—» indica que aún no hay porcentaje calculable.</p>
                     <div class="table-responsive" role="region" aria-label="Ranking de ausencias del grupo; puede desplazarse horizontalmente" tabindex="0">
                         <table class="table table-vcenter absence-ranking-table">

@@ -24,7 +24,7 @@ class DashboardStatistics
      * Primer incremento B01: un grupo y un cómputo autorizados por consulta.
      * No replica reglas académicas: consume AttendanceSummary y su calculador A01.
      */
-    public function teacherAbsenceRanking(User $teacher, ?int $groupId = null, ?int $periodId = null, ?int $enrollmentId = null, int $matrixPage = 1, ?int $cycleId = null, string $sort = 'absences', ?string $dateFrom = null, ?string $dateTo = null): array
+    public function teacherAbsenceRanking(User $teacher, ?int $groupId = null, ?int $periodId = null, ?int $enrollmentId = null, int $matrixPage = 1, ?int $cycleId = null, string $sort = 'absences', ?string $dateFrom = null, ?string $dateTo = null, bool $exportAll = false): array
     {
         abort_unless($teacher->active && $teacher->role === Role::Teacher, 403);
         abort_if($matrixPage < 1, 404);
@@ -79,7 +79,7 @@ class DashboardStatistics
             'cycles' => $cycles, 'cycle' => $cycle, 'sort' => $sort,
             'date_filter' => ['from' => $dateFrom, 'to' => $dateTo, 'affects_ranking' => $period?->state !== 'closed'],
             'groups' => $groups, 'group' => $group, 'periods' => $periods, 'period' => $period,
-            'rows' => [], 'total_students' => 0, 'detail' => null, 'error' => null, 'source' => null,
+            'rows' => [], 'total_students' => 0, 'detail' => null, 'error' => null, 'source' => null, 'report_version' => null,
             'weekly_trend' => [],
             'period_tracking' => null,
             'matrix' => ['sessions' => [], 'rows' => [], 'page' => $matrixPage, 'pages' => 1, 'total' => 0],
@@ -90,13 +90,14 @@ class DashboardStatistics
 
         // Conserva el bloqueo de ciclo para que todas las páginas reflejen un mismo corte.
         // AttendanceSummary mantiene la autorización, los locks y los snapshots de A.
-        return DB::transaction(function () use ($teacher, $group, $period, $enrollmentId, $matrixPage, $sort, $dateFrom, $dateTo, $base): array {
+        return DB::transaction(function () use ($teacher, $group, $period, $enrollmentId, $matrixPage, $sort, $dateFrom, $dateTo, $base, $exportAll): array {
             AcademicCycle::sharedLock()->findOrFail($group->cycle_id);
             $summary = app(AttendanceSummary::class);
             $rows = [];
             $detail = null;
             $page = 1;
             $source = null;
+            $reportVersion = null;
             $weekly = [];
             $calculator = app(AttendanceCalculator::class);
             $matrixSessions = [];
@@ -116,6 +117,7 @@ class DashboardStatistics
                     return array_replace($base, ['error' => 'No se pudo verificar la versión de cierre de este cómputo.']);
                 }
                 $source = $batch['source'];
+                $reportVersion = $batch['report']?->version;
                 foreach ($batch['rows'] as $student) {
                     $calculation = $student['calculation'];
                     $counts = $calculation['counts'];
@@ -271,10 +273,11 @@ class DashboardStatistics
             ];
 
             return array_replace($base, [
-                'rows' => array_slice($rows, 0, 10),
+                'rows' => $exportAll ? $rows : array_slice($rows, 0, 10),
                 'total_students' => count($rows),
                 'detail' => $detail,
                 'source' => $source,
+                'report_version' => $reportVersion,
                 'weekly_trend' => $weeklyTrend,
                 'period_tracking' => $tracking,
                 'matrix' => $matrix,

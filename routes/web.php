@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardTrackingCsvController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferingController;
@@ -55,6 +56,8 @@ Route::middleware(['auth', 'active', 'auth.session', 'password.changed'])->group
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard/seguimiento.csv', DashboardTrackingCsvController::class)
+        ->middleware(['role:teacher', 'throttle:10,1'])->name('dashboard.tracking.csv');
     Route::middleware('role:coordinator,teacher')->group(function (): void {
         Route::get('/reports', [ReportPdfController::class, 'index'])->name('reports.index');
         Route::post('/reports/{reportVersion}/generate', [ReportPdfController::class, 'generate'])->middleware('throttle:10,1')->name('reports.generate');
