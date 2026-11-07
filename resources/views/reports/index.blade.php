@@ -8,10 +8,10 @@
     <section class="card mb-4" aria-labelledby="reports-heading">
         <div class="card-header"><h2 class="card-title" id="reports-heading">Versiones certificadas</h2></div>
         <div class="card-body">
-            <p class="text-secondary">Los PDF se generan desde el snapshot conservado. Si están pendientes, un worker debe procesar la cola «reports».</p>
+            <p class="text-secondary">Los PDF y CSV se generan desde el snapshot conservado. Si están pendientes, un worker debe procesar la cola «reports».</p>
             <div class="table-responsive" tabindex="0" role="region" aria-label="Reportes por cómputo">
                 <table class="table table-vcenter">
-                    <thead><tr><th>Ciclo y materia</th><th>Grupo / Cómputo</th><th>Versión</th><th>Estado</th><th>Acción</th></tr></thead>
+                    <thead><tr><th>Ciclo y materia</th><th>Grupo / Cómputo</th><th>Versión</th><th>Estado</th><th>PDF</th><th>CSV</th></tr></thead>
                     <tbody>
                         @forelse($versions as $version)
                             <tr>
@@ -29,9 +29,19 @@
                                         </form>
                                     @endif
                                 </td>
+                                <td>
+                                    @if($version->csv_path !== null)
+                                        <a class="btn btn-sm btn-outline-dark" href="{{ route('reports.csv.download', $version) }}">Descargar CSV</a>
+                                    @else
+                                        <form method="POST" action="{{ route('reports.csv.generate', $version) }}">
+                                            @csrf
+                                            <button class="btn btn-sm btn-outline-dark" type="submit">Solicitar CSV</button>
+                                        </form>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5">No hay versiones de cierre disponibles para esta cuenta.</td></tr>
+                            <tr><td colspan="6">No hay versiones de cierre disponibles para esta cuenta.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

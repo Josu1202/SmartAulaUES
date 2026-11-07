@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReportVersion extends Model
 {
-    protected $fillable = ['period_id', 'version', 'snapshot', 'policy_version', 'pdf_path', 'file_hash', 'generated_by', 'generated_at', 'origin', 'snapshot_hash'];
+    protected $fillable = ['period_id', 'version', 'snapshot', 'policy_version', 'pdf_path', 'file_hash', 'csv_path', 'csv_hash', 'generated_by', 'generated_at', 'origin', 'snapshot_hash'];
 
     protected function casts(): array
     {
