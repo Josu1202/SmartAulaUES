@@ -20,6 +20,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReadinessController;
+use App\Http\Controllers\ReportCsvController;
 use App\Http\Controllers\ReportPdfController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TerminalController;
@@ -58,6 +59,8 @@ Route::middleware(['auth', 'active', 'auth.session', 'password.changed'])->group
         Route::get('/reports', [ReportPdfController::class, 'index'])->name('reports.index');
         Route::post('/reports/{reportVersion}/generate', [ReportPdfController::class, 'generate'])->middleware('throttle:10,1')->name('reports.generate');
         Route::get('/reports/{reportVersion}/download', [ReportPdfController::class, 'download'])->name('reports.download');
+        Route::post('/reports/{reportVersion}/csv/generate', [ReportCsvController::class, 'generate'])->middleware('throttle:10,1')->name('reports.csv.generate');
+        Route::get('/reports/{reportVersion}/csv/download', [ReportCsvController::class, 'download'])->name('reports.csv.download');
     });
     Route::get('/profile', ProfileController::class)->name('profile');
     Route::put('/profile/password', [ProfileController::class, 'changePassword'])->middleware('throttle:6,1')->name('profile.password');
