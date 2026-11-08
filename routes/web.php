@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AbsenceRequestController;
 use App\Http\Controllers\AcademicClosureController;
+use App\Http\Controllers\AcademicTimelineController;
 use App\Http\Controllers\Admin\AcademicCycleController;
 use App\Http\Controllers\Admin\AssessmentPeriodController;
 use App\Http\Controllers\Admin\AuditController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardTrackingCsvController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferingController;
 use App\Http\Controllers\ProfileController;
@@ -56,6 +58,16 @@ Route::middleware(['auth', 'active', 'auth.session', 'password.changed'])->group
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/history', [AcademicTimelineController::class, 'history'])->name('history.index');
+    Route::get('/calendar', [AcademicTimelineController::class, 'calendar'])->name('calendar.index');
+    Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+    Route::get('/news/create', [NewsController::class, 'create'])->middleware('role:coordinator,teacher')->name('news.create');
+    Route::post('/news', [NewsController::class, 'store'])->middleware(['role:coordinator,teacher', 'throttle:10,1'])->name('news.store');
+    Route::get('/news/{news}', [NewsController::class, 'show'])->name('news.show');
+    Route::get('/news/{news}/edit', [NewsController::class, 'edit'])->middleware('role:coordinator,teacher')->name('news.edit');
+    Route::put('/news/{news}', [NewsController::class, 'update'])->middleware(['role:coordinator,teacher', 'throttle:10,1'])->name('news.update');
+    Route::post('/news/{news}/publish', [NewsController::class, 'publish'])->middleware(['role:coordinator,teacher', 'throttle:10,1'])->name('news.publish');
+    Route::post('/news/{news}/archive', [NewsController::class, 'archive'])->middleware(['role:coordinator,teacher', 'throttle:10,1'])->name('news.archive');
     Route::get('/dashboard/seguimiento.csv', DashboardTrackingCsvController::class)
         ->middleware(['role:teacher', 'throttle:10,1'])->name('dashboard.tracking.csv');
     Route::middleware('role:coordinator,teacher')->group(function (): void {
