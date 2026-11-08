@@ -312,3 +312,14 @@ en el equipo correspondiente. A01 calcula resultados vivos de períodos abiertos
 - [Guía entregada](docs/reference/Guia_de_desarrollo_SIAA_v2.pdf).
 - [Contrato NFC y registro](docs/nfc-contract.md), [modelo de datos](docs/database.md).
 - [Versionado](docs/versioning.md), [avisos de terceros](THIRD_PARTY_NOTICES.md).
+
+
+### B03 · Historial académico, calendario y noticias (Integrante 3)
+
+Las rutas `/history`, `/calendar` y `/news` amplían el seguimiento por perfil, sin
+modificar el cálculo académico. Coordinación puede publicar noticias de ciclo o
+grupo; los docentes, solo de sus grupos. Los estudiantes ven publicaciones y
+sesiones según la vigencia de su inscripción. Los avisos internos para noticias
+y cierres usan las notificaciones existentes.
+
+Véase [alcance, privacidad, migración y pruebas de B03](docs/B03_historial_calendario_noticias.md).

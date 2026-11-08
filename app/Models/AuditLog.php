@@ -9,7 +9,7 @@ class AuditLog extends Model
 {
     public const ENTITY_TYPES = [
         'User', 'AcademicCycle', 'CycleFormat', 'Subject', 'Offering', 'AssessmentPeriod', 'Enrollment',
-        'CsvImport', 'ClassSession', 'AttendancePortal', 'ReaderSession', 'NfcCredential', 'Attendance', 'AbsenceRequest',
+        'CsvImport', 'News', 'ClassSession', 'AttendancePortal', 'ReaderSession', 'NfcCredential', 'Attendance', 'AbsenceRequest',
     ];
 
     public $timestamps = false;

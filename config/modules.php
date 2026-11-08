@@ -6,5 +6,5 @@ return [
     'reports' => ['title' => 'Resultados y cierres', 'icon' => 'chart', 'description' => 'Consulta de asistencia por cómputo e historial de cierres. Exportación PDF pendiente.', 'roles' => ['coordinator', 'teacher']],
     'credentials' => ['title' => 'Credenciales NFC', 'icon' => 'nfc', 'description' => 'Asignación, comprobación y revocación de etiquetas de estudiantes.', 'roles' => ['coordinator']],
     'imports' => ['title' => 'Importaciones', 'icon' => 'upload', 'description' => 'Carga de usuarios e inscripciones desde CSV, con revisión previa de errores.', 'roles' => ['coordinator']],
-    'news' => ['title' => 'Noticias', 'icon' => 'bell', 'description' => 'Avisos académicos y notificaciones internas para cada grupo.', 'roles' => ['coordinator', 'teacher', 'student']],
+    'news' => ['title' => 'Noticias', 'icon' => 'bell', 'description' => 'Noticias publicadas para grupos o ciclos autorizados.', 'roles' => ['coordinator', 'teacher', 'student']],
 ];

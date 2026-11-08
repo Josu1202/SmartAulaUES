@@ -1,3 +1,11 @@
+## B03 · Integrante 3 · propuesta de integración (pendiente de pruebas Docker/CI)
+
+- Historial por ciclo, grupo y cómputo con resumen personal de A y paginación de sesiones.
+- Calendario autorizado para estudiante, docente y coordinación, respetando fechas de matrícula.
+- Noticias con borrador, publicación, edición, archivo, auditoría y Policy por audiencia.
+- Avisos internos idempotentes de noticias y cierre, sin correos externos ni diagnósticos privados.
+- Migración incremental, pruebas B03 y guía de verificación; no implica release o merge.
+
 # Historial de versiones SmartAulaUES
 
 ## Preparación operativa local · 24/10/2026 · sin release
