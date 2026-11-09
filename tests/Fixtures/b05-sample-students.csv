@@ -1,0 +1,4 @@
+name,email,student_code,entry_year,study_year
+Ejemplo B05 Alumno Uno,b05-csv-alumno01@example.test,B05-CSV-01,2024,1
+Ejemplo B05 Alumno Dos,b05-csv-alumno02@example.test,B05-CSV-02,2024,2
+Ejemplo B05 Alumno Tres,b05-csv-alumno03@example.test,B05-CSV-03,2025,1

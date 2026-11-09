@@ -8,6 +8,15 @@
 
 # Historial de versiones SmartAulaUES
 
+
+### B05 — Escenarios sintéticos versionados (Integrante 3; validación local pendiente)
+
+- Nuevo comando `b05:demo` optativo con perfiles small/full, referencia controlada y base PostgreSQL comprobada; sin seeds automáticos.
+- Migración incremental de manifiesto de versión; colisiones rechazadas, transacción/lock y repetición sin sobrescribir datos existentes.
+- Grupos sintéticos con ausencias, permisos, cobertura incompleta, tendencias y cierre histórico por A03; valores esperados y muestra CSV sin credenciales.
+- Pruebas de seguridad, fórmula consumida desde A01, snapshots y preservación de contraseñas.
+
+
 ## Preparación operativa local · 24/10/2026 · sin release
 
 - Seeder neutral de 52 cuentas, fechas relativas/cronología, snapshots coherentes, repetición segura,

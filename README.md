@@ -327,3 +327,6 @@ Véase [alcance, privacidad, migración y pruebas de B03](docs/B03_historial_cal
 ### B04 — Tutorial por perfil y Ayuda (Integrante 3)
 
 La opción **Ayuda** del menú ofrece una guía de 5–6 pasos según el rol, omitible y repetible. El estado se registra en PostgreSQL por usuario, rol y versión; no depende del navegador. Incluye un recorrido accesible con teclado, Escape, foco, diseño móvil y tablas alternativas para las gráficas. Consulte [docs/B04_experiencia_ayuda_accesibilidad.md](docs/B04_experiencia_ayuda_accesibilidad.md) para ver instalación, pruebas y limitaciones.
+## B05 · Demo versionada (Integrante 3)
+
+Escenarios de prueba `small`/`full`, manifest v1 y cierre histórico real; se ejecutan **solo por comando explícito** en bases `siaa_test`/`smartaulaues_local` con guarda doble y contraseña privada. Nunca se ejecutan al migrar ni al iniciar la app. Instrucciones y conteos esperados: [B05 — Escenarios](docs/B05_escenarios_versionados.md).
