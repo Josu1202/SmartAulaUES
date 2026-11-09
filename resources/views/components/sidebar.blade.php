@@ -43,6 +43,8 @@
                     name="nfc" />Terminal NFC</a>
         @endif
     @if(auth()->user()?->role === \App\Enums\Role::Student)<a class="nav-link" href="{{ route('student.shared-tag') }}">Leer etiqueta compartida</a>@endif</nav>
+    <a href="{{ route('help.index') }}" class="sidebar-link mx-3 {{ request()->routeIs('help.*') ? 'active' : '' }}"
+        @if (request()->routeIs('help.*')) aria-current="page" @endif><x-icon name="help" />Ayuda</a>
     <div class="sidebar-bottom"><span
             class="sidebar-dot"></span>{{ auth()->user()->role->label() }}<small>v{{ config('smartaulaues.version') }}</small>
     </div>

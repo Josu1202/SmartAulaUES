@@ -29,6 +29,7 @@
                             class="user-menu-text">{{ auth()->user()->name }}<small>{{ auth()->user()->role->label() }}</small></span></button>
                     <div class="dropdown-menu dropdown-menu-end"><a class="dropdown-item"
                             href="{{ route('profile') }}"><x-icon name="user" class="me-2" />Mi cuenta</a>
+                        <a class="dropdown-item" href="{{ route('help.index') }}"><x-icon name="help" class="me-2" />Ayuda</a>
                         <form method="POST" action="{{ route('logout') }}"><input type="hidden" name="_form" value="{{ hash('sha256', 'layouts/app.blade.php:1'.'|'.(route('logout'))) }}">@csrf<button class="dropdown-item"
                                 type="submit"><x-icon name="logout" class="me-2" />Cerrar sesión</button></form>
                     </div>
@@ -52,6 +53,7 @@
         <footer class="smartaulaues-footer"><span>Asistencia académica universitaria</span><span>{{ config('smartaulaues.name') }} ·
                 v{{ config('smartaulaues.version') }}</span></footer>
     </div>
+    @include('help._tour')
 </body>
 
 </html>

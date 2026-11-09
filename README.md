@@ -323,3 +323,7 @@ sesiones según la vigencia de su inscripción. Los avisos internos para noticia
 y cierres usan las notificaciones existentes.
 
 Véase [alcance, privacidad, migración y pruebas de B03](docs/B03_historial_calendario_noticias.md).
+
+### B04 — Tutorial por perfil y Ayuda (Integrante 3)
+
+La opción **Ayuda** del menú ofrece una guía de 5–6 pasos según el rol, omitible y repetible. El estado se registra en PostgreSQL por usuario, rol y versión; no depende del navegador. Incluye un recorrido accesible con teclado, Escape, foco, diseño móvil y tablas alternativas para las gráficas. Consulte [docs/B04_experiencia_ayuda_accesibilidad.md](docs/B04_experiencia_ayuda_accesibilidad.md) para ver instalación, pruebas y limitaciones.

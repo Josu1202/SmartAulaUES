@@ -58,3 +58,7 @@ initializeCredentials(document.querySelector('[data-credential-manager]'));
 initializeCheckIn(document.querySelector('[data-checkin]'));
 import { initializeSharedTag } from './shared-tag.js';
 initializeSharedTag(document.querySelector('[data-shared-tag-reader]'));
+
+// B04: recorrido por perfil; nunca solicita GPS, NFC, cámara o permisos del dispositivo.
+import { initializeGuideTour } from './guide-tour.js';
+initializeGuideTour();
