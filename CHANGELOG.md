@@ -304,3 +304,10 @@ El apartado A04 siguiente conserva el registro previo; A04 ya fue integrado medi
 ### Pendiente
 CRUD académico, NFC autenticado, CSV, registro de asistencia, permisos, seguimiento, PDF y operación HTTPS.
 Hardware y biometría se mantienen como ampliación posterior.
+
+### B04 — Experiencia, tutorial y accesibilidad (Integrante 3, pendiente de integración)
+
+- Se agrega Ayuda y recorrido por perfil con estado/versión en PostgreSQL; las omisiones y finalizaciones son persistentes.
+- Se implementa diálogo con navegación por teclado, Escape, repetición y dispositivos pequeños, sin permisos NFC/GPS/cámara en el inicio.
+- Se reutiliza el icono de SmartAulaUES, se añade icono de Ayuda y tablas alternativas a gráficas estadísticas.
+- Se incluyen pruebas de permisos, persistencia, rutas y navegación JavaScript; pendiente de CI y verificación manual en móviles.

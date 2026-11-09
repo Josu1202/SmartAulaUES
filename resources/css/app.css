@@ -1589,3 +1589,55 @@ legend {
 .attendance-matrix-table .matrix-session-col { min-width: 125px; max-width: 180px; font-size: 0.875rem; text-align: center; white-space: normal; }
 .attendance-matrix-table .matrix-result { font-weight: 600; }
 @media (max-width: 390px) { .attendance-matrix-table .matrix-student-col { min-width: 140px; max-width: 170px; } }
+
+/* B04: Ayuda y tutorial de perfil. Los botones y el texto siguen siendo utilizables a 320 px. */
+.help-tour-dialog {
+    width: min(580px, calc(100vw - 24px));
+    max-width: 580px;
+    max-height: min(90vh, 90dvh);
+    margin: auto;
+    padding: 0;
+    border: 1px solid #aaa;
+    border-radius: 12px;
+    background: var(--tblr-bg-surface, #fff);
+    color: var(--tblr-body-color, #202020);
+    box-shadow: 0 14px 40px #0005;
+    overflow-y: auto;
+}
+.help-tour-dialog::backdrop { background: #000a; }
+.help-tour-shell { padding: 24px; }
+.help-tour-header { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+.help-tour-header h2 { margin: 0 0 9px; line-height: 1.3; }
+.help-tour-close { min-width: 44px; min-height: 44px; flex-shrink: 0; }
+.help-tour-counter { color: var(--smartaulaues-red); font-weight: 700; margin: 16px 0 9px; }
+.help-tour-step { min-height: 165px; }
+.help-tour-step h3 { margin: 8px 0; }
+.help-tour-step p { line-height: 1.6; overflow-wrap: anywhere; }
+.help-tour-icon .icon { width: 30px; height: 30px; color: var(--smartaulaues-red); }
+.help-tour-route-label, .help-tour-hint { font-size: 12px; color: var(--tblr-secondary-color, #666); line-height: 1.5; }
+.help-tour-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+.help-tour-actions .btn { min-height: 44px; white-space: normal; }
+.help-tour-actions form[hidden], .help-tour-actions button[hidden], .help-tour-step[hidden] { display: none !important; }
+.help-tour-hint { margin: 16px 0 0; }
+.help-step-list { padding-left: 26px; margin-bottom: 0; }
+.help-step-list li { padding: 0 0 20px 10px; }
+.help-step-list li:last-child { padding-bottom: 0; }
+.help-step-content h3 { display: flex; align-items: center; gap: 10px; }
+.help-step-content p { line-height: 1.6; overflow-wrap: anywhere; }
+/* B04: foco visible en todos los controles y desplazamiento de tablas en pantalla estrecha. */
+textarea:focus-visible, select:focus-visible, input:focus-visible, [tabindex="0"]:focus-visible {
+    outline: 3px solid #c91824;
+    outline-offset: 2px;
+}
+.table-responsive { max-width: 100%; overflow-x: auto; }
+@media (max-width: 390px) {
+    .help-tour-shell { padding: 16px; }
+    .help-tour-actions { gap: 8px; }
+    .help-tour-actions .btn { padding: 10px; }
+    .help-step-list { padding-left: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .help-tour-dialog, .help-tour-dialog *, .sidebar-link { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+.chart-data-details summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.chart-data-details summary:focus-visible { outline: 3px solid #c91824; outline-offset: 2px; }

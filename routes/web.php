@@ -17,6 +17,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DashboardTrackingCsvController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NotificationController;
@@ -77,6 +78,9 @@ Route::middleware(['auth', 'active', 'auth.session', 'password.changed'])->group
         Route::post('/reports/{reportVersion}/csv/generate', [ReportCsvController::class, 'generate'])->middleware('throttle:10,1')->name('reports.csv.generate');
         Route::get('/reports/{reportVersion}/csv/download', [ReportCsvController::class, 'download'])->name('reports.csv.download');
     });
+    Route::get('/help', [HelpController::class, 'index'])->name('help.index');
+    Route::post('/help/tour/skip', [HelpController::class, 'skip'])->middleware('throttle:12,1')->name('help.tour.skip');
+    Route::post('/help/tour/complete', [HelpController::class, 'complete'])->middleware('throttle:12,1')->name('help.tour.complete');
     Route::get('/profile', ProfileController::class)->name('profile');
     Route::put('/profile/password', [ProfileController::class, 'changePassword'])->middleware('throttle:6,1')->name('profile.password');
     Route::get('/offerings', [OfferingController::class, 'index'])->name('offerings.index');
