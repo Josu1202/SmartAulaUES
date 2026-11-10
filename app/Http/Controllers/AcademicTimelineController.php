@@ -9,6 +9,7 @@ use App\Models\Enrollment;
 use App\Models\Offering;
 use App\Models\User;
 use App\Queries\AttendanceSummary;
+use App\Queries\CalendarSessions;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -75,7 +76,7 @@ final class AcademicTimelineController extends Controller
         ]);
     }
 
-    public function calendar(Request $request): View
+    public function calendar(Request $request, CalendarSessions $calendarSessions): View
     {
         $actor = $request->user();
         $input = $request->validate([
@@ -101,25 +102,7 @@ final class AcademicTimelineController extends Controller
             ->when($input['offering_id'] ?? null, fn ($q, $id) => $q->where('offering_id', $id));
 
         if ($actor->role === Role::Student) {
-            $enrollments = Enrollment::visibleTo($actor)->get();
-            // Do not show sessions after a withdrawal, even for a still-visible group.
-            $sessions->where(function ($query) use ($enrollments, $tz): void {
-                foreach ($enrollments as $enrollment) {
-                    $activeFrom = CarbonImmutable::parse($enrollment->active_from->toDateString(), $tz)->startOfDay()->utc();
-                    $activeTo = $enrollment->active_to
-                        ? CarbonImmutable::parse($enrollment->active_to->toDateString(), $tz)->endOfDay()->utc()
-                        : null;
-                    $query->orWhere(function ($q) use ($enrollment, $activeFrom, $activeTo): void {
-                        $q->where('offering_id', $enrollment->offering_id)->where('starts_at', '>=', $activeFrom);
-                        if ($activeTo !== null) {
-                            $q->where('starts_at', '<=', $activeTo);
-                        }
-                    });
-                }
-                if ($enrollments->isEmpty()) {
-                    $query->whereRaw('1 = 0');
-                }
-            });
+            $calendarSessions->forStudent($sessions, $actor);
         }
 
         return view('academic.timeline.calendar', [

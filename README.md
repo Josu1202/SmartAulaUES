@@ -66,6 +66,21 @@ mantiene etiquetas en español, incluso con locale/fallback en inglés. CI prepa
 `.env.testing` desde el ejemplo para evitar advertencias de archivo ausente; no usa tus claves.
 No hay migraciones nuevas. Actualización y subida: [docs/update-v0.3.1.md](docs/update-v0.3.1.md).
 
+## B06 · Rendimiento académico y medición reproducible
+
+B06 optimiza la consulta del **calendario de estudiantes**: en vez de obtener todas las matrículas y
+construir una condición `OR` por cada inscripción, utiliza un `EXISTS` correlacionado en PostgreSQL,
+con las fechas de matrícula y retiro inclusivas en `America/El_Salvador`.
+Se incorporan índices incrementales para el calendario y los destinatarios de avisos de noticias
+se procesan mediante subconsultas y lotes, conservando Policies, privacidad e idempotencia.
+
+La comparación de consultas y tiempos p50/p95 se realiza **sin escrituras** mediante
+`php artisan b06:benchmark --student=ID --confirm-database=smartaulaues_local --iterations=9`,
+solo en BD local o de pruebas. No se declaran mejoras de producción sin ejecutar medidas en el
+entorno real. La caché compartida de información académica **no se habilita** por falta de
+invalidación transaccional de todas las escrituras de A; la decisión y protocolo están en
+[docs/B06_rendimiento_medicion.md](docs/B06_rendimiento_medicion.md).
+
 ## Fase 3 repartida entre integrantes 2 y 3
 
 El reparto F3 r1 sustituye la asignación antigua de toda fase 3 al miembro 3.
