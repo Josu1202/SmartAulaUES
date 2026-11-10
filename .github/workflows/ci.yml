@@ -48,6 +48,15 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
+      - name: B07 validate production Compose configuration (without starting services)
+        env:
+          DB_PASSWORD: ci-temporary-secret
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          PRODUCTION_APP_URL: https://example.test
+          PRODUCTION_DB_DATABASE: smartaulaues_ci_config
+        run: docker compose -f compose.production.yaml config --quiet
+      - name: B07 check backup and restore shell syntax
+        run: bash -n operations/backup.sh operations/restore.sh
       - run: php scripts/check-test-database.php
       - run: php artisan test --compact --display-warnings --fail-on-warning
       - run: php scripts/verify-a05-upgrade.php --env=testing

@@ -1,3 +1,15 @@
+## B07 · Integrante 3 · operación y continuidad (preparado para pruebas de Docker y aceptación)
+
+- Producción: cola PostgreSQL persistente y worker supervisado (`reports,default`),
+  con reintentos, timeout, reciclaje, healthcheck y recuperación tras reinicio.
+- Comando de estado de jobs/scheduler con umbrales, sin exponer payloads o secretos;
+  CI amplía las verificaciones de Compose de producción y scripts de respaldo.
+- Respaldo cifrado de pg_dump, almacenamiento privado y archivo secreto; restauración
+  limitada a DB/proyecto nuevos, checksums y sin sobreescribir producción.
+- Manual técnico, perfiles y matriz de aceptación final. Sin despliegue real ni
+  evidencia NFC/GPS/HTTPS definitiva ni restauración cronometrada todavía.
+- Sin migraciones nuevas ni cambios de contratos académicos del Integrante 2.
+
 ## B06 · Integrante 3 · rendimiento reproducible (pendiente de ejecutar en Docker/CI)
 
 - Calendario del estudiante: subconsulta `EXISTS` que evita cargar todas las matrículas y generar SQL proporcional a sus grupos; preserva zona académica y retiro inclusivo.

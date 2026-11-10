@@ -66,6 +66,21 @@ mantiene etiquetas en español, incluso con locale/fallback en inglés. CI prepa
 `.env.testing` desde el ejemplo para evitar advertencias de archivo ausente; no usa tus claves.
 No hay migraciones nuevas. Actualización y subida: [docs/update-v0.3.1.md](docs/update-v0.3.1.md).
 
+## B07 · Operación y entrega segura (pendiente de aceptación del hosting)
+
+B07 prepara el mismo SmartAulaUES para operar con **worker persistente y cola PostgreSQL**
+(`reports,default`), scheduler supervisado, alertas verificables con `b07:status`,
+prueba de configuración de producción en CI y respaldo cifrado + restauración aislada.
+Incluye manual técnico, manual de los tres perfiles y plan de pruebas de extremo a extremo.
+No introduce migraciones ni cambia políticas, cálculos, snapshots o accesos académicos.
+
+- [Operación, HTTPS, colas, backup y restauración](docs/B07_operacion_entrega.md).
+- [Manual de usuarios por perfil](docs/B07_manual_usuarios.md).
+- [Protocolo de aceptación final y registro de pruebas](docs/B07_aceptacion_final.md).
+
+**Pendiente:** dominio/certificado HTTPS real, prueba móvil NFC/GPS, restart del servidor,
+y restauración cronometrada en una instalación aislada. CI verde no es producción lista.
+
 ## B06 · Rendimiento académico y medición reproducible
 
 B06 optimiza la consulta del **calendario de estudiantes**: en vez de obtener todas las matrículas y
