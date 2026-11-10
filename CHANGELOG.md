@@ -1,3 +1,12 @@
+## B06 · Integrante 3 · rendimiento reproducible (pendiente de ejecutar en Docker/CI)
+
+- Calendario del estudiante: subconsulta `EXISTS` que evita cargar todas las matrículas y generar SQL proporcional a sus grupos; preserva zona académica y retiro inclusivo.
+- Nuevos índices de lectura para matrícula y sesiones, mediante migración incremental.
+- Jobs de noticias: destinatarios resueltos en PostgreSQL y procesados por lotes de 100 sin vector de IDs en memoria; se conserva `Gate`, la huella e inserción idempotente.
+- Comando local/de pruebas de solo lectura `b06:benchmark` con comparación de IDs autorizados, consultas y p50/p95; registra volumen de cola y entorno sin datos personales.
+- Pruebas de frontera de fecha, autorización, consultas constantes, seguridad del comando y lotes. Caché persistente académica diferida hasta disponer de invalidación de todos los escritores.
+- No se tocan fórmulas, snapshots, cierres ni bloqueos del Integrante 2; mediciones de Docker y CI aún pendientes.
+
 ## B03 · Integrante 3 · propuesta de integración (pendiente de pruebas Docker/CI)
 
 - Historial por ciclo, grupo y cómputo con resumen personal de A y paginación de sesiones.
