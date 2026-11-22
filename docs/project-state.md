@@ -1,6 +1,13 @@
 # Estado de continuidad · SmartAulaUES
 
-## Estado vigente: revisión local con arranque reproducible
+## Estado de la rama principal
+
+La rama `main` integra A01–A05 y B01–B07. El código declara la versión `0.3.2`.
+Consulta el [README](../README.md) para el alcance integrado y el
+[protocolo B07](B07_aceptacion_final.md) para los ensayos de aceptación.
+Las notas de continuidad de abajo registran el estado y las evidencias de cada etapa.
+
+## Registro histórico: revisión local con arranque reproducible
 
 La misma rama `feature/p3a-a05-integracion-final`, base `6273a307f3411a5e1ba40c427153cdf39e545a0e`,
 conserva 0.3.2 y los avances A01–A05 sin publicar. Web y scheduler normales en el proyecto

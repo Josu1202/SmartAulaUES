@@ -1,28 +1,16 @@
 # Operación de SmartAulaUES
 
-Guía vigente para los cambios locales de `feature/p3a-a05-integracion-final`, sobre
-`6273a307f3411a5e1ba40c427153cdf39e545a0e`. Versión 0.3.2 conservada. No se hizo commit,
-push, PR, merge ni despliegue remoto. Es la misma aplicación Laravel/Blade; el nombre del
-worktree y de la rama sirve para aislar cambios, no identifica una edición del producto.
+## 1. Entornos de trabajo
 
-## 1. Instalaciones que coexisten en esta máquina
+Ejecuta los comandos locales desde la raíz de tu copia del repositorio.
 
-Ejecutar las órdenes de desarrollo desde PowerShell en:
-
-```powershell
-Set-Location C:\Users\jozzz\Downloads\SmartAulaUES-A05
-```
-
-| Uso | Proyecto Compose | Dirección | Base efectiva dentro de Docker |
+| Uso | Proyecto Compose | Dirección predeterminada | Base predeterminada |
 | --- | --- | --- | --- |
-| Revisión actual, datos ficticios nuevos | `smartaulaues-local` | http://127.0.0.1:8085 | `db:5432/smartaulaues_local`; desde Windows `127.0.0.1:55433` |
-| Checkout habitual conservado | `siaa` | http://127.0.0.1:8080 | `db:5432/siaa`; desde Windows `127.0.0.1:55432` |
-| Suites desechables, sin servidor público | `smartaulaues-tests` | Sin puerto publicado | `db:5432/siaa_test`, otra red y otro volumen |
+| Desarrollo y revisión | `smartaulaues-local` | http://127.0.0.1:8085 | `db:5432/smartaulaues_local`; desde el host `127.0.0.1:55433` |
+| Suites desechables | `smartaulaues-tests` | Sin puerto publicado | `db:5432/siaa_test`, con red y volumen propios |
 
-Los antiguos auxiliares `siaa-a05` y `siaa-a05-scheduler` permanecen detenidos. No hay que
-iniciarlos: usaban otra configuración y no forman parte del arranque vigente. No se borraron
-la BD original, sus volúmenes ni las evidencias privadas anteriores. La aplicación habitual
-no recibió las migraciones de esta rama. No ejecutes comandos de reconstrucción desde ella.
+Conserva los volúmenes, archivos privados y ajustes de instalaciones previas. Confirma el
+proyecto Compose y la conexión efectiva antes de actualizar o reconstruir una base.
 
 Requisitos locales: Docker Desktop con motor Linux y Compose v2, Git y PowerShell. Las imágenes
 aportan PHP 8.4, Composer, PostgreSQL 17 y Node 24. No se necesita cambiar el PHP de Windows.
@@ -36,14 +24,13 @@ los puertos por sí solos no separan cookies de un mismo host. Así se puede alt
 ambas instalaciones sin sustituir su sesión de acceso.
 
 ```powershell
-Set-Location C:\Users\jozzz\Downloads\SmartAulaUES-A05
 docker compose up -d
 docker compose ps
 Invoke-RestMethod http://127.0.0.1:8085/health/ready
 docker compose exec -T scheduler php artisan attendance:scheduler-status
 ```
 
-Abre **http://127.0.0.1:8085/login**. El primer comando inicia BD, web y scheduler. El proceso web
+Abre **http://127.0.0.1:8085/login**. El primer comando inicia BD, web, scheduler y el worker de reportes. El proceso web
 es el CMD de la imagen; no requiere `docker exec ... artisan serve`. `restart: unless-stopped`
 recupera servicios que estaban activos al reiniciar Docker. Un servicio detenido intencionalmente
 con `stop` se inicia mediante `up -d`. La BD conserva su volumen. El scheduler tiene un único
@@ -69,10 +56,9 @@ solicitudes. No publiques `.env`, datos privados, cookies, backups ni capturas c
 
 ## 3. Primera instalación local o dependencias nuevas
 
-En esta máquina ya está completada. Para un checkout nuevo de esta misma configuración:
+Para preparar una copia local nueva:
 
 ```powershell
-Set-Location C:\Users\jozzz\Downloads\SmartAulaUES-A05
 docker build -t smartaulaues-development:local .
 docker run --rm -v "${PWD}:/var/www/html" smartaulaues-development:local php scripts/configure-local.php
 docker compose up -d --wait db
@@ -134,7 +120,7 @@ anterior, que permanece conservada.
 ```powershell
 docker compose stop
 docker compose start
-docker compose restart app scheduler
+docker compose restart app scheduler worker
 docker compose ps
 ```
 
@@ -144,8 +130,8 @@ volúmenes, aunque recrea contenedores. No usar `down -v`, `volume prune` ni eli
 Después de una actualización autorizada del código, con respaldo si quieres conservar los datos:
 
 ```powershell
-docker compose stop scheduler
-docker compose build app scheduler
+docker compose stop scheduler worker app
+docker compose build app scheduler worker
 docker compose run --rm --no-deps app composer install --no-interaction --prefer-dist
 docker compose run --rm node npm ci
 docker compose run --rm node npm run build
@@ -156,8 +142,7 @@ Invoke-RestMethod http://127.0.0.1:8085/health/ready
 docker compose exec -T scheduler php artisan attendance:scheduler-status
 ```
 
-Estas órdenes no obtienen ni integran cambios Git. Esta entrega no ejecutó commit, push, PR o merge.
-La versión 0.3.2 sigue vigente; la integración/release se decide por separado.
+Ejecuta estos pasos desde la revisión de Git que quieras instalar.
 
 ## 6. Reconstruir exclusivamente la base local desechable
 
@@ -167,8 +152,7 @@ reconocido, nombre configurado y servidor/base efectivos de lectura y escritura 
 Sin la opción explícita no modifica tablas. No elimina volúmenes ni otras bases.
 
 ```powershell
-Set-Location C:\Users\jozzz\Downloads\SmartAulaUES-A05
-docker compose stop scheduler app
+docker compose stop scheduler worker app
 docker compose run --rm --no-deps app php artisan local:rebuild
 # La orden anterior debe terminar indicando que no borró nada y mostrando el destino verificado.
 docker compose run --rm --no-deps app php artisan local:rebuild --confirm-database=smartaulaues_local
@@ -234,7 +218,7 @@ docker compose logs --tail 80 tunnel
 $env:SMARTAULAUES_MOBILE_URL = "https://URL-REAL-DE-LOS-LOGS.trycloudflare.com"
 docker compose -f compose.yaml -f compose.mobile.yaml --profile mobile up -d --force-recreate app scheduler tunnel
 docker compose -f compose.yaml -f compose.mobile.yaml exec -T app php artisan optimize:clear
-docker compose -f compose.yaml -f compose.mobile.yaml restart app scheduler
+docker compose -f compose.yaml -f compose.mobile.yaml restart app scheduler worker
 ```
 
 El comodín de confianza del override solo corresponde a este túnel local, con web publicada
@@ -328,71 +312,10 @@ un indicador académico bloqueado necesita intervención humana, no borrado de r
 
 ## 10. Respaldo, restauración y actualización del servidor
 
-Ejemplo Linux, desde la instalación de producción, usando el archivo privado anterior. Definir
-`BACKUP_DIR` en una ruta privada del servidor con espacio y permisos para el operador.
+Sigue el [procedimiento de B07](B07_operacion_entrega.md) para la actualización del servidor,
+el respaldo cifrado y el ensayo de restauración en una instalación vacía y aislada.
 
-```sh
-cd /srv/smartaulaues
-BACKUP_DIR=/srv/backups/smartaulaues
-install -d -m 700 "$BACKUP_DIR"
-docker compose --env-file /srv/smartaulaues-production.env -f compose.production.yaml stop scheduler app
-docker compose --env-file /srv/smartaulaues-production.env -f compose.production.yaml exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > "$BACKUP_DIR/database.dump"
-docker compose --env-file /srv/smartaulaues-production.env -f compose.production.yaml run --rm --no-deps --entrypoint tar app -C /var/www/html/storage/app -czf - . > "$BACKUP_DIR/private-files.tar.gz"
-chmod 600 "$BACKUP_DIR/database.dump" "$BACKUP_DIR/private-files.tar.gz"
-docker compose --env-file /srv/smartaulaues-production.env -f compose.production.yaml start app scheduler
-```
-
-Conservar además el archivo de entorno/APP_KEY en almacenamiento protegido y una copia externa
-cifrada. Verificar códigos de salida y tamaños; programar retención. La pausa evita desfase entre
-BD y evidencias. Los nombres del ejemplo deben versionarse por fecha en el procedimiento real.
-
-Para restaurar, ensayar primero en **otra instalación verificada**, con el mismo código y APP_KEY.
-Las siguientes órdenes sustituyen datos de la instalación de destino: detener web/scheduler,
-confirmar host/base efectivos y respaldo antes de ejecutarlas. No aplicarlas al entorno del usuario
-por rutina ni eliminar volúmenes. La BD de destino debe existir y no tener otras conexiones activas.
-
-```sh
-docker compose --env-file /srv/smartaulaues-production.env -f compose.production.yaml stop scheduler app
-docker compose --env-file /srv/smartaulaues-production.env -f compose.production.yaml exec -T db sh -c 'pg_restore --clean --if-exists --no-owner -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < "$BACKUP_DIR/database.dump"
-docker compose --env-file /srv/smartaulaues-production.env -f compose.production.yaml run --rm --no-deps --entrypoint tar app -C /var/www/html/storage/app -xzf - < "$BACKUP_DIR/private-files.tar.gz"
-docker compose --env-file /srv/smartaulaues-production.env -f compose.production.yaml up -d
-```
-
-Verificar permisos `www-data` de los archivos restaurados, salud, acceso por rol, evidencias y
-resultados cerrados antes de aceptar la recuperación. La restauración del hosting real sigue
-pendiente; no se declara probada por tener estas órdenes preparadas.
-
-Actualizar servidor: respaldo coherente; detener app/scheduler; disponer del código revisado;
-construir imagen; `run --rm --no-deps app php artisan migrate --force`; `up -d --force-recreate`;
-comprobar HTTP/rol/worker/privacidad. Mantener APP_KEY, BD y archivos. No ejecutar `migrate:fresh`,
-seeders o rollback que elimine historia. Una imagen anterior puede requerir un esquema anterior:
-planificar recuperación compatible, no asumir que cambiar la etiqueta de imagen revierte datos.
-
-## 11. Regreso a la carpeta habitual después de integrar la rama
-
-**No realizar ahora:** ambos worktrees tienen cambios que deben conservarse. Esta entrega no
-integra Git ni mueve carpetas. Después de una integración revisada y autorizada:
-
-1. Conservar el cambio previo `.env.example`, Microsoft/ y toda evidencia privada fuera de Git.
-   El inventario de esta entrega identifica los archivos de código/documentación para el commit.
-2. Confirmar que los cambios están integrados y que cada worktree está limpio de cambios pendientes.
-   `git worktree list` y `git status --short` en ambas carpetas; no usar reset/clean para lograrlo.
-3. En la carpeta habitual, cambiar/actualizar a la rama ya integrada mediante el flujo Git acordado.
-   No copiar carpetas enteras desde el worktree ni reemplazar su `.env`/APP_KEY.
-4. Detener el Compose nuevo **desde el worktree**: `docker compose stop`. Preservar su volumen
-   `smartaulaues-local_database`, su archivo cifrado y evidencia. Detener la web original únicamente
-   cuando se decida sustituirla; no destruir su BD `siaa`.
-5. Ejecutar los comandos de instalación/actualización de esta guía desde
-   `C:\Users\jozzz\Downloads\SmartAulaUES`. El mismo proyecto Compose `smartaulaues-local` puede
-   recrearse desde allí con `up -d --force-recreate`; apuntará al código de la carpeta habitual y
-   conservará los volúmenes. Verificar `docker inspect`/salud antes de abrir la aplicación.
-6. Para conservar las cuentas locales cifradas, trasladar **solo** los archivos privados necesarios
-   y APP_KEY correspondiente mediante un respaldo controlado, sin sobrescribir el entorno habitual.
-   Si se desea comenzar con datos ficticios nuevos, usar la reconstrucción explícita de la sección 6.
-7. Retirar el worktree únicamente después de preservar evidencias y confirmar que no quedan cambios
-   ni archivos privados pendientes. No se ejecutó `git worktree remove` en esta entrega.
-
-## 12. Evidencia y aceptaciones externas
+## 11. Evidencia y aceptaciones externas
 
 Los resultados nuevos, mediciones comparables y reinicios realmente ejecutados están en
 [operacion-verificacion.md](operacion-verificacion.md). Los informes A05 anteriores se conservan
@@ -400,8 +323,7 @@ como evidencia de aquella revisión, no como instrucciones de arranque vigentes.
 
 La configuración local no es una afirmación de capacidad productiva. La imagen Apache se verifica
 localmente por separado; dominio/TLS/proxy final, SMTP, copias/restauración externas, disponibilidad
-del hosting y NFC/GPS físicos requieren aceptación en sus destinos reales. PDF/CSV de resultados,
-ranking y noticias mantienen el alcance de Persona 3; no se presentan como funciones completadas.
+del hosting y NFC/GPS físicos requieren aceptación en sus destinos reales. Consulta el [protocolo B07](B07_aceptacion_final.md).
 
 Referencias de operación: [despliegue Laravel 13](https://laravel.com/docs/13.x/deployment),
 [configuración OPcache](https://www.php.net/manual/en/opcache.configuration.php) e

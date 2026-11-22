@@ -18,7 +18,7 @@ class ModuleController extends Controller
             return to_route('news.index');
         }
         if ($module === 'reports') {
-            return to_route('offerings.index')->with('status', 'Selecciona un grupo para consultar resultados e historial de cierres. La exportación PDF aún no está disponible.');
+            return to_route('reports.index');
         }
 
         return view('modules.pending', compact('module', 'definition'));
