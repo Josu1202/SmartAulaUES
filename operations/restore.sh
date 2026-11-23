@@ -41,7 +41,7 @@ age -d -i "$IDENTITY" "$BACKUP_DIR/production-secrets.env.age" > /dev/null
 # The destination environment must already have the matching APP_KEY from the
 # separately authorized secret recovery process. No secrets are printed.
 age -d -i "$IDENTITY" "$BACKUP_DIR/database.dump.age" \
-  | "${COMPOSE[@]}" exec -T db sh -c 'exec pg_restore --no-owner --no-acl -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+  | "${COMPOSE[@]}" exec -T db sh -c 'exec pg_restore --single-transaction --exit-on-error --no-owner --no-acl -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 age -d -i "$IDENTITY" "$BACKUP_DIR/private-files.tar.gz.age" \
   | "${COMPOSE[@]}" run -T --rm --no-deps --entrypoint tar app -C /var/www/html/storage -xzf -
 printf 'B07: datos y archivos restaurados en proyecto aislado %s.\n' "$PROJECT"

@@ -1,0 +1,14 @@
+smartaulaues-tu-equipo.duckdns.org {
+	@maintenance file {
+		root /var/lib/smartaulaues
+		try_files /maintenance
+	}
+	handle @maintenance {
+		header X-SmartAulaUES-Maintenance "1"
+		header Cache-Control "no-store"
+		respond "SmartAulaUES está en mantenimiento." 503
+	}
+	handle {
+		reverse_proxy 127.0.0.1:8086
+	}
+}

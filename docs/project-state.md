@@ -1,5 +1,11 @@
 # Estado de continuidad · SmartAulaUES
 
+## Preparación del despliegue público
+
+La rama de despliegue parte de `11df0c0`, que integra la terminal física en `main`.
+La [guía de despliegue gratuito](deploy-gratuito.md) documenta el procedimiento, las
+comprobaciones y la evidencia pendiente para una instalación nueva.
+
 ## Ampliación local de terminal física
 
 La rama `feature/terminal-fisica-nfc-qr` parte de las correcciones de documentación y reportes.

@@ -18,6 +18,7 @@ La rama `main` integra A01–A05 y B01–B07. El código declara la versión `0.
 - [Instalación y operación local](docs/operacion-local-y-produccion.md). La URL local predeterminada es **http://127.0.0.1:8085/login**.
 - [Cuentas ficticias y recorridos locales](docs/escenarios-y-cuentas-locales.md) y [manual por perfil](docs/B07_manual_usuarios.md).
 - [Operación de producción, worker y restauración](docs/B07_operacion_entrega.md).
+- [Despliegue público gratuito con OCI, Compose y Caddy](docs/deploy-gratuito.md).
 - [GitHub Actions](https://github.com/Josu1202/SmartAulaUES/actions) y [protocolo de aceptación](docs/B07_aceptacion_final.md).
 
 El protocolo de aceptación incluye el ensayo NFC/GPS con teléfonos reales bajo HTTPS,
