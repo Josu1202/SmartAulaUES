@@ -169,6 +169,9 @@ preservar una exploración, respáldala antes. El procedimiento es deliberadamen
 
 La aplicación de revisión permanece en su base local mientras estas órdenes usan otro proyecto,
 sin web pública ni scheduler. No ejecutar dos suites simultáneas sobre `siaa_test`.
+Prepara `.env.testing` desde `.env.testing.example` si aún falta y configura allí una
+`APP_KEY` exclusiva de pruebas para sesiones y entregas cifradas. Conserva la clave de tu
+instalación habitual en su propio archivo.
 
 ```powershell
 docker compose -f compose.testing.yaml up -d
@@ -182,6 +185,7 @@ docker compose -f compose.testing.yaml exec -T tests php tests/Concurrency/atten
 docker compose -f compose.testing.yaml exec -T tests php tests/Concurrency/academic-closures.php --env=testing
 docker compose -f compose.testing.yaml exec -T tests php tests/Concurrency/offering-management.php --env=testing
 docker compose -f compose.testing.yaml exec -T tests php tests/Concurrency/a05-integration.php --env=testing
+docker compose -f compose.testing.yaml exec -T tests php tests/Concurrency/physical-terminal.php --env=testing
 docker compose run --rm node npm test
 docker compose -f compose.testing.yaml stop
 ```

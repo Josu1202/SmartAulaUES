@@ -24,6 +24,16 @@ class RegisterAttendance
 
     public function record(User $actor, ClassSession $session, string $method, array $data): array
     {
+        return $this->register($actor, $session, $method, $data);
+    }
+
+    public function recordFromTerminal(User $actor, ClassSession $session, array $data, TerminalRegistration $terminal): array
+    {
+        return $this->register($actor, $session, $terminal->challengeId === null ? 'nfc' : 'qr', $data, $terminal);
+    }
+
+    private function register(User $actor, ClassSession $session, string $method, array $data, ?TerminalRegistration $terminal = null): array
+    {
         // PostgreSQL UUIDs and integer IDs have a canonical identity across JSON and HTML inputs.
         $data['event_id'] = strtolower($data['event_id']);
         foreach (['student_id', 'portal_id'] as $field) {
@@ -46,9 +56,12 @@ class RegisterAttendance
             // Hash only; serialize also safely fingerprints malformed/nonfinite direct action inputs.
             $payload['location'] = hash('sha256', serialize($location));
         }
+        if ($terminal !== null) {
+            $payload['terminal'] = [$terminal->assignmentId, $terminal->challengeId, $terminal->tokenHash];
+        }
         $hash = hash('sha256', json_encode($payload, JSON_THROW_ON_ERROR));
 
-        return DB::transaction(function () use ($actor, $session, $method, $data, $hash): array {
+        return DB::transaction(function () use ($actor, $session, $method, $data, $hash, $terminal): array {
             // Global event lock precedes the parent locks, including calls targeting different cycles.
             DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', [$data['event_id']]);
             $session = ClassSession::with('offering')->findOrFail($session->id);
@@ -74,6 +87,9 @@ class RegisterAttendance
             $attendance = null;
             $geoValidation = null;
             try {
+                if ($terminal !== null) {
+                    ($terminal->validate)();
+                }
                 if ($session->state !== SessionState::InProgress || $session->starts_at > now() || $session->ends_at <= now()) {
                     $this->reject('La sesión ya no admite registros.', 409);
                 }
@@ -98,7 +114,7 @@ class RegisterAttendance
                 } else {
                     $portal = AttendancePortal::lockForUpdate()->findOrFail($data['portal_id']);
                     $student = User::lockForUpdate()->findOrFail(in_array($method, ['qr', 'link', 'nfc_tag']) ? $actor->id : $data['student_id']);
-                    if (in_array($method, ['qr', 'link', 'nfc_tag']) && ! hash_equals($portal->token_hash, hash('sha256', $data['portal_token']))) {
+                    if ($terminal === null && in_array($method, ['qr', 'link', 'nfc_tag']) && ! hash_equals($portal->token_hash, hash('sha256', $data['portal_token']))) {
                         $this->reject('El enlace no es válido.');
                     }
                 }
@@ -138,6 +154,13 @@ class RegisterAttendance
             AttendanceEvent::create(['event_id' => $data['event_id'], 'actor_id' => $actor->id, 'session_id' => $session->id,
                 'reader_session_id' => $reader?->id, 'credential_id' => $credential?->id, 'request_hash' => $hash, 'outcome' => $result['body']['status'],
                 'received_at' => now(), 'attendance_id' => $attendance?->id, 'response' => $result['body'], 'http_status' => $result['http'], 'geo_validation' => $result['http'] < 300 ? $geoValidation : null]);
+
+            if ($terminal !== null) {
+                DB::table('terminal_attendance_events')->insert([
+                    'event_id' => $data['event_id'], 'assignment_id' => $terminal->assignmentId,
+                    'challenge_id' => $terminal->challengeId,
+                ]);
+            }
 
             return $result;
         });

@@ -22,18 +22,30 @@ use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferingController;
+use App\Http\Controllers\PhysicalTerminalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\ReportCsvController;
 use App\Http\Controllers\ReportPdfController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TerminalController;
+use App\Http\Controllers\TerminalQrController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
 Route::get('/health/ready', ReadinessController::class)->name('health.ready');
 Route::get('/check-in/{portal}', [CheckInController::class, 'show'])->name('checkin.show');
 Route::middleware(['auth', 'active', 'auth.session', 'password.changed'])->group(function (): void {
+    Route::prefix('student/terminal-qr')->name('terminal.qr.')->middleware('role:student')->group(function (): void {
+        Route::view('/', 'terminal.scan')->name('show');
+        Route::post('/resolve', [TerminalQrController::class, 'resolve'])->middleware('throttle:20,1')->name('resolve');
+        Route::post('/check-in', [TerminalQrController::class, 'store'])->middleware('throttle:30,1')->name('store');
+    });
+    Route::prefix('sessions/{session}/physical-terminal')->name('sessions.physical-terminal.')->middleware('role:coordinator,teacher')->group(function (): void {
+        Route::get('/', [PhysicalTerminalController::class, 'assignment'])->name('show');
+        Route::post('/', [PhysicalTerminalController::class, 'assign'])->middleware('throttle:20,1')->name('assign');
+        Route::delete('/{assignment}', [PhysicalTerminalController::class, 'release'])->whereUuid('assignment')->name('release');
+    });
     Route::view('/student/shared-tag', 'attendance.shared-tag')->middleware('role:student')->name('student.shared-tag');
     Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
     Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
@@ -91,6 +103,17 @@ Route::middleware(['auth', 'active', 'auth.session', 'password.changed'])->group
     Route::redirect('/modules/credentials', '/admin/nfc-credentials')->middleware('role:coordinator');
     Route::get('/modules/{module}', ModuleController::class)->name('modules.show');
     Route::prefix('admin')->name('admin.')->middleware('role:coordinator')->group(function (): void {
+        Route::prefix('physical-terminals')->name('physical-terminals.')->group(function (): void {
+            Route::get('/', [PhysicalTerminalController::class, 'index'])->name('index');
+            Route::post('/', [PhysicalTerminalController::class, 'provision'])->middleware('throttle:10,1')->name('create');
+            Route::post('/{terminal}/rotate', [PhysicalTerminalController::class, 'provision'])->whereUuid('terminal')->middleware('throttle:10,1')->name('rotate');
+            Route::post('/{terminal}/disable', [PhysicalTerminalController::class, 'disable'])->whereUuid('terminal')->name('disable');
+        });
+        Route::prefix('nfc-credentials/terminal-jobs')->name('terminal-jobs.')->group(function (): void {
+            Route::get('/', [PhysicalTerminalController::class, 'jobs'])->name('index');
+            Route::post('/', [PhysicalTerminalController::class, 'issue'])->middleware('throttle:20,1')->name('issue');
+            Route::delete('/{command}', [PhysicalTerminalController::class, 'cancel'])->whereUuid('command')->name('cancel');
+        });
         Route::post('/offerings/{offering}/state/{operation}', [AdminOfferingController::class, 'state'])->whereIn('operation', ['deactivate', 'reactivate', 'expire-resources'])->name('offerings.state');
         Route::delete('/offerings/{offering}', [AdminOfferingController::class, 'destroy'])->name('offerings.destroy');
         Route::post('/periods/{period}/close', [AcademicClosureController::class, 'closePeriod'])->name('periods.close');

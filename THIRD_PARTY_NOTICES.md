@@ -12,3 +12,8 @@ Las dependencias mantienen sus propias licencias.
 
 La procedencia del ZIP, su SHA-256 y el commit inicial del skeleton están en docs/reference/provenance.json.
 Los recursos compilados de public/build derivan de estas fuentes y del diseño propio SmartAulaUES.
+## jsQR 1.4.0
+
+El lector web de terminal usa jsQR para decodificar QR en el navegador.
+Proyecto de Cosmo Wolfe y colaboradores, distribuido bajo Apache-2.0.
+[Proyecto](https://github.com/cozmo/jsQR) · [Licencia](docs/licenses/jsqr-Apache-2.0.txt).

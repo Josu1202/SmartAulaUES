@@ -1,3 +1,9 @@
+## Terminal física NFC y QR · ampliación local
+
+- Dispositivo con credencial revocable, asignación a un portal y grabación NFC con relectura.
+- NFC físico y QR corto usan el registrador común. El QR de proyección conserva su enlace.
+- Escáner web con cámara localizada, API v1 y simulador. El ensayo en ESP32/PN532/OLED sigue pendiente.
+
 ## B07 · Integrante 3 · operación y continuidad (preparado para pruebas de Docker y aceptación)
 
 - Producción: cola PostgreSQL persistente y worker supervisado (`reports,default`),

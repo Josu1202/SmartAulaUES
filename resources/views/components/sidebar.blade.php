@@ -29,6 +29,12 @@
         <a href="{{ route('requests.index') }}" class="sidebar-link {{ request()->routeIs('requests.*') ? 'active' : '' }}"><x-icon name="file" />Permisos</a>
         <a href="{{ route('notifications.index') }}" class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"><x-icon name="bell" />Avisos <span class="badge-soft ms-auto">{{ auth()->user()->unreadNotifications()->count() }}</span></a>
         @if($role === 'coordinator')<a href="{{ route('admin.credentials.index') }}" class="sidebar-link {{ request()->routeIs('admin.credentials.*') ? 'active' : '' }}"><x-icon name="nfc" />Credenciales NFC</a>@endif
+        @if ($role === 'coordinator')
+            <a class="sidebar-link" href="{{ route('admin.physical-terminals.index') }}"><x-icon name="nfc" />Terminales físicas</a>
+        @endif
+        @if ($role === 'student')
+            <a class="sidebar-link" href="{{ route('terminal.qr.show') }}"><x-icon name="checklist" />Escanear QR de terminal</a>
+        @endif
         @if (in_array($role, config('modules.reports.roles'), true))
             <a href="{{ route('reports.index') }}" class="sidebar-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"
                 @if (request()->routeIs('reports.index')) aria-current="page" @endif><x-icon name="chart" />{{ config('modules.reports.title') }}</a>

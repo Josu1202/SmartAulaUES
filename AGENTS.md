@@ -1,5 +1,15 @@
 # Entorno de trabajo SmartAulaUES
 
+## Ampliación local de terminal física
+
+Rama `feature/terminal-fisica-nfc-qr` sobre `871d69d`, con A01–A05, B01–B07 y la
+corrección de navegación de reportes como base. Leer `docs/terminal-fisica.md`.
+Conservar el QR proyectado y los contratos móviles. El QR compacto usa la ruta autenticada
+del estudiante y A02. El canal ESP32 usa HTTPS, dispositivo y asignación revocables,
+relectura NDEF y el registrador compartido. Aplicar la migración solo en un entorno
+autorizado y verificar exclusivamente en `testing/siaa_test`. Conservar versión 0.3.2.
+La referencia del firmware queda en el contrato y simulador hasta identificar módulos físicos.
+
 ## Continuidad prioritaria: operación normalizada y datos neutrales
 
 24/10 (evidencias UTC 25/10): misma rama/worktree/base A05 y versión 0.3.2; sin commit/push/PR/merge.

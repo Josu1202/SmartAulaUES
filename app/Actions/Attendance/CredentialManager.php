@@ -73,6 +73,18 @@ class CredentialManager
         });
     }
 
+    public function revokePending(User $actor, NfcCredential $credential, string $reason): void
+    {
+        Gate::forUser($actor)->authorize('update', $credential);
+        DB::transaction(function () use ($actor, $credential, $reason): void {
+            User::lockForUpdate()->findOrFail($credential->user_id);
+            $credential = NfcCredential::lockForUpdate()->findOrFail($credential->id);
+            if ($credential->state === 'pending') {
+                $this->revoke($actor, $credential, $reason);
+            }
+        });
+    }
+
     private function fail(string $field, string $message): never
     {
         throw ValidationException::withMessages([$field => $message]);

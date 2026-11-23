@@ -14,8 +14,9 @@ class SecurityHeaders
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $geolocation = $request->routeIs('sessions.show', 'checkin.show') ? '(self)' : '()';
-        $response->headers->set('Permissions-Policy', 'nfc=(self), camera=(), microphone=(), geolocation='.$geolocation);
+        $camera = $request->routeIs('terminal.qr.show') ? '(self)' : '()';
+        $geolocation = $request->routeIs('sessions.show', 'checkin.show', 'terminal.qr.show') ? '(self)' : '()';
+        $response->headers->set('Permissions-Policy', 'nfc=(self), camera='.$camera.', microphone=(), geolocation='.$geolocation);
         $response->headers->set('Cache-Control', 'no-store, private');
 
         return $response;

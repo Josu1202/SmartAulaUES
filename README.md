@@ -27,6 +27,7 @@ se conserva en [CHANGELOG.md](CHANGELOG.md).
 ## Referencias técnicas
 
 - [Contrato NFC](docs/nfc-contract.md) y [medición de ubicación](docs/a02-location-measurement.md).
+- [Terminal física NFC y QR](docs/terminal-fisica.md), con API, simulador y protocolo de ensayo físico.
 - [Cálculo de asistencia](docs/attendance-calculation-contract.md) y [cierre y reapertura](docs/a03-closures.md).
 - [Formatos CSV](docs/csv-imports.md), [modelo de datos](docs/database.md) y [guía de desarrollo](docs/reference/Guia_de_desarrollo_SIAA_v2.pdf).
 - [Pruebas y evidencia operativa](docs/operacion-verificacion.md), [versionado](docs/versioning.md) y [avisos de terceros](THIRD_PARTY_NOTICES.md).
