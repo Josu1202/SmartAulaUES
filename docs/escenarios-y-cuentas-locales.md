@@ -1,13 +1,13 @@
 # Cuentas y recorridos locales
 
-SmartAulaUES se abre en **http://127.0.0.1:8085/login**, desde el worktree actual. Son datos
+SmartAulaUES se abre en **http://127.0.0.1:8085/login**, con el entorno local iniciado. Son datos
 ficticios; todos los correos utilizan el dominio reservado `example.test`. No son cuentas del
 hosting ni una edición distinta de la aplicación. El nombre técnico `ExplorationSeeder` solo
 aparece en herramientas y documentación.
 
 ## Contraseña y preparación
 
-Desde PowerShell en `C:\Users\jozzz\Downloads\SmartAulaUES-A05`:
+Desde PowerShell en la raíz del repositorio, ejecuta el siguiente comando.
 
 ```powershell
 docker compose exec -T app php artisan local:access

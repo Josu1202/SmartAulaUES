@@ -13,9 +13,10 @@ use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
-    ->withRouting(web: __DIR__.'/../routes/web.php', commands: __DIR__.'/../routes/console.php', health: '/up')
+    ->withRouting(web: __DIR__.'/../routes/web.php', api: __DIR__.'/../routes/api.php', commands: __DIR__.'/../routes/console.php', health: '/up')
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->replace(TrustProxies::class, TrustDeploymentProxies::class);
+        $middleware->trimStrings(except: ['short_token', 'readback', fn (Request $request) => $request->is('api/v1/terminal/*')]);
         $middleware->alias(['active' => EnsureUserIsActive::class, 'role' => EnsureRole::class, 'password.changed' => RequirePasswordChange::class]);
         $middleware->web(append: [SecurityHeaders::class]);
     })
@@ -23,5 +24,5 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(fn (Request $request) => $request->is('api/*') || $request->expectsJson());
         $exceptions->render(fn (Throwable $exception, Request $request) => HttpErrors::render($exception, $request));
         $exceptions->report(fn (Throwable $exception) => HttpErrors::report($exception));
-        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'initial_password', 'initial_password_confirmation', 'credential_token', 'portal_token', 'evidence', 'location']);
+        $exceptions->dontFlash(['current_password', 'password', 'password_confirmation', 'initial_password', 'initial_password_confirmation', 'credential_token', 'portal_token', 'evidence', 'location', 'short_token', 'readback', 'secret', 'delivery']);
     })->create();

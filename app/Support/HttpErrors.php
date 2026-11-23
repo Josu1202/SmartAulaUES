@@ -17,7 +17,9 @@ final class HttpErrors
     {
         $json = $request->is('api/*') || $request->expectsJson();
         if ($exception instanceof ValidationException) {
-            return $json ? response()->json(['message' => 'Revisa los datos indicados.', 'errors' => $exception->errors()], $exception->status) : null;
+            $headers = $request->routeIs('terminal.*') ? ['Cache-Control' => 'no-store'] : [];
+
+            return $json ? response()->json(['message' => 'Revisa los datos indicados.', 'errors' => $exception->errors()], $exception->status, $headers) : null;
         }
         if ($exception instanceof AuthenticationException) {
             return $json ? response()->json(['message' => 'Tu sesión terminó. Inicia sesión nuevamente.'], 401) : redirect()->guest(route('login'));
@@ -31,7 +33,7 @@ final class HttpErrors
         }
         $message = match ($status) {
             400 => 'No pudimos interpretar la solicitud. Revisa los datos e intenta nuevamente.',
-            401 => 'Tu sesión terminó. Inicia sesión nuevamente.',
+            401 => $request->is('api/v1/terminal/*') ? 'La credencial de la terminal es inválida o fue revocada.' : 'Tu sesión terminó. Inicia sesión nuevamente.',
             403 => 'Tu cuenta no tiene permiso para esta acción.',
             404 => 'No encontramos esta página o el registro ya no está disponible.',
             405 => 'Esta acción no está disponible desde esta página.',

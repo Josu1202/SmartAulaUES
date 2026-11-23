@@ -1,5 +1,9 @@
 # Contrato operativo NFC y asistencia · v0.3.0
 
+La ampliación de [terminal física](terminal-fisica.md) utiliza esta misma credencial NDEF
+en el PN532 y añade un QR corto para la OLED. El QR de proyección conserva la URL y
+el flujo originales. Consulta la guía de terminal para distinguir ambos canales.
+
 **Extensión A05 sobre 0.3.2:** emisión secuencial por año/Egresado y selección explícita;
 un token preparado por turno. Confirmar activa/token exacto es idempotente; revocada no se
 reactiva. El método `nfc_tag` es acceso declarado por etiqueta compartida para el estudiante,

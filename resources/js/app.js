@@ -3,6 +3,11 @@ import "../css/app.css";
 import Dropdown from "bootstrap/js/dist/dropdown";
 import { initializeNfcDiagnostic } from "./nfc-reader";
 
+const terminalScanner = document.querySelector("[data-terminal-scan]");
+if (terminalScanner) {
+    import("./terminal-qr").then(({ initializeTerminalQr }) => initializeTerminalQr(terminalScanner));
+}
+
 for (const element of document.querySelectorAll('[data-bs-toggle="dropdown"]'))
     Dropdown.getOrCreateInstance(element);
 const menuToggle = document.querySelector("[data-menu-toggle]");

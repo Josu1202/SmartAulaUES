@@ -1,6 +1,20 @@
 # Estado de continuidad · SmartAulaUES
 
-## Estado vigente: revisión local con arranque reproducible
+## Ampliación local de terminal física
+
+La rama `feature/terminal-fisica-nfc-qr` parte de las correcciones de documentación y reportes.
+Integra API, gestión y asignación temporal, grabación NFC con relectura y QR corto en el
+lector del estudiante. Conserva el QR proyectado. La versión sigue en 0.3.2.
+El [contrato y simulador](terminal-fisica.md) preparan el ensayo de hardware.
+
+## Estado de la rama principal
+
+La rama `main` integra A01–A05 y B01–B07. El código declara la versión `0.3.2`.
+Consulta el [README](../README.md) para el alcance integrado y el
+[protocolo B07](B07_aceptacion_final.md) para los ensayos de aceptación.
+Las notas de continuidad de abajo registran el estado y las evidencias de cada etapa.
+
+## Registro histórico: revisión local con arranque reproducible
 
 La misma rama `feature/p3a-a05-integracion-final`, base `6273a307f3411a5e1ba40c427153cdf39e545a0e`,
 conserva 0.3.2 y los avances A01–A05 sin publicar. Web y scheduler normales en el proyecto

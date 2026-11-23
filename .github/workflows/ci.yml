@@ -65,3 +65,4 @@ jobs:
       - run: php tests/Concurrency/academic-closures.php --env=testing
       - run: php tests/Concurrency/offering-management.php --env=testing
       - run: php tests/Concurrency/a05-integration.php --env=testing
+      - run: php tests/Concurrency/physical-terminal.php --env=testing
