@@ -8,8 +8,13 @@ node_modules
 storage/logs/*
 storage/framework/cache/*
 storage/framework/views/*
+storage/framework/sessions/*
 storage/app/*
+storage/*.key
 Microsoft
+backup
+dist
+RELEASE.json
 public/build
 .phpunit.result.cache
 bootstrap/cache/*
